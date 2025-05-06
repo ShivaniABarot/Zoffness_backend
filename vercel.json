@@ -2,7 +2,7 @@
     "version": 2,
     "buildCommand": "chmod +x vercel-build.sh && ./vercel-build.sh",
     "functions": {
-      "api/index.php": {
+      "public/index.php": {
         "runtime": "vercel-php@0.6.0"
       }
     },
@@ -13,7 +13,7 @@
       },
       {
         "src": "/(.*)",
-        "dest": "/api/index.php"
+        "dest": "/public/index.php"
       }
     ],
     "env": {
