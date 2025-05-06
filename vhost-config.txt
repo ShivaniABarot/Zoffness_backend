@@ -1,0 +1,8 @@
+<VirtualHost *:80>
+    ServerName zoffness.local
+    DocumentRoot "C:/xampp/htdocs/zoffness_backend/public"
+    <Directory "C:/xampp/htdocs/zoffness_backend/public">
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
