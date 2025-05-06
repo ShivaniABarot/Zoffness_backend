@@ -4,7 +4,7 @@
 
 @section('content')
 <!-- Basic Layout -->
-<div class="row mt-0">
+<div class="row">
   <!-- Statistics Cards -->
   <div class="col-lg-8 mb-4 order-0">
     <div class="card">
@@ -28,14 +28,14 @@
   <div class="col-lg-4 col-md-4 order-1">
     <div class="row">
       <div class="col-lg-6 col-md-12 col-6 mb-4">
-        <div class="card h-100">
-          <div class="card-body d-flex flex-column justify-content-center" style="min-height: 150px;">
+        <div class="card">
+          <div class="card-body">
             <div class="d-flex justify-content-between">
               <div class="card-info">
-                <p class="card-text mb-3">Students</p>
+                <p class="card-text">Students</p>
                 <div class="d-flex align-items-end mb-2">
-                  <h4 class="card-title mb-0 me-2" style="font-size: 1.75rem;">42</h4>
-                  <small class="text-success" style="padding-bottom: 5px;">+8.2%</small>
+                  <h4 class="card-title mb-0 me-2">42</h4>
+                  <small class="text-success">+8.2%</small>
                 </div>
               </div>
               <div class="card-icon">
@@ -48,14 +48,14 @@
         </div>
       </div>
       <div class="col-lg-6 col-md-12 col-6 mb-4">
-        <div class="card h-100">
-          <div class="card-body d-flex flex-column justify-content-center" style="min-height: 150px;">
+        <div class="card">
+          <div class="card-body">
             <div class="d-flex justify-content-between">
               <div class="card-info">
-                <p class="card-text mb-3">Tutors</p>
+                <p class="card-text">Tutors</p>
                 <div class="d-flex align-items-end mb-2">
-                  <h4 class="card-title mb-0 me-2" style="font-size: 1.75rem;">12</h4>
-                  <small class="text-success" style="padding-bottom: 5px;">+5.1%</small>
+                  <h4 class="card-title mb-0 me-2">12</h4>
+                  <small class="text-success">+5.1%</small>
                 </div>
               </div>
               <div class="card-icon">
