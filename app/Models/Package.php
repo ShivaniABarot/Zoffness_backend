@@ -23,16 +23,17 @@ class Package extends Model
 
     /**
      * Define any relationships if applicable.
-     * Example: If a package can be associated with sessions, add the relationship here.
      */
     public function sessions()
     {
         return $this->belongsToMany(Session::class, 'packages_sessions');
     }
 
+    /**
+     * Define the many-to-many relationship with PracticeTest model
+     */
     public function practiceTests()
-{
-    return $this->belongsToMany(PraticeTest::class, 'test_type');
-}
-
+    {
+        return $this->belongsToMany(PraticeTest::class, 'package_practice_test', 'package_id', 'practice_test_id');
+    }
 }

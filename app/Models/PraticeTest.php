@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class PraticeTest extends Model
 {
+    use HasFactory;
+    
     protected $table = 'practice_tests';
 
     /**
@@ -24,14 +26,15 @@ class PraticeTest extends Model
         'student_email',
         'school',
         'subtotal',
-        'test_type',
+        'test_type', // Consider renaming this field if it's redundant with the relationship
         'date'
     ];
 
-
+    /**
+     * Define the many-to-many relationship with Package model
+     */
     public function packages()
     {
-        return $this->belongsToMany(Package::class, 'test_type');
+        return $this->belongsToMany(Package::class, 'package_practice_test', 'practice_test_id', 'package_id');
     }
-    
 }
