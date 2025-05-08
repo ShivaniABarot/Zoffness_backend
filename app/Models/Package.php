@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,11 +8,8 @@ class Package extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    protected $table = 'packages';
+
     protected $fillable = [
         'name',
         'price',
@@ -21,19 +17,13 @@ class Package extends Model
         'description',
     ];
 
-    /**
-     * Define any relationships if applicable.
-     */
     public function sessions()
     {
         return $this->belongsToMany(Session::class, 'packages_sessions');
     }
 
-    /**
-     * Define the many-to-many relationship with PracticeTest model
-     */
-    public function practiceTests()
+    public function praticeTests()
     {
-        return $this->belongsToMany(PraticeTest::class, 'package_practice_test', 'package_id', 'practice_test_id');
+        return $this->belongsToMany(PraticeTest::class, 'package_pratice_test');
     }
 }
