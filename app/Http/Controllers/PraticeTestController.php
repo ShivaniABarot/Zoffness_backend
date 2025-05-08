@@ -10,10 +10,10 @@ class PraticeTestController extends Controller
 {
     public function index()
     {
-        $praticetest = PraticeTest::with('packages')->get();
-        return view('inquiry.pratice_test', compact('praticetest'));
+        $praticetests = PraticeTest::with('packages')->get();
+        return view('inquiry.pratice_test', compact('praticetests'));
     }
-
+    
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
