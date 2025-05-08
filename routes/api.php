@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\EnrollController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\SATACTCourseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,5 +23,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/enroll', [EnrollController::class, 'new_enroll']);
+Route::post('/new_sat_act', [SATACTCourseController::class, 'new_sat_act']);
 Route::post('/register', [AuthController::class, 'register']);
 
