@@ -28,4 +28,10 @@ class PraticeTest extends Model
         'date'
     ];
 
+
+    public function packages()
+    {
+        return $this->belongsToMany(Package::class, 'test_type');
+    }
+    
 }

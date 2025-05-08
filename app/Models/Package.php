@@ -29,4 +29,10 @@ class Package extends Model
     {
         return $this->belongsToMany(Session::class, 'packages_sessions');
     }
+
+    public function practiceTests()
+{
+    return $this->belongsToMany(PraticeTest::class, 'test_type');
+}
+
 }
