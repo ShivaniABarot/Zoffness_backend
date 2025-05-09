@@ -45,12 +45,26 @@
                         <td>{{ $praticetest->school }}</td>
                         <td>${{ number_format($praticetest->subtotal, 2) }}</td>
                         <td>
-                            @forelse (json_decode($praticetest->test_type, true) ?? [] as $index => $type)
-                                {{ $index + 1 }}. {{ $type }}<br>
-                            @empty
-                                N/A
-                            @endforelse
-                        </td>
+    @php
+        $dates = json_decode($praticetest->date, true) ?? [];
+    @endphp
+    @forelse ($dates as $index => $date)
+        @php
+            $dateWithoutSuffix = preg_replace('/(\d+)(st|nd|rd|th)/', '$1', $date);
+            $dateWithoutExtraText = preg_replace('/ @.*$/', '', $dateWithoutSuffix);
+            try {
+                $formattedDate = \Carbon\Carbon::parse($dateWithoutExtraText)->format('d F, l @gA');
+            } catch (\Exception $e) {
+                $formattedDate = 'Invalid Date';
+            }
+        @endphp
+        {{ $index + 1 }}. {{ $formattedDate }}<br>
+    @empty
+        N/A
+    @endforelse
+</td>
+
+                      
                         <td>
                             @forelse (json_decode($praticetest->date, true) ?? [] as $key => $dates)
                                 @forelse ($dates as $index => $date)
