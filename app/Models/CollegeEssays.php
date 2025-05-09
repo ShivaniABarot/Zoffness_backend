@@ -16,7 +16,7 @@ class CollegeEssays extends Model
         'student_first_name',
         'student_last_name',
         'student_email',
-        'school',
+        // 'school',
         'sessions',
         'packages'
     ];

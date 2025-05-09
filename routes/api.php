@@ -9,6 +9,7 @@ use App\Http\Controllers\SATACTCourseController;
 use App\Http\Controllers\PraticeTestController;
 use App\Http\Controllers\ExecutiveCoachingController;
 use App\Http\Controllers\CollegeAdmissionController;
+use App\Http\Controllers\CollegeEssaysController;
 
 
 /*
@@ -36,3 +37,4 @@ Route::put('/practice_tests/{id}', [PraticeTestController::class, 'update']);
 Route::delete('/practice_tests/{id}', [PraticeTestController::class, 'destroy']);
 Route::post('/executive_coaching', [ExecutiveCoachingController::class, 'store']);
 Route::post('/college_admission', [CollegeAdmissionController::class, 'collage_addmission']);
+Route::post('/college_essays', [CollegeEssaysController::class, 'college_essays']);
