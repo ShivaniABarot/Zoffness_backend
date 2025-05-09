@@ -54,7 +54,9 @@ class PraticeTestController extends Controller
 
         return response()->json([
             'message' => 'Practice test created successfully.',
-            'data' => $test->load('packages')
+            'data' => $test // No packages loaded
+
+            // 'data' => $test->load('packages')
         ], 201);
     }
 
