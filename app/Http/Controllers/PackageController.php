@@ -94,4 +94,15 @@ class PackageController extends Controller
         ]);
     }
 
+    // GET PACKAGES API
+    public function get_packages()
+{
+    $packages = Package::all();
+    return response()->json([
+        'success' => true,
+        'data' => $packages
+    ], 200);
+}
+
+
 }

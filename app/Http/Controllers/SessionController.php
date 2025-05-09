@@ -99,6 +99,15 @@ class SessionController extends Controller
         ]);
     }
     
+    // GET SESSIONS API
+    public function get_sessions()
+{
+    $sessions = Session::all(); // Consider using pagination for large datasets
+    return response()->json([
+        'success' => true,
+        'data' => $sessions
+    ], 200);
+}
 
 
 }
