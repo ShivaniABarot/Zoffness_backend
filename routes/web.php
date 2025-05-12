@@ -12,7 +12,7 @@ use App\Http\Controllers\ExamController;
 use App\Http\Controllers\TutorController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SessionController;
-use App\Http\Controllers\TimeslotController;
+use App\Http\Controllers\Satact_packagesController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\BookingController;
@@ -107,14 +107,14 @@ Route::get('/session/{id}', [SessionController::class, 'show'])->name('sessions.
 Route::delete('session/{id}', [SessionController::class, 'destroy'])->name('sessions.delete');
 
 
-// Timeslot module routes
-Route::get('/timeslot', [TimeslotController::class, 'index'])->name('timeslots.index');
-Route::get('timeslot/create', [TimeslotController::class, 'create'])->name('timeslots.create');
-Route::post('timeslot/store', [TimeslotController::class, 'store'])->name('timeslots.store');
-Route::get('timeslot/{id}/edit', [TimeslotController::class, 'edit'])->name('timeslots.edit');
-Route::post('timeslot/{id}/update', [TimeslotController::class, 'update'])->name('timeslots.update');
-Route::get('/timeslot/{id}', [TimeslotController::class, 'show'])->name('timeslots.show');
-Route::delete('timeslot/{id}', [TimeslotController::class, 'destroy'])->name('timeslots.delete');
+// package satactcourse
+Route::get('/sat_act_packages', [Satact_packagesController::class, 'index'])->name('satact_course.index');
+Route::get('sat_act_packages/create', [Satact_packagesController::class, 'create'])->name('satact_course.create');
+Route::post('sat_act_packages/store', [Satact_packagesController::class, 'store'])->name('satact_course.store');
+Route::get('sat_act_packages/{id}/edit', [Satact_packagesController::class, 'edit'])->name('satact_course.edit');
+Route::post('sat_act_packages/{id}/update', [Satact_packagesController::class, 'update'])->name(name: 'satact_course.update');
+Route::get('/sat_act_packages/{id}', [Satact_packagesController::class, 'show'])->name('satact_course.show');
+Route::delete('sat_act_packages/{id}', [Satact_packagesController::class, 'destroy'])->name('satact_course.delete');
 
 //Package module routes
 Route::get('/package', [PackageController::class, 'index'])->name('packages.index');

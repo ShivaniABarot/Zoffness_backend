@@ -672,13 +672,13 @@
 
           </li>
 
-          <li class="menu-item {{ request()->is('timeslot') ? 'active' : '' }}">
+          <li class="menu-item {{ request()->is('sat_act_packages') ? 'active' : '' }}">
 
-            <a href="{{ url('timeslot') }}" class="menu-link">
+            <a href="{{ url('sat_act_packages') }}" class="menu-link">
 
               <i class="menu-icon bx bx-calendar"></i>
 
-              <div>Timeslots</div>
+              <div>SAT-ACT Packages</div>
 
             </a>
 
@@ -729,6 +729,7 @@
             <a href="javascript:void(0);" class="menu-link menu-toggle">
 
               <i class="menu-icon bx bx-help-circle"></i>
+
 
               <div>Inquiries</div>
 

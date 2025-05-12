@@ -26,8 +26,8 @@ class SATACTCourseController extends Controller
             'student_lastname' => 'required|string',
             'student_email' => 'required|email',
             'school' => 'required|string',
-            'courses' => 'required|array|min:1',
-            'courses.*.name' => 'required|string',
+            'courses' => 'array|min:1',
+            'courses.*.name' => 'string',
             'courses.*.price' => 'required|numeric',
             'package_name' => 'required|string',
             'payment_status' => 'required|string|in:Success,Failed,Pending'

@@ -5,21 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Timeslot extends Model
+class SAT_ACT_Packages extends Model
 {
     use HasFactory;
 
     // Define the table name if it does not follow the default convention (optional)
-    protected $table = 'timeslots';
+    protected $table = 'sat_act_course';
 
     // Mass assignable attributes
     protected $fillable = [
-        'session_id',
-        'room',
-        'date',
-        'start_time',
-        'end_time',
-        'available_seats',
+        'name',
+        'price',
+        // 'number_of_sessions',
+        'description',
     ];
 
     /**
