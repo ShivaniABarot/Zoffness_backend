@@ -13,6 +13,8 @@ use App\Http\Controllers\CollegeEssaysController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\Satact_packagesController;
+use App\Http\Controllers\ExecutivePackageController;
+use App\Http\Controllers\CollageEssaysPackageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,3 +45,5 @@ Route::post('/college_essays', [CollegeEssaysController::class, 'college_essays'
 Route::get('/get_packages', [PackageController::class, 'get_packages']);
 Route::get('/get_sessions', [SessionController::class, 'get_sessions']);
 Route::get('/get_sat_act_packages', [Satact_packagesController::class, 'get_sat_act_packages']);
+Route::get('/get_ExecutivePackage', [ExecutivePackageController::class, 'get_ExecutivePackage']);
+Route::get('/get_CollageEssaysPackage', [CollageEssaysPackageController::class, 'get_CollageEssaysPackage']);

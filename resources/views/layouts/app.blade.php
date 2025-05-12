@@ -659,42 +659,47 @@
             </a>
 
           </li>
+          <li class="menu-item {{ request()->is('session') || request()->is('sat_act_packages') || request()->is('package') ? 'active open' : '' }}">
+  <a href="#" class="menu-link menu-toggle">
+    <i class="menu-icon bx bx-package"></i>
+    <div>Packages</div>
+  </a>
+  <ul class="menu-sub">
+    <li class="menu-item {{ request()->is('session') ? 'active' : '' }}">
+      <a href="{{ url('session') }}" class="menu-link">
+        <i class="menu-icon bx bx-time"></i>
+        <div>Sessions</div>
+      </a>
+    </li>
+    <li class="menu-item {{ request()->is('sat_act_packages') ? 'active' : '' }}">
+      <a href="{{ url('sat_act_packages') }}" class="menu-link">
+        <i class="menu-icon bx bx-calendar"></i>
+        <div>SAT-ACT Packages</div>
+      </a>
+    </li>
+    <li class="menu-item {{ request()->is('package') ? 'active' : '' }}">
+      <a href="{{ url('package') }}" class="menu-link">
+        <i class="menu-icon bx bx-package"></i>
+        <div>College Admissions Packages</div>
+      </a>
+    </li>
+    <li class="menu-item {{ request()->is('executive_package') ? 'active' : '' }}">
+  <a href="{{ url('executive_package') }}" class="menu-link">
+    <i class="menu-icon bx bx-briefcase-alt"></i> {{-- Changed from bx-package to bx-briefcase-alt --}}
+    <div>Executive Packages</div>
+  </a>
+</li>
 
-          <li class="menu-item {{ request()->is('session') ? 'active' : '' }}">
+<li class="menu-item {{ request()->is('collage_essays_packages') ? 'active' : '' }}">
+  <a href="{{ url('collage_essays_packages') }}" class="menu-link">
+    <i class="menu-icon bx bx-book-content"></i> {{-- Changed from bx-package to bx-book-content --}}
+    <div>Essays Packages</div>
+  </a>
+</li>
 
-            <a href="{{ url('session') }}" class="menu-link">
+  </ul>
+</li>
 
-              <i class="menu-icon bx bx-time"></i>
-
-              <div>Sessions</div>
-
-            </a>
-
-          </li>
-
-          <li class="menu-item {{ request()->is('sat_act_packages') ? 'active' : '' }}">
-
-            <a href="{{ url('sat_act_packages') }}" class="menu-link">
-
-              <i class="menu-icon bx bx-calendar"></i>
-
-              <div>SAT-ACT Packages</div>
-
-            </a>
-
-          </li>
-
-          <li class="menu-item {{ request()->is('package') ? 'active' : '' }}">
-
-            <a href="{{ url('package') }}" class="menu-link">
-
-              <i class="menu-icon bx bx-package"></i>
-
-              <div>Packages</div>
-
-            </a>
-
-          </li>
 
           <li class="menu-item {{ request()->is('payments') ? 'active' : '' }}">
 

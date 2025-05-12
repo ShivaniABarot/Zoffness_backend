@@ -22,6 +22,8 @@ use App\Http\Controllers\CollegeAdmissionController;
 use App\Http\Controllers\CollegeEssaysController;
 use App\Http\Controllers\ExecutiveCoachingController;
 use App\Http\Controllers\SATACTCourseController;
+use App\Http\Controllers\ExecutivePackageController;
+use App\Http\Controllers\CollageEssaysPackageController;
 
 
 
@@ -124,6 +126,25 @@ Route::get('package/{id}/edit', [PackageController::class, 'edit'])->name('packa
 Route::post('package/{id}/update', [PackageController::class, 'update'])->name('packages.update');
 Route::get('/package/{id}', [PackageController::class, 'show'])->name('packages.show');
 Route::delete('package/{id}', [PackageController::class, 'destroy'])->name('packages.delete');
+
+//EXECUTIVE FUNCTION PACKAGES
+Route::get('/executive_package', [ExecutivePackageController::class, 'index'])->name('executive_function_packages.index');
+Route::get('executive_package/create', [ExecutivePackageController::class, 'create'])->name('executive_function_packages.create');
+Route::post('executive_package/store', [ExecutivePackageController::class, 'store'])->name('executive_function_packages.store');
+Route::get('executive_package/{id}/edit', [ExecutivePackageController::class, 'edit'])->name('executive_function_packages.edit');
+Route::post('executive_package/{id}/update', [ExecutivePackageController::class, 'update'])->name('executive_function_packages.update');
+Route::get('/executive_package/{id}', [ExecutivePackageController::class, 'show'])->name('executive_function_packages.show');
+Route::delete('executive_package/{id}', [ExecutivePackageController::class, 'destroy'])->name('executive_function_packages.delete');
+
+//College Essays Packages
+Route::get('/collage_essays_packages', [CollageEssaysPackageController::class, 'index'])->name('collage_essays_packages.index');
+Route::get('collage_essays_packages/create', [CollageEssaysPackageController::class, 'create'])->name('collage_essays_packages.create');
+Route::post('collage_essays_packages/store', [CollageEssaysPackageController::class, 'store'])->name('collage_essays_packages.store');
+Route::get('collage_essays_packages/{id}/edit', [CollageEssaysPackageController::class, 'edit'])->name('collage_essays_packages.edit');
+Route::post('collage_essays_packages/{id}/update', [CollageEssaysPackageController::class, 'update'])->name('collage_essays_packages.update');
+Route::get('/collage_essays_packages/{id}', [CollageEssaysPackageController::class, 'show'])->name('collage_essays_packages.show');
+Route::delete('collage_essays_packages/{id}', [CollageEssaysPackageController::class, 'destroy'])->name('collage_essays_packages.delete');
+
 
 // Payment module routes
 Route::get('/payments/create', [PaymentController::class, 'create'])->name('payments.create');
