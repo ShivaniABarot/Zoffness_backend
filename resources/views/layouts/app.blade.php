@@ -736,6 +736,17 @@
 
             <ul class="menu-sub">
 
+              <li class="menu-item {{ Request::routeIs('sat_act_course') ? 'active' : '' }}">
+
+                <a href="{{ route('sat_act_course') }}" class="menu-link">
+
+                  <div>SAT/ACT Course</div>
+
+                </a>
+
+              </li>
+
+
               <li class="menu-item {{ Request::routeIs('enroll.list') ? 'active' : '' }}">
 
                 <a href="{{ route('enroll.list') }}" class="menu-link">

@@ -21,6 +21,7 @@ use App\Http\Controllers\PraticeTestController;
 use App\Http\Controllers\CollegeAdmissionController;
 use App\Http\Controllers\CollegeEssaysController;
 use App\Http\Controllers\ExecutiveCoachingController;
+use App\Http\Controllers\SATACTCourseController;
 
 
 
@@ -158,3 +159,5 @@ Route::get('/inquiry/pratice_test', [PraticeTestController::class, 'index'])->na
 Route::get('/inquiry/college_admission',  [CollegeAdmissionController::class, 'index'])->name('college_admission');
 Route::get('/inquiry/college_essays', [CollegeEssaysController::class, 'index'])->name('college_essays');
 Route::get('/inquiry/executive_function', [ExecutiveCoachingController::class, 'index'])->name('executive_function');
+
+Route::get('/sat_act_course', [SATACTCourseController::class, 'sat_act_course'])->name('sat_act_course');

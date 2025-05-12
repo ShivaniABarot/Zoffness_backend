@@ -26,4 +26,9 @@ class Package extends Model
     {
         return $this->belongsToMany(PraticeTest::class, 'package_pratice_test');
     }
+
+    public function course()
+    {
+        return $this->belongsTo(SAT_ACT_Course::class, 'id');
+    }
 }

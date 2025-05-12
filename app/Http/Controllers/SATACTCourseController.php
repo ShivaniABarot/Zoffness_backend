@@ -8,6 +8,12 @@ use Illuminate\Support\Facades\Validator;
 
 class SATACTCourseController extends Controller
 {
+
+    public function sat_act_course()
+    {
+        $sat_act_course = SAT_ACT_Course::with('packages')->get();
+        return view('inquiry.sat_act_course', compact('sat_act_course'));
+    }
     public function new_sat_act(Request $request)
     {
         // Validate input
