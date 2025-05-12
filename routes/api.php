@@ -12,6 +12,7 @@ use App\Http\Controllers\CollegeAdmissionController;
 use App\Http\Controllers\CollegeEssaysController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\SessionController;
+use App\Http\Controllers\Satact_packagesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,3 +42,4 @@ Route::post('/college_admission', [CollegeAdmissionController::class, 'collage_a
 Route::post('/college_essays', [CollegeEssaysController::class, 'college_essays']);
 Route::get('/get_packages', [PackageController::class, 'get_packages']);
 Route::get('/get_sessions', [SessionController::class, 'get_sessions']);
+Route::get('/get_sat_act_packages', [Satact_packagesController::class, 'get_sat_act_packages']);

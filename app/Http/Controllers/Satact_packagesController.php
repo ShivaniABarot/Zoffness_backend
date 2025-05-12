@@ -96,5 +96,14 @@
                 'message' => 'SAT ACT Package deleted successfully.',
             ]);
         }
+
+        public function get_sat_act_packages()
+        {
+            $SAT_ACT_Packages = SAT_ACT_Packages::all();
+            return response()->json([
+                'success' => true,
+                'data' => $SAT_ACT_Packages
+            ], 200);
+        }
     
     }
