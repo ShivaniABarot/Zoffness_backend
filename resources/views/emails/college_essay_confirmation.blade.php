@@ -65,10 +65,10 @@
         <p>We look forward to supporting your college admissions journey.</p>
 
         <p>Best regards,<br>
-        <strong>Your Team</strong></p>
+        <strong>Zoffness college prep</strong></p>
 
         <div class="footer">
-            &copy; 2025 Your Company Name. All rights reserved.
+            &copy; © 2025 Zoffness College Prep
         </div>
     </div>
 </body>

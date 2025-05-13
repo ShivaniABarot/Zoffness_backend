@@ -64,11 +64,11 @@
 
         <p>We are excited to help your child on their college journey.</p>
 
-        <p>Warm regards,<br>
-        <strong>Your Team</strong></p>
+        <p>Best regards,<br>
+        <strong>Zoffness college prep</strong></p>
 
         <div class="footer">
-            &copy; 2025 Your Company Name. All rights reserved.
+            &copy; © 2025 Zoffness College Prep
         </div>
     </div>
 </body>
