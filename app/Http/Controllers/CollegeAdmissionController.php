@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\CollegeAdmission;
-
+use Illuminate\Support\Facades\Mail;
+use App\Mail\CollegeAdmissionConfirmation;
 class CollegeAdmissionController extends Controller
 {
     public function index()
@@ -34,10 +35,25 @@ class CollegeAdmissionController extends Controller
         
         $admission = CollegeAdmission::create($validatedData);
     
+        // Prepare email data
+        $studentName = $validatedData['student_first_name'] . ' ' . $validatedData['student_last_name'];
+        $school = $validatedData['school'] ?? '';
+        $subtotal = $validatedData['subtotal'] ?? 0;
+    
+        // Send confirmation emails to parent and student
+        Mail::to($validatedData['parent_email'])->send(
+            new CollegeAdmissionConfirmation($studentName, $school, $subtotal)
+        );
+    
+        Mail::to($validatedData['student_email'])->send(
+            new CollegeAdmissionConfirmation($studentName, $school, $subtotal)
+        );
+    
         return response()->json([
             'success' => true,
             'message' => 'College admission record created successfully.',
             'data' => $admission
         ], 201);
     }
+    
 }
