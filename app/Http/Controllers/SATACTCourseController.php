@@ -61,21 +61,42 @@ class SATACTCourseController extends Controller
         ]);
     
         // Prepare data for email
-        $studentName = $request->student_firstname . ' ' . $request->student_lastname;
         $courses = $request->courses;
         $school = $request->school;
         $packageName = $request->package_name;
         $paymentStatus = $request->payment_status;
     
+        $studentName = $request->student_firstname . ' ' . $request->student_lastname;
+        $parentName = $request->parent_firstname . ' ' . $request->parent_lastname;
+        
         // Send to parent
         Mail::to($request->parent_email)->send(
-            new SatActCourseConfirmation($studentName, $courses, $school, $packageName, $totalAmount, $paymentStatus)
+            new SatActCourseConfirmation(
+                $studentName,
+                $courses,
+                $school,
+                $packageName,
+                $totalAmount,
+                $paymentStatus,
+                $parentName,
+                'parent'
+            )
         );
-    
+        
         // Send to student
         Mail::to($request->student_email)->send(
-            new SatActCourseConfirmation($studentName, $courses, $school, $packageName, $totalAmount, $paymentStatus)
+            new SatActCourseConfirmation(
+                $studentName,
+                $courses,
+                $school,
+                $packageName,
+                $totalAmount,
+                $paymentStatus,
+                $studentName,
+                'student'
+            )
         );
+        
     
         return response()->json([
             'success' => true,

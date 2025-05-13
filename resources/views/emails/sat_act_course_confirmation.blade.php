@@ -94,7 +94,7 @@
     <div class="email-container">
         <h2>SAT/ACT Course Registration Confirmation</h2>
 
-        <p>Dear Parent and Student,</p>
+        <p>Dear {{ $recipientName }},</p>
 
         <p>Thank you for registering for the SAT/ACT course. Below are your registration details:</p>
 
