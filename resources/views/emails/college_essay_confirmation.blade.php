@@ -68,7 +68,7 @@
         <strong>Zoffness college prep</strong></p>
 
         <div class="footer">
-            &copy; © 2025 Zoffness College Prep
+            &copy;  2025 Zoffness College Prep
         </div>
     </div>
 </body>
