@@ -17,10 +17,10 @@ class AuthController extends Controller
             'username' => [
                 'required',
                 'string',
-                'max:255',
+               
                 'unique:users,username',
             ],
-            'email' => 'required|email|max:255|unique:users,email',
+            'email' => 'required|email|unique:users,email',
             'password' => [
                 'required',
                 'string',

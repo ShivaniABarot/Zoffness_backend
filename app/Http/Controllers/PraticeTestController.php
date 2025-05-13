@@ -5,6 +5,8 @@ use Illuminate\Http\Request;
 use App\Models\PraticeTest;
 use App\Models\Package;
 use Illuminate\Support\Facades\Validator;
+use App\Mail\PracticeTestBooked;
+use Illuminate\Support\Facades\Mail;
 
 class PraticeTestController extends Controller
 {
@@ -29,13 +31,13 @@ class PraticeTestController extends Controller
             'test_type.*' => 'exists:packages,id',
             'date' => 'required|string',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-
+    
         $subtotal = Package::whereIn('id', $request->test_type)->sum('price');
-
+    
         $test = PraticeTest::create([
             'parent_first_name' => $request->parent_first_name,
             'parent_last_name' => $request->parent_last_name,
@@ -49,16 +51,26 @@ class PraticeTestController extends Controller
             'date' => $request->date,
             'subtotal' => $subtotal,
         ]);
-
+    
         $test->packages()->sync($request->test_type);
-
+    
+        // Get test type names
+        $testTypeNames = Package::whereIn('id', $request->test_type)->pluck('name')->toArray();
+        $testTypeList = implode(', ', $testTypeNames);
+        $studentName = $request->student_first_name . ' ' . $request->student_last_name;
+    
+        // Send email to parent
+        Mail::to($request->parent_email)->send(new PracticeTestBooked($studentName, $testTypeList, $request->date, $subtotal));
+    
+        // Send email to student
+        Mail::to($request->student_email)->send(new PracticeTestBooked($studentName, $testTypeList, $request->date, $subtotal));
+    
         return response()->json([
             'message' => 'Practice test created successfully.',
-            'data' => $test // No packages loaded
-
-            // 'data' => $test->load('packages')
+            'data' => $test
         ], 201);
     }
+    
 
     public function show($id)
     {
