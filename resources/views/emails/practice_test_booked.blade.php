@@ -22,17 +22,23 @@
             color: #2c3e50;
             border-bottom: 1px solid #e0e0e0;
             padding-bottom: 10px;
+            margin-bottom: 20px;
         }
         p {
             color: #444;
             line-height: 1.6;
+            margin: 10px 0;
         }
         .details {
-            margin-top: 20px;
-            margin-bottom: 20px;
+            margin: 20px 0;
+            background-color: #f9fafb;
+            padding: 15px 20px;
+            border-left: 4px solid #2c3e50;
+            border-radius: 4px;
         }
         .details p {
-            margin: 8px 0;
+            margin: 6px 0;
+            font-weight: 500;
         }
         .footer {
             margin-top: 30px;
@@ -60,7 +66,7 @@
         <p>We wish the student the best of luck on the test! If you have any questions or need to make changes to your booking, please feel free to contact us.</p>
 
         <p>Best regards,<br>
-        The Zoffness College Prep Team</p>
+        <strong>The Zoffness College Prep Team</strong></p>
 
         <div class="footer">
             &copy; 2025 Zoffness College Prep. All rights reserved.
