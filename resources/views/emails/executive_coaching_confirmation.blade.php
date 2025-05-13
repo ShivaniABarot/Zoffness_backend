@@ -83,7 +83,7 @@
     <div class="email-container">
         <h2>Executive Coaching Registration Confirmation</h2>
 
-        <p>Dear Parent and Student,</p>
+        <p>Dear {{ $recipientName }},</p>
 
         <p>Thank you for registering for the Executive Function Coaching program. Below are the details of your registration:</p>
 

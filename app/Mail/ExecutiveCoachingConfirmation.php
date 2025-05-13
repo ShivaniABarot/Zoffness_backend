@@ -14,13 +14,17 @@ class ExecutiveCoachingConfirmation extends Mailable
     public $school;
     public $packageType;
     public $subtotal;
+    public $recipientName;
+    public $recipientType;
 
-    public function __construct($studentName, $school, $packageType, $subtotal)
+    public function __construct($studentName, $school, $packageType, $subtotal, $recipientName, $recipientType)
     {
         $this->studentName = $studentName;
         $this->school = $school;
         $this->packageType = $packageType;
         $this->subtotal = $subtotal;
+        $this->recipientName = $recipientName;
+        $this->recipientType = $recipientType;
     }
 
     public function build()

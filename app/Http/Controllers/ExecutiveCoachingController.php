@@ -41,19 +41,38 @@ class ExecutiveCoachingController extends Controller
         $coaching = ExecutiveCoaching::create($request->all());
     
         // Prepare email data
-        $studentName = $request->student_first_name . ' ' . $request->student_last_name;
         $school = $request->school;
         $packageType = $request->package_type;
         $subtotal = $request->subtotal;
     
         // Send emails
+        $studentName = $request->student_first_name . ' ' . $request->student_last_name;
+        $parentName = $request->parent_first_name . ' ' . $request->parent_last_name;
+        
+        // Send email to parent
         Mail::to($request->parent_email)->send(
-            new ExecutiveCoachingConfirmation($studentName, $school, $packageType, $subtotal)
+            new ExecutiveCoachingConfirmation(
+                $studentName,
+                $request->school,
+                $request->package_type,
+                $request->subtotal,
+                $parentName,
+                'parent'
+            )
         );
-    
+        
+        // Send email to student
         Mail::to($request->student_email)->send(
-            new ExecutiveCoachingConfirmation($studentName, $school, $packageType, $subtotal)
+            new ExecutiveCoachingConfirmation(
+                $studentName,
+                $request->school,
+                $request->package_type,
+                $request->subtotal,
+                $studentName,
+                'student'
+            )
         );
+        
     
         return response()->json([
             'status' => 'success',
