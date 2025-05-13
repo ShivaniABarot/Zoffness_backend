@@ -9,6 +9,8 @@ use Yajra\DataTables\DataTables;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use App\Mail\EnrollmentConfirmation;
+use Illuminate\Support\Facades\Mail;
 class EnrollController extends Controller
 {
     /**
@@ -57,7 +59,6 @@ class EnrollController extends Controller
     // NEW ENROLLMENT API
     public function new_enroll(Request $request)
     {
-        // Validate incoming request
         $validator = Validator::make($request->all(), [
             'parent_first_name'   => 'required|string',
             'parent_last_name'    => 'required|string',
@@ -79,7 +80,7 @@ class EnrollController extends Controller
             ], 422);
         }
     
-        // Save the enrollment
+        // Save enrollment
         $enrollment = Enroll::create($request->only([
             'parent_first_name',
             'parent_last_name',
@@ -93,8 +94,18 @@ class EnrollController extends Controller
             'packages'
         ]));
     
-        // Optionally, handle payment status (e.g., log or trigger event)
-        // For now, include it in response if needed
+        // Prepare email data
+        $studentName = $request->student_first_name . ' ' . $request->student_last_name;
+    
+        // Send email to parent
+        Mail::to($request->parent_email)->send(
+            new EnrollmentConfirmation($studentName, $request->packages, $request->school, $request->total_amount, $request->payment_status)
+        );
+    
+        // Send email to student
+        Mail::to($request->student_email)->send(
+            new EnrollmentConfirmation($studentName, $request->packages, $request->school, $request->total_amount, $request->payment_status)
+        );
     
         return response()->json([
             'success' => true,
