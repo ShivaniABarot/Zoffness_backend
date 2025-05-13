@@ -83,7 +83,7 @@
     <div class="email-container">
         <h2>Booking Confirmed!</h2>
 
-        <p>Dear Parent and Student,</p>
+        <p>Dear {{ $recipientName }},</p>
 
         <p>Thank you for choosing Zoffness College Prep! We’re excited to support your student’s journey toward academic success. Below are the confirmed details of your practice test booking:</p>
 

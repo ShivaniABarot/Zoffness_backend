@@ -15,7 +15,7 @@ class PraticeTestController extends Controller
         $praticetests = PraticeTest::with('packages')->get();
         return view('inquiry.pratice_test', compact('praticetests'));
     }
-    
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -31,13 +31,13 @@ class PraticeTestController extends Controller
             'test_type.*' => 'exists:packages,id',
             'date' => 'required|string',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-    
+
         $subtotal = Package::whereIn('id', $request->test_type)->sum('price');
-    
+
         $test = PraticeTest::create([
             'parent_first_name' => $request->parent_first_name,
             'parent_last_name' => $request->parent_last_name,
@@ -51,26 +51,31 @@ class PraticeTestController extends Controller
             'date' => $request->date,
             'subtotal' => $subtotal,
         ]);
-    
+
         $test->packages()->sync($request->test_type);
-    
+
         // Get test type names
         $testTypeNames = Package::whereIn('id', $request->test_type)->pluck('name')->toArray();
         $testTypeList = implode(', ', $testTypeNames);
+        $parentName = $request->parent_first_name . ' ' . $request->parent_last_name;
         $studentName = $request->student_first_name . ' ' . $request->student_last_name;
-    
         // Send email to parent
-        Mail::to($request->parent_email)->send(new PracticeTestBooked($studentName, $testTypeList, $request->date, $subtotal));
-    
+        Mail::to($request->parent_email)->send(
+            new PracticeTestBooked($studentName, $testTypeList, $request->date, $subtotal, $parentName, 'parent')
+        );
+
         // Send email to student
-        Mail::to($request->student_email)->send(new PracticeTestBooked($studentName, $testTypeList, $request->date, $subtotal));
-    
+        Mail::to($request->student_email)->send(
+            new PracticeTestBooked($studentName, $testTypeList, $request->date, $subtotal, $studentName, 'student')
+        );
+
+
         return response()->json([
             'message' => 'Practice test created successfully.',
             'data' => $test
         ], 201);
     }
-    
+
 
     public function show($id)
     {

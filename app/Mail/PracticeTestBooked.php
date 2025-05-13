@@ -14,13 +14,17 @@ class PracticeTestBooked extends Mailable
     public $testTypes;
     public $date;
     public $subtotal;
+    public $recipientName;
+    public $recipientType;
 
-    public function __construct($studentName, $testTypes, $date, $subtotal)
+    public function __construct($studentName, $testTypes, $date, $subtotal, $recipientName, $recipientType)
     {
         $this->studentName = $studentName;
         $this->testTypes = $testTypes;
         $this->date = $date;
         $this->subtotal = $subtotal;
+        $this->recipientName = $recipientName;
+        $this->recipientType = $recipientType;
     }
 
     public function build()
