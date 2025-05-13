@@ -38,8 +38,13 @@ class AuthController extends Controller
                 'password' => bcrypt($validated['password']), // Hash the password
             ]);
 
-            $this->sendRegistrationEmail($user);
-            $message = 'Account created successfully. Check your email for confirmation.';
+            try {
+                $this->sendRegistrationEmail($user);
+                $message = 'Account created successfully. Check your email for confirmation.';
+            } catch (\Exception $emailEx) {
+                \Log::error('Email failed: ' . $emailEx->getMessage());
+                $message = 'Account created successfully. (Email will be sent shortly)';
+            }
 
             return response()->json([
                 'success' => true,

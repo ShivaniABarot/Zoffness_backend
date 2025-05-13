@@ -20,7 +20,7 @@ class RegistrationSuccessMail extends Mailable
     public function build()
     {
         return $this->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'))
-            ->subject('Welcome to Our Application')
+            ->subject('Welcome to Zoffness Academy')
             ->view('emails.registration_success')
             ->with([
                 'username' => $this->user->username,
