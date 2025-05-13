@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\SAT_ACT_Course;
 use Illuminate\Http\Request;
+use App\Mail\SatActCourseConfirmation;
+use Illuminate\Support\Facades\Mail;
+
 use Illuminate\Support\Facades\Validator;
 
 class SATACTCourseController extends Controller
@@ -16,7 +19,6 @@ class SATACTCourseController extends Controller
     }
     public function new_sat_act(Request $request)
     {
-        // Validate input
         $validator = Validator::make($request->all(), [
             'parent_firstname' => 'required|string',
             'parent_lastname' => 'required|string',
@@ -32,17 +34,17 @@ class SATACTCourseController extends Controller
             'package_name' => 'required|string',
             'payment_status' => 'required|string|in:Success,Failed,Pending'
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'errors' => $validator->errors()
             ], 422);
         }
-
+    
         // Calculate total amount
         $totalAmount = collect($request->courses)->sum('price');
-
+    
         // Save the enrollment
         $SAT_ACT_Course = SAT_ACT_Course::create([
             'parent_firstname' => $request->parent_firstname,
@@ -54,10 +56,27 @@ class SATACTCourseController extends Controller
             'student_email' => $request->student_email,
             'school' => $request->school,
             'amount' => $totalAmount,
-            'courses' => $request->courses, // Saved as JSON (make sure model casts this)
+            'courses' => $request->courses, // JSON stored
             'package_name' => $request->package_name,
         ]);
-
+    
+        // Prepare data for email
+        $studentName = $request->student_firstname . ' ' . $request->student_lastname;
+        $courses = $request->courses;
+        $school = $request->school;
+        $packageName = $request->package_name;
+        $paymentStatus = $request->payment_status;
+    
+        // Send to parent
+        Mail::to($request->parent_email)->send(
+            new SatActCourseConfirmation($studentName, $courses, $school, $packageName, $totalAmount, $paymentStatus)
+        );
+    
+        // Send to student
+        Mail::to($request->student_email)->send(
+            new SatActCourseConfirmation($studentName, $courses, $school, $packageName, $totalAmount, $paymentStatus)
+        );
+    
         return response()->json([
             'success' => true,
             'message' => 'Register created successfully',
@@ -65,4 +84,5 @@ class SATACTCourseController extends Controller
             'payment_status' => $request->payment_status
         ], 201);
     }
+
 }

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ExecutiveCoaching;
+use App\Mail\ExecutiveCoachingConfirmation;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class ExecutiveCoachingController extends Controller
@@ -28,21 +30,37 @@ class ExecutiveCoachingController extends Controller
             'package_type' => 'required|string|max:100',
             'subtotal' => 'required|numeric|min:0'
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
                 'errors' => $validator->errors()
             ], 422);
         }
-
+    
         $coaching = ExecutiveCoaching::create($request->all());
-
+    
+        // Prepare email data
+        $studentName = $request->student_first_name . ' ' . $request->student_last_name;
+        $school = $request->school;
+        $packageType = $request->package_type;
+        $subtotal = $request->subtotal;
+    
+        // Send emails
+        Mail::to($request->parent_email)->send(
+            new ExecutiveCoachingConfirmation($studentName, $school, $packageType, $subtotal)
+        );
+    
+        Mail::to($request->student_email)->send(
+            new ExecutiveCoachingConfirmation($studentName, $school, $packageType, $subtotal)
+        );
+    
         return response()->json([
             'status' => 'success',
             'data' => $coaching
         ], 201);
     }
+    
 
     /**
      * Display the specified resource.
