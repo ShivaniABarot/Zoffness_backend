@@ -83,7 +83,7 @@
     <div class="email-container">
         <h2>Enrollment Confirmation</h2>
 
-        <p>Dear Parent and Student,</p>
+        <p>Dear {{ $recipientName }},</p>
 
         <p>Thank you for enrolling in our program. Please find the enrollment details below:</p>
 
