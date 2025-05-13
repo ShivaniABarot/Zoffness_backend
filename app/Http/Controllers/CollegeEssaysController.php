@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\CollegeEssays;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\CollegeEssayConfirmation;
 
 
 class CollegeEssaysController extends Controller
@@ -17,7 +19,6 @@ class CollegeEssaysController extends Controller
 
     public function college_essays(Request $request)
     {
-        // Validate request
         $validator = Validator::make($request->all(), [
             'parent_first_name' => 'required|string',
             'parent_last_name' => 'required|string',
@@ -26,25 +27,39 @@ class CollegeEssaysController extends Controller
             'student_first_name' => 'required|string',
             'student_last_name' => 'required|string',
             'student_email' => 'required|email',
-            // 'school' => 'nullable|string',
             'sessions' => 'nullable|numeric',
             'packages' => 'nullable|string',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
                 'errors' => $validator->errors()
             ], 422);
         }
-
-        // Create new College Essay record
+    
         $essay = CollegeEssays::create($request->all());
-
+    
+        // Email details
+        $studentName = $request->student_first_name . ' ' . $request->student_last_name;
+        $sessions = $request->sessions;
+        $packages = $request->packages;
+    
+        // Send email to parent
+        Mail::to($request->parent_email)->send(
+            new CollegeEssayConfirmation($studentName, $sessions, $packages)
+        );
+    
+        // Send email to student
+        Mail::to($request->student_email)->send(
+            new CollegeEssayConfirmation($studentName, $sessions, $packages)
+        );
+    
         return response()->json([
             'status' => true,
             'message' => 'College Essay form submitted successfully.',
             'data' => $essay
         ], 201);
     }
+    
 }
