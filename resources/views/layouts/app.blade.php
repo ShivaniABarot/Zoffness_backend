@@ -773,9 +773,9 @@
 
               </li>
 
-              <li class="menu-item {{ Request::routeIs('college_admission') ? 'active' : '' }}">
+              <li class="menu-item {{ Request::routeIs('college.admission.index') ? 'active' : '' }}">
 
-                <a href="{{ route('college_admission') }}" class="menu-link">
+                <a href="{{ route('college.admission.index') }}" class="menu-link">
 
                   <div>College Admission Counseling</div>
 

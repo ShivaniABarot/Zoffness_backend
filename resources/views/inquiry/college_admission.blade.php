@@ -2,10 +2,15 @@
 
 @section('content')
 <div class="container">
-    <h1 class="text-center mb-4">College Admission Counseling</h1>
-
-    <table class="table table-bordered" id="collegeTable">
-        <thead class="custom-header">
+    <h1 class="text-center">College Admission Counseling</h1>
+    {{-- @can('create', App\Models\PraticeTest::class)
+        <a href="{{ route('enroll.create') }}" class="btn btn-primary mb-3">New Enrollment</a>
+    @endcan --}}
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+    <table class="table table-bordered">
+        <thead>
             <tr>
                 <th>#</th>
                 <th>Parent Name</th>
@@ -16,51 +21,47 @@
                 <th>School</th>
                 <th>Package</th>
                 <th>Total Amount</th>
+                {{-- <th>Actions</th> --}}
             </tr>
         </thead>
+        <tbody>
+            @forelse($collegeadmission as $collegeadmission)
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $collegeadmission->parent_first_name . ' ' . $collegeadmission->parent_last_name }}</td>
+                    <td><a href="tel:{{ $collegeadmission->parent_phone }}" class="text-decoration-none">{{ $collegeadmission->parent_phone }}</a></td>
+                    <td><a href="mailto:{{ $collegeadmission->parent_email }}" class="text-decoration-none">{{ $collegeadmission->parent_email }}</a></td>
+                    <td>{{ $collegeadmission->student_first_name . ' ' . $collegeadmission->student_last_name }}</td>
+                    <td>
+                        @if($collegeadmission->student_email)
+                            <a href="mailto:{{ $collegeadmission->student_email }}" class="text-decoration-none">{{ $collegeadmission->student_email }}</a>
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td>{{ $collegeadmission->school }}</td>
+                    <td>{{ $collegeadmission->packages }}</td>                    
+                    <td>${{ number_format($collegeadmission->subtotal, 2) }}</td>
+                    
+                    <td>
+                        {{-- Uncomment the actions as needed --}}
+                        {{-- <a href="{{ route('enroll.show', $enrollment->id) }}" class="btn btn-info btn-sm" title="View">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{{ route('enroll.edit', $enrollment->id) }}" class="btn btn-warning btn-sm" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="#" class="btn btn-danger btn-sm" title="Delete" onclick="deleteEnroll({{ $enrollment->id }})">
+                            <i class="fas fa-trash"></i>
+                        </a> --}}
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="10" class="text-center">No enrollments found.</td>
+                </tr>
+            @endforelse
+        </tbody>
     </table>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-$(function () {
-    $('#collegeTable').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: "{{ route('college.admission.index') }}",
-        columns: [
-            { data: 'DT_RowIndex', name: 'DT_RowIndex' },
-            { 
-                data: null, 
-                name: 'parent_name',
-                render: data => `${data.parent_first_name} ${data.parent_last_name}`
-            },
-            { 
-                data: 'parent_phone',
-                render: data => `<a href="tel:${data}">${data}</a>`
-            },
-            { 
-                data: 'parent_email',
-                render: data => `<a href="mailto:${data}">${data}</a>`
-            },
-            { 
-                data: null, 
-                name: 'student_name',
-                render: data => `${data.student_first_name} ${data.student_last_name}`
-            },
-            { 
-                data: 'student_email',
-                render: data => data ? `<a href="mailto:${data}">${data}</a>` : 'N/A'
-            },
-            { data: 'school' },
-            { data: 'packages' },
-            { 
-                data: 'subtotal',
-                render: data => `$${parseFloat(data).toFixed(2)}`
-            },
-        ]
-    });
-});
-</script>
-@endpush

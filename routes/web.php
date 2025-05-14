@@ -177,7 +177,7 @@ Route::get('/inquiry/enroll', [EnrollController::class, 'index'])->name('enroll.
 
 //Inquiry->Pratice test forms
 Route::get('/inquiry/pratice_test', [PraticeTestController::class, 'index'])->name('pratice_test');
-Route::get('/inquiry/college_admission',  [CollegeAdmissionController::class, 'index'])->name('college_admission');
+Route::get('/inquiry/college_admission',  [CollegeAdmissionController::class, 'index'])->name('college.admission.index');
 Route::get('/inquiry/college_essays', [CollegeEssaysController::class, 'index'])->name('college_essays');
 Route::get('/inquiry/executive_function', [ExecutiveCoachingController::class, 'index'])->name('executive_function');
 
