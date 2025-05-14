@@ -76,20 +76,19 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
     $(document).ready(function() {
-        $('#collegeEssaysTable').DataTable({
-            responsive: true,
-            pageLength: 25,
-            dom: 'Bfrtip',
-            buttons: [
-                'copy', 'excel', 'pdf', 'print'
-            ],
-            language: {
-                search: "Search:",
-                processing: '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>'
-            }
+        // Initialize DataTable with custom options
+        initDataTable('collegeEssaysTable', {
+            // Any custom options specific to this table
+            order: [[0, 'asc']],
+            columnDefs: [
+                { className: 'fw-semibold', targets: [7] }, // Make amount column bold
+                { className: 'text-center', targets: [6] }  // Center the package badges
+            ]
         });
     });
 </script>
+@endpush
 @endsection

@@ -116,20 +116,19 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
     $(document).ready(function() {
-        $('#practiceTestTable').DataTable({
-            responsive: true,
-            pageLength: 25,
-            dom: 'Bfrtip',
-            buttons: [
-                'copy', 'excel', 'pdf', 'print'
-            ],
-            language: {
-                search: "Search:",
-                processing: '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>'
-            }
+        // Initialize DataTable with custom options
+        initDataTable('practiceTestTable', {
+            // Any custom options specific to this table
+            order: [[0, 'asc']],
+            columnDefs: [
+                { className: 'fw-semibold', targets: [7] }, // Make amount column bold
+                { className: 'text-nowrap', targets: [9] }  // Prevent date from wrapping
+            ]
         });
     });
 </script>
+@endpush
 @endsection

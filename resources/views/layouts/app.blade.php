@@ -1214,16 +1214,36 @@
       submenuItems.forEach(item => {
         item.addEventListener('click', function(e) {
           // Don't prevent default here to allow navigation
-          // Just stop propagation to prevent the dropdown from closing
-          e.stopPropagation();
+          // But we need to keep the parent menu open
 
-          // Keep the parent menu item open
+          // Store the current state of the parent menu
           const parentMenuItem = this.closest('.menu-sub').parentElement;
-          if (parentMenuItem && !parentMenuItem.classList.contains('open')) {
-            parentMenuItem.classList.add('open');
+          if (parentMenuItem) {
+            // Set a flag in localStorage to indicate this menu should stay open
+            localStorage.setItem('activeMenuParent', parentMenuItem.querySelector('.menu-link').textContent.trim());
+
+            // Ensure the parent menu is open
+            if (!parentMenuItem.classList.contains('open')) {
+              parentMenuItem.classList.add('open');
+            }
           }
         });
       });
+
+      // Check if we need to keep a menu open based on localStorage
+      const activeMenuParent = localStorage.getItem('activeMenuParent');
+      if (activeMenuParent) {
+        const menuItems = document.querySelectorAll('.menu-item > .menu-link');
+        menuItems.forEach(item => {
+          if (item.textContent.trim() === activeMenuParent) {
+            const parentItem = item.closest('.menu-item');
+            if (parentItem) {
+              parentItem.classList.add('open');
+              parentItem.classList.add('active-parent');
+            }
+          }
+        });
+      }
 
 
 

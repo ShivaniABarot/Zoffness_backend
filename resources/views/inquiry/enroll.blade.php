@@ -78,20 +78,19 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
     $(document).ready(function() {
-        $('#enrollmentTable').DataTable({
-            responsive: true,
-            pageLength: 25,
-            dom: 'Bfrtip',
-            buttons: [
-                'copy', 'excel', 'pdf', 'print'
-            ],
-            language: {
-                search: "Search:",
-                processing: '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>'
-            }
+        // Initialize DataTable with custom options
+        initDataTable('enrollmentTable', {
+            // Any custom options specific to this table
+            order: [[0, 'asc']],
+            columnDefs: [
+                { className: 'fw-semibold', targets: [7] }, // Make amount column bold
+                { className: 'text-center', targets: [8] }  // Center the package badges
+            ]
         });
     });
 </script>
+@endpush
 @endsection

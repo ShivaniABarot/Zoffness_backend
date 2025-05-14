@@ -1,17 +1,17 @@
 @extends('layouts.app')
- 
+
 @push('styles')
     @include('partials.datatables_scripts')
 @endpush
- 
+
 @section('content')
 <div class="container py-5">
     <!-- Page Header -->
     <div class="mb-2 text-center">
         <h2 class="fw-bold mb-1">College Admission Counseling</h2>
- 
+
     </div>
- 
+
     {{-- Success Message --}}
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -19,7 +19,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
- 
+
     <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
         <div class="card-body">
             <table id="collegeAdmissionTable" class="table table-striped table-bordered display responsive nowrap" style="width:100%">
@@ -74,21 +74,20 @@
         </div>
     </div>
 </div>
- 
+
+@push('scripts')
 <script>
     $(document).ready(function() {
-        $('#collegeAdmissionTable').DataTable({
-            responsive: true,
-            pageLength: 25,
-            dom: 'Bfrtip',
-            buttons: [
-                'excel', 'pdf'
-            ],
-            language: {
-                search: "Search:",
-                processing: '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>'
-            }
+        // Initialize DataTable with custom options
+        initDataTable('collegeAdmissionTable', {
+            // Any custom options specific to this table
+            order: [[0, 'asc']],
+            columnDefs: [
+                { className: 'fw-semibold', targets: [8] }, // Make amount column bold
+                { className: 'text-center', targets: [7] }  // Center the package badges
+            ]
         });
     });
 </script>
+@endpush
 @endsection
