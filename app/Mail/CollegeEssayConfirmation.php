@@ -13,12 +13,16 @@ class CollegeEssayConfirmation extends Mailable
     public $studentName;
     public $sessions;
     public $packages;
+    public $recipientName;
+    public $recipientType;
 
-    public function __construct($studentName, $sessions, $packages)
+    public function __construct($studentName, $sessions, $packages, $recipientName, $recipientType)
     {
         $this->studentName = $studentName;
         $this->sessions = $sessions;
         $this->packages = $packages;
+        $this->recipientName = $recipientName;
+        $this->recipientType = $recipientType;
     }
 
     public function build()
@@ -27,3 +31,4 @@ class CollegeEssayConfirmation extends Mailable
                     ->view('emails.college_essay_confirmation');
     }
 }
+

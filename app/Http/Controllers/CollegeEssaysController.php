@@ -40,19 +40,19 @@ class CollegeEssaysController extends Controller
     
         $essay = CollegeEssays::create($request->all());
     
-        // Email details
         $studentName = $request->student_first_name . ' ' . $request->student_last_name;
+        $parentName = $request->parent_first_name . ' ' . $request->parent_last_name;
         $sessions = $request->sessions;
         $packages = $request->packages;
     
-        // Send email to parent
+        // Email to parent
         Mail::to($request->parent_email)->send(
-            new CollegeEssayConfirmation($studentName, $sessions, $packages)
+            new CollegeEssayConfirmation($studentName, $sessions, $packages, $parentName, 'parent')
         );
     
-        // Send email to student
+        // Email to student
         Mail::to($request->student_email)->send(
-            new CollegeEssayConfirmation($studentName, $sessions, $packages)
+            new CollegeEssayConfirmation($studentName, $sessions, $packages, $studentName, 'student')
         );
     
         return response()->json([
@@ -61,5 +61,6 @@ class CollegeEssaysController extends Controller
             'data' => $essay
         ], 201);
     }
+    
     
 }

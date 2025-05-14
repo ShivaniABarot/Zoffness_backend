@@ -83,7 +83,7 @@
     <div class="email-container">
         <h2>College Essay Service Confirmation</h2>
 
-        <p>Dear Parent and Student,</p>
+        <p>Dear {{ $recipientName }},</p>
 
         <p>Thank you for registering for our College Essay service. Below are the details of your registration:</p>
 
