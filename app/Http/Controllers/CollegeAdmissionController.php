@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\CollegeAdmission;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\CollegeAdmissionConfirmation;
+use DataTables;
 
 class CollegeAdmissionController extends Controller
 {
