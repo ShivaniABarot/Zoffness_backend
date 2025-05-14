@@ -1,0 +1,357 @@
+/* Custom DataTables Styling for Zoffness */
+
+/* Card Styling for Tables */
+.card {
+    transition: all 0.3s ease-in-out;
+    border: none !important;
+    box-shadow: 0 0.25rem 1rem rgba(161, 172, 184, 0.15) !important;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1.5rem rgba(161, 172, 184, 0.2) !important;
+}
+
+.card-body {
+    padding: 1.5rem !important;
+}
+
+/* Table Container */
+.dataTables_wrapper {
+    padding: 0;
+    font-family: 'Public Sans', sans-serif;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Table Header */
+table.dataTable thead th {
+    background-color: #f8f9fa;
+    background-image: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    color: #566a7f;
+    font-weight: 600;
+    padding: 15px 10px;
+    border-bottom: 2px solid #e2e6ea;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+    position: relative;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+/* Table Header Hover */
+table.dataTable thead th:hover {
+    background-color: #f1f4f9;
+    background-image: linear-gradient(to bottom, #f8f9fa, #f1f4f9);
+}
+
+/* Table Body */
+table.dataTable tbody td {
+    padding: 12px 10px;
+    vertical-align: middle;
+    border-bottom: 1px solid #f0f0f0;
+    color: #697a8d;
+    font-size: 0.9rem;
+}
+
+/* Alternating Row Colors */
+table.dataTable.stripe tbody tr.odd {
+    background-color: #fafbff;
+}
+
+/* Row Hover Effect */
+table.dataTable.hover tbody tr:hover {
+    background-color: #f6f9ff !important;
+}
+
+/* Selected Row */
+table.dataTable tbody tr.selected {
+    background-color: #eef2ff !important;
+    color: #696cff;
+}
+
+/* Pagination */
+.dataTables_paginate {
+    margin-top: 15px !important;
+    padding-top: 15px !important;
+}
+
+.dataTables_paginate .paginate_button {
+    border-radius: 5px !important;
+    border: 1px solid #e9ecef !important;
+    background: white !important;
+    color: #697a8d !important;
+    margin: 0 3px !important;
+    padding: 5px 12px !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+.dataTables_paginate .paginate_button:hover {
+    background: #f1f4f9 !important;
+    color: #566a7f !important;
+    border-color: #d9dee3 !important;
+}
+
+.dataTables_paginate .paginate_button.current {
+    background: #696cff !important;
+    color: white !important;
+    border-color: #696cff !important;
+    font-weight: 500;
+}
+
+.dataTables_paginate .paginate_button.current:hover {
+    background: #5f61e6 !important;
+}
+
+.dataTables_paginate .paginate_button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+}
+
+/* Search Box */
+.dataTables_filter input {
+    border: 1px solid #d9dee3 !important;
+    border-radius: 5px !important;
+    padding: 8px 12px !important;
+    margin-left: 8px !important;
+    width: 250px !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+.dataTables_filter input:focus {
+    border-color: #696cff !important;
+    box-shadow: 0 0 0 0.25rem rgba(105, 108, 255, 0.1) !important;
+    outline: none !important;
+}
+
+.dataTables_filter label {
+    font-weight: 500;
+    color: #566a7f;
+}
+
+/* Length Menu */
+.dataTables_length select {
+    border: 1px solid #d9dee3 !important;
+    border-radius: 5px !important;
+    padding: 6px 30px 6px 10px !important;
+    margin: 0 5px !important;
+    background-position: right 10px center !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+.dataTables_length select:focus {
+    border-color: #696cff !important;
+    box-shadow: 0 0 0 0.25rem rgba(105, 108, 255, 0.1) !important;
+    outline: none !important;
+}
+
+.dataTables_length label {
+    font-weight: 500;
+    color: #566a7f;
+}
+
+/* Info Text */
+.dataTables_info {
+    color: #a1acb8;
+    font-size: 0.85rem;
+    padding-top: 15px !important;
+}
+
+/* Export Buttons */
+div.dt-buttons {
+    margin-bottom: 15px !important;
+}
+
+button.dt-button {
+    background: white !important;
+    border: 1px solid #d9dee3 !important;
+    border-radius: 5px !important;
+    color: #697a8d !important;
+    padding: 8px 15px !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease-in-out !important;
+    margin-right: 8px !important;
+}
+
+button.dt-button:hover {
+    background: #f1f4f9 !important;
+    color: #566a7f !important;
+    border-color: #c9ced6 !important;
+}
+
+button.dt-button:active {
+    background: #e9ecef !important;
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125) !important;
+}
+
+/* Excel Button */
+button.buttons-excel {
+    background-color: #e8f5e9 !important;
+    color: #2e7d32 !important;
+    border-color: #c8e6c9 !important;
+}
+
+button.buttons-excel:hover {
+    background-color: #c8e6c9 !important;
+    border-color: #a5d6a7 !important;
+}
+
+/* PDF Button */
+button.buttons-pdf {
+    background-color: #ffebee !important;
+    color: #c62828 !important;
+    border-color: #ffcdd2 !important;
+}
+
+button.buttons-pdf:hover {
+    background-color: #ffcdd2 !important;
+    border-color: #ef9a9a !important;
+}
+
+/* Responsive Table Styling */
+table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control:before,
+table.dataTable.dtr-inline.collapsed > tbody > tr > th.dtr-control:before {
+    background-color: #696cff !important;
+    border: 1.5px solid #5f61e6 !important;
+    box-shadow: none !important;
+    height: 16px !important;
+    width: 16px !important;
+    line-height: 16px !important;
+    border-radius: 50% !important;
+    color: white !important;
+    font-weight: bold !important;
+}
+
+table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td.dtr-control:before,
+table.dataTable.dtr-inline.collapsed > tbody > tr.parent > th.dtr-control:before {
+    background-color: #ff3e1d !important;
+    border: 1.5px solid #e8371a !important;
+}
+
+/* Loading Indicator */
+div.dataTables_processing {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: none !important;
+    border-radius: 5px !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Status Badges */
+.badge {
+    padding: 0.4em 0.8em;
+    font-size: 0.75em;
+    font-weight: 500;
+    border-radius: 50rem;
+}
+
+/* Links in Tables */
+table.dataTable tbody td a {
+    color: #696cff;
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+    font-weight: 500;
+}
+
+table.dataTable tbody td a:hover {
+    color: #5f61e6;
+    text-decoration: underline;
+}
+
+/* Custom Badge Styling */
+.badge {
+    padding: 0.4em 0.8em;
+    font-size: 0.75em;
+    font-weight: 500;
+    border-radius: 50rem;
+    box-shadow: 0 2px 4px rgba(105, 108, 255, 0.1);
+    transition: all 0.2s ease-in-out;
+}
+
+.badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(105, 108, 255, 0.2);
+}
+
+/* Custom Scrollbar for Tables */
+.dataTables_scrollBody::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.dataTables_scrollBody::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.dataTables_scrollBody::-webkit-scrollbar-thumb {
+    background: #d9dee3;
+    border-radius: 10px;
+}
+
+.dataTables_scrollBody::-webkit-scrollbar-thumb:hover {
+    background: #c9ced6;
+}
+
+/* Table Header Sorting Icons */
+table.dataTable thead .sorting:before,
+table.dataTable thead .sorting_asc:before,
+table.dataTable thead .sorting_desc:before,
+table.dataTable thead .sorting_asc_disabled:before,
+table.dataTable thead .sorting_desc_disabled:before {
+    content: "↑";
+    position: absolute;
+    top: 50%;
+    right: 0.5em;
+    transform: translateY(-50%);
+    opacity: 0.3;
+    font-size: 0.8em;
+}
+
+table.dataTable thead .sorting:after,
+table.dataTable thead .sorting_asc:after,
+table.dataTable thead .sorting_desc:after,
+table.dataTable thead .sorting_asc_disabled:after,
+table.dataTable thead .sorting_desc_disabled:after {
+    content: "↓";
+    position: absolute;
+    top: 50%;
+    right: 0.2em;
+    transform: translateY(-50%);
+    opacity: 0.3;
+    font-size: 0.8em;
+}
+
+table.dataTable thead .sorting_asc:before {
+    opacity: 1;
+}
+
+table.dataTable thead .sorting_desc:after {
+    opacity: 1;
+}
+
+/* Empty State Styling */
+.dataTables_empty {
+    padding: 50px 20px !important;
+    text-align: center !important;
+    background: #f9fafc !important;
+    color: #a1acb8 !important;
+    font-style: italic !important;
+    border-radius: 8px !important;
+}
+
+/* Custom Empty State */
+.text-muted {
+    color: #a1acb8 !important;
+}
+
+.text-muted img {
+    opacity: 0.5;
+    transition: all 0.3s ease-in-out;
+    filter: grayscale(100%);
+}
+
+.text-muted:hover img {
+    opacity: 0.7;
+    transform: scale(1.05);
+    filter: grayscale(70%);
+}
