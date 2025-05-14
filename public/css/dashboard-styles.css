@@ -418,10 +418,23 @@ body {
   margin: 0;
   list-style: none;
   overflow: hidden;
+  transition: height 0.3s ease;
 }
 
 .menu-item.open > .menu-sub {
   display: block;
+}
+
+/* Keep submenu open when a submenu item is active */
+.menu-sub .menu-item.active > .menu-link {
+  color: var(--sidebar-item-active-color);
+  font-weight: 500;
+  background-color: var(--sidebar-item-active-bg);
+}
+
+/* Ensure parent menu stays open when a child is active */
+.menu-item.active-parent {
+  display: block !important;
 }
 
 .menu-toggle::after {

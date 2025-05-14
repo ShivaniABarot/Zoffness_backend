@@ -1209,6 +1209,22 @@
 
       });
 
+      // Prevent submenu items from closing the dropdown when clicked
+      const submenuItems = document.querySelectorAll('.menu-sub .menu-item .menu-link');
+      submenuItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+          // Don't prevent default here to allow navigation
+          // Just stop propagation to prevent the dropdown from closing
+          e.stopPropagation();
+
+          // Keep the parent menu item open
+          const parentMenuItem = this.closest('.menu-sub').parentElement;
+          if (parentMenuItem && !parentMenuItem.classList.contains('open')) {
+            parentMenuItem.classList.add('open');
+          }
+        });
+      });
+
 
 
       // Add overlay for mobile menu
@@ -1291,20 +1307,23 @@
 
           link.classList.add('active');
 
+          // Mark the menu item as active
+          const menuItem = link.closest('.menu-item');
+          if (menuItem) {
+            menuItem.classList.add('active');
+          }
 
+          // If in submenu, open parent and mark it as active-parent
+          if (menuItem && menuItem.parentElement.classList.contains('menu-sub')) {
 
-          // If in submenu, open parent
+            const parentMenuItem = menuItem.parentElement.closest('.menu-item');
 
-          const parentItem = link.closest('.menu-item');
+            if (parentMenuItem) {
+              // Add open class to keep the submenu visible
+              parentMenuItem.classList.add('open');
 
-          if (parentItem && parentItem.parentElement.classList.contains('menu-sub')) {
-
-            const parentMenuitem = parentItem.parentElement.closest('.menu-item');
-
-            if (parentMenuitem) {
-
-              parentMenuitem.classList.add('open');
-
+              // Add active-parent class to mark this as a parent of an active item
+              parentMenuItem.classList.add('active-parent');
             }
 
           }
