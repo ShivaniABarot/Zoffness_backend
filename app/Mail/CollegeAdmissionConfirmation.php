@@ -13,12 +13,16 @@ class CollegeAdmissionConfirmation extends Mailable
     public $studentName;
     public $school;
     public $subtotal;
+    public $recipientName;
+    public $recipientType;
 
-    public function __construct($studentName, $school, $subtotal)
+    public function __construct($studentName, $school, $subtotal, $recipientName, $recipientType)
     {
         $this->studentName = $studentName;
         $this->school = $school;
         $this->subtotal = $subtotal;
+        $this->recipientName = $recipientName;
+        $this->recipientType = $recipientType;
     }
 
     public function build()

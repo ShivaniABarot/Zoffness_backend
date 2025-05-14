@@ -35,18 +35,19 @@ class CollegeAdmissionController extends Controller
         
         $admission = CollegeAdmission::create($validatedData);
     
-        // Prepare email data
         $studentName = $validatedData['student_first_name'] . ' ' . $validatedData['student_last_name'];
+        $parentName = $validatedData['parent_first_name'] . ' ' . $validatedData['parent_last_name'];
         $school = $validatedData['school'] ?? '';
         $subtotal = $validatedData['subtotal'] ?? 0;
     
-        // Send confirmation emails to parent and student
+        // Email to parent
         Mail::to($validatedData['parent_email'])->send(
-            new CollegeAdmissionConfirmation($studentName, $school, $subtotal)
+            new CollegeAdmissionConfirmation($studentName, $school, $subtotal, $parentName, 'parent')
         );
     
+        // Email to student
         Mail::to($validatedData['student_email'])->send(
-            new CollegeAdmissionConfirmation($studentName, $school, $subtotal)
+            new CollegeAdmissionConfirmation($studentName, $school, $subtotal, $studentName, 'student')
         );
     
         return response()->json([
@@ -55,5 +56,5 @@ class CollegeAdmissionController extends Controller
             'data' => $admission
         ], 201);
     }
-    
+        
 }
