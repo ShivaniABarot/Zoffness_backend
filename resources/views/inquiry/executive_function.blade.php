@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@push('styles')
+    @include('partials.datatables_scripts')
+@endpush
+
 @section('content')
 <div class="container py-5">
     <!-- Page Header -->
@@ -15,58 +19,53 @@
         </div>
     @endif
 
-    {{-- Table Card --}}
     <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
-        <div class="table-responsive">
-            <table class="table table-borderless table-hover align-middle mb-0">
-                <thead class="bg-light text-secondary fw-semibold text-uppercase small text-center">
+        <div class="card-body">
+            <table id="executiveFunctionTable" class="table table-striped table-bordered display responsive nowrap" style="width:100%">
+                <thead>
                     <tr>
                         <th>#</th>
                         <th>Parent Name</th>
-                        <th>Phone</th>
-                        <th>Email</th>
+                        <th>Parent Phone</th>
+                        <th>Parent Email</th>
                         <th>Student Name</th>
                         <th>Student Email</th>
                         <th>Package</th>
                         <th>Total Amount</th>
-                        {{-- <th>Actions</th> --}}
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($coaching as $coaching)
-                        <tr class="text-center">
+                    @forelse($coaching as $coach)
+                        <tr>
                             <td>{{ $loop->iteration }}</td>
-                            <td class="text-capitalize">{{ $coaching->parent_first_name }} {{ $coaching->parent_last_name }}</td>
+                            <td class="text-capitalize">{{ $coach->parent_first_name . ' ' . $coach->parent_last_name }}</td>
                             <td>
-                                <a href="tel:{{ $coaching->parent_phone }}" class="text-decoration-none text-primary">{{ $coaching->parent_phone }}</a>
+                                <a href="tel:{{ $coach->parent_phone }}" class="text-decoration-none text-primary">{{ $coach->parent_phone }}</a>
                             </td>
                             <td>
-                                <a href="mailto:{{ $coaching->parent_email }}" class="text-decoration-none text-primary">{{ $coaching->parent_email }}</a>
+                                <a href="mailto:{{ $coach->parent_email }}" class="text-decoration-none text-primary">{{ $coach->parent_email }}</a>
                             </td>
-                            <td class="text-capitalize">{{ $coaching->student_first_name }} {{ $coaching->student_last_name }}</td>
+                            <td class="text-capitalize">{{ $coach->student_first_name . ' ' . $coach->student_last_name }}</td>
                             <td>
-                                @if($coaching->student_email)
-                                    <a href="mailto:{{ $coaching->student_email }}" class="text-decoration-none text-primary">{{ $coaching->student_email }}</a>
+                                @if($coach->student_email)
+                                    <a href="mailto:{{ $coach->student_email }}" class="text-decoration-none text-primary">{{ $coach->student_email }}</a>
                                 @else
                                     <span class="text-muted">N/A</span>
                                 @endif
                             </td>
                             <td>
                                 <span class="badge bg-primary-subtle text-primary px-3 py-1 rounded-pill">
-                                    {{ $coaching->package_type }}
+                                    {{ $coach->package_type }}
                                 </span>
                             </td>
-                            <td class="fw-semibold">${{ number_format($coaching->subtotal, 2) }}</td>
-                            <td>
-                                {{-- Optional actions (uncomment if needed) --}}
-                            </td>
+                            <td class="fw-semibold">${{ number_format($coach->subtotal, 2) }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" class="text-center py-5">
+                            <td colspan="8" class="text-center py-5">
                                 <div class="text-muted">
                                     <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" alt="No Data" width="80" class="mb-3 opacity-50">
-                                    <p class="mb-0">No enrollments found.</p>
+                                    <p class="mb-0">No executive function coaching records found.</p>
                                 </div>
                             </td>
                         </tr>
@@ -76,4 +75,21 @@
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function() {
+        $('#executiveFunctionTable').DataTable({
+            responsive: true,
+            pageLength: 25,
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'excel', 'pdf', 'print'
+            ],
+            language: {
+                search: "Search:",
+                processing: '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>'
+            }
+        });
+    });
+</script>
 @endsection
