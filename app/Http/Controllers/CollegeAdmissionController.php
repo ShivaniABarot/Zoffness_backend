@@ -6,13 +6,28 @@ use Illuminate\Http\Request;
 use App\Models\CollegeAdmission;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\CollegeAdmissionConfirmation;
+use Yajra\DataTables\DataTables;
+
 class CollegeAdmissionController extends Controller
 {
-    public function index()
-    {
-        $collegeadmission = CollegeAdmission::all();
-        return view('inquiry.college_admission', compact('collegeadmission'));
+    // public function index()
+    // {
+    //     $collegeadmission = CollegeAdmission::all();
+    //     return view('inquiry.college_admission', compact('collegeadmission'));
+    // }
+
+    public function index(Request $request)
+{
+    if ($request->ajax()) {
+        $data = CollegeAdmission::select('*');
+        return DataTables::of($data)
+            ->addIndexColumn()
+            ->make(true);
     }
+
+    return view('inquiry.college_admission');
+}
+
 
     public function collage_addmission(Request $request)
     {
