@@ -1,74 +1,40 @@
 @extends('layouts.app')
 
 @push('styles')
-    @include('partials.datatables_scripts')
+    <!-- Additional styles specific to this page can be added here -->
 @endpush
 
 @section('content')
-<div class="container">
-    <h1 class="text-center">Executive Function Coaching</h1>
-    {{-- @can('create', App\Models\PraticeTest::class)
-        <a href="{{ route('enroll.create') }}" class="btn btn-primary mb-3">New Enrollment</a>
-    @endcan --}}
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Parent Name</th>
-                <th>Parent Phone</th>
-                <th>Parent Email</th>
-                <th>Student Name</th>
-                <th>Student Email</th>
-                <th>Package</th>
-                <th>Total Amount</th>
-                {{-- <th>Actions</th> --}}
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($coaching as $coaching)
-                <tr>
-                    <td>{{ $loop->iteration }}</td>
-                    <td>{{ $coaching->parent_first_name . ' ' . $coaching->parent_last_name }}</td>
-                    <td><a href="tel:{{ $coaching->parent_phone }}" class="text-decoration-none">{{ $coaching->parent_phone }}</a></td>
-                    <td><a href="mailto:{{ $coaching->parent_email }}" class="text-decoration-none">{{ $coaching->parent_email }}</a></td>
-                    <td>{{ $coaching->student_first_name . ' ' . $coaching->student_last_name }}</td>
-                    <td>
-                        @if($coaching->student_email)
-                            <a href="mailto:{{ $coaching->student_email }}" class="text-decoration-none">{{ $coaching->student_email }}</a>
-                        @else
-                            N/A
-                        @endif
-                    </td>
-                    <td>{{ $coaching->package_type }}</td>                    
-                    <td>${{ number_format($coaching->subtotal, 2) }}</td>
-                    
-                    <td>
-                        {{-- Uncomment the actions as needed --}}
-                        {{-- <a href="{{ route('enroll.show', $enrollment->id) }}" class="btn btn-info btn-sm" title="View">
-                            <i class="fas fa-eye"></i>
-                        </a>
-                        <a href="{{ route('enroll.edit', $enrollment->id) }}" class="btn btn-warning btn-sm" title="Edit">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <a href="#" class="btn btn-danger btn-sm" title="Delete" onclick="deleteEnroll({{ $enrollment->id }})">
-                            <i class="fas fa-trash"></i>
-                        </a> --}}
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="10" class="text-center">No enrollments found.</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
+<div class="container py-5">
+    <!-- Page Header -->
+    <div class="mb-4 text-center">
+        <h2 class="fw-bold mb-2" style="color: #566a7f; letter-spacing: -0.5px;">Executive Function Coaching</h2>
+        <p class="text-muted">View and manage all executive function coaching registrations</p>
+    </div>
 
-    <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
-        <div class="card-body">
-            <table id="executiveFunctionTable" class="table table-striped table-bordered display responsive nowrap" style="width:100%">
+    {{-- Success Message --}}
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden" style="background: #fff; transition: all 0.3s ease;">
+        <div class="card-header bg-transparent border-0 pt-4 pb-0">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0" style="color: #566a7f; font-weight: 600;">Coaching Registrations</h5>
+                <div class="card-actions">
+                    @can('create', App\Models\ExecutiveCoaching::class)
+                        <a href="{{ route('executive_function.create') }}" class="btn btn-primary btn-sm">
+                            <i class="bx bx-plus me-1"></i> Add New
+                        </a>
+                    @endcan
+                </div>
+            </div>
+        </div>
+        <div class="card-body pt-0">
+            <table id="executiveFunctionTable" class="table table-striped table-bordered display responsive nowrap datatable" style="width:100%">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -101,7 +67,7 @@
                                 @endif
                             </td>
                             <td>
-                                <span class="badge bg-primary-subtle text-primary px-3 py-1 rounded-pill">
+                                <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill" style="font-size: 0.85rem; font-weight: 500;">
                                     {{ $coach->package_type }}
                                 </span>
                             </td>
@@ -123,20 +89,19 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
     $(document).ready(function() {
-        $('#executiveFunctionTable').DataTable({
-            responsive: true,
-            pageLength: 25,
-            dom: 'Bfrtip',
-            buttons: [
-                'copy', 'excel', 'pdf', 'print'
-            ],
-            language: {
-                search: "Search:",
-                processing: '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>'
-            }
+        // Initialize DataTable with custom options
+        initDataTable('executiveFunctionTable', {
+            // Any custom options specific to this table
+            order: [[0, 'asc']],
+            columnDefs: [
+                { className: 'fw-semibold', targets: [7] }, // Make amount column bold
+                { className: 'text-center', targets: [6] }  // Center the package badges
+            ]
         });
     });
 </script>
+@endpush
 @endsection
