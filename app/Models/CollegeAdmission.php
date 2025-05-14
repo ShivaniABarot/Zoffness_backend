@@ -28,7 +28,8 @@ class CollegeAdmission extends Model
         'five_session_package',
         'ten_session_package',
         'fifteen_session_package',
-        'twenty_session_package'
+        'twenty_session_package',
+        'packages'
     ];
 
 }
