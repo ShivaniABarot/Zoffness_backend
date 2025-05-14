@@ -7,6 +7,7 @@ use App\Models\ExecutiveCoaching;
 use App\Mail\ExecutiveCoachingConfirmation;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\DataTables;
 
 class ExecutiveCoachingController extends Controller
 {
