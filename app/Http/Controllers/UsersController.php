@@ -61,9 +61,9 @@ class UsersController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'username' => 'required|string|max:255',
+            'username' => 'required|string',
             // 'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
+            'email' => 'required|string|email|unique:users,email,' . $id,
             'password' => 'nullable|string|min:8|confirmed',
             'role' => 'required|in:admin,tutor,parent',
         ]);

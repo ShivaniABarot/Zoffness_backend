@@ -11,7 +11,7 @@
                 <div class="card-body">
                     <div class="mb-3">
                         <strong>Username:</strong>
-                        <p class="text-muted mb-0">{{ $user->name }}</p>
+                        <p class="text-muted mb-0">{{ $user->username }}</p>
                     </div>
                     <div class="mb-3">
                         <strong>Email:</strong>
