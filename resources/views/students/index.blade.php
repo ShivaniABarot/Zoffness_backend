@@ -12,7 +12,7 @@
 
         <table class="table table-bordered">
             <thead>
-                <tr>
+                <tr>    
                     <th>#</th>
                     <th>Parent Name</th>
                     <th>Parent Email</th>
