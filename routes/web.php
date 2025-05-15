@@ -65,6 +65,9 @@ Route::get('/dashboard', [DashboardController::class, 'dashboard'])
     ->name('dashboard')
     ->middleware('auth');
 
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+
 // profile routes
 Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile')->middleware('auth');
 

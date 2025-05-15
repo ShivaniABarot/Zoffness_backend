@@ -12,6 +12,7 @@
         <div class="col-sm-7">
           <div class="card-body">
             <h5 class="card-title text-primary">Welcome {{ Auth::user()->name }}! 🎉</h5>
+            <!-- <h6 class="mb-4">Voted as the Best Tutoring Company in Westchester Country</h6> -->
             <p class="mb-4">You have access to the Zoffness College Prep admin dashboard. Manage users, tutors, students, and more from here.</p>
             <a href="{{ route('users') }}" class="btn btn-primary">Manage Users</a>
           </div>
@@ -34,9 +35,10 @@
               <div class="card-info">
                 <p class="card-text">Students</p>
                 <div class="d-flex align-items-end mb-2">
-                  <h4 class="card-title mb-0 me-2">42</h4>
-                  <small class="text-success">+8.2%</small>
-                </div>
+    <h4 class="card-title mb-0 me-2">{{ $studentCount }}</h4>
+    <!-- <small class="text-success">+8.2%</small> {{-- Optional: make this dynamic too --}} -->
+</div>
+
               </div>
               <div class="card-icon">
                 <span class="badge bg-label-primary rounded p-2">
@@ -54,8 +56,10 @@
               <div class="card-info">
                 <p class="card-text">Tutors</p>
                 <div class="d-flex align-items-end mb-2">
-                  <h4 class="card-title mb-0 me-2">12</h4>
-                  <small class="text-success">+5.1%</small>
+                <h4 class="card-title mb-0 me-2">{{ $tutorCount }}</h4>
+
+                  <!-- <h4 class="card-title mb-0 me-2">12</h4> -->
+                  <!-- <small class="text-success">+5.1%</small> -->
                 </div>
               </div>
               <div class="card-icon">

@@ -264,7 +264,8 @@
                 </g>
               </svg>
             </span>
-            <span class="app-brand-text demo menu-text fw-bolder ms-2">Zoffness</span>
+            <img src="/zoffnesscollegeprep-logo.png" alt="Zoffness College Prep Logo" class="app-brand-logo demo ms-2" style="height: 40px;">
+            <!-- <span class="app-brand-text demo menu-text fw-bolder ms-2">Zoffness</span> -->
           </a>
         </div>
         <ul class="menu-inner py-1">
