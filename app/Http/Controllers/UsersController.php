@@ -115,13 +115,12 @@ class UsersController extends Controller
     {
         $user = User::findOrFail($id);
     
-        // Delete related records in the `tutors` table
-        $user->users()->delete();
-    
-        // Delete the user
         $user->delete();
     
-        return redirect()->route('users')->with('success', 'User deleted successfully.');
+        return response()->json([
+            'success' => true,
+            'message' => 'User deleted successfully.'
+        ]);
     }
     
 }

@@ -28,5 +28,6 @@ class User extends Authenticatable implements CanResetPasswordContract
         'email_verified_at' => 'datetime',
     ];
 
+
     // Removed automatic password hashing to prevent double hashing
 }
