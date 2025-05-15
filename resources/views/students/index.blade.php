@@ -25,9 +25,9 @@
                 @foreach($students as $student)
                     <tr>
                         <td>{{ $loop->iteration }}</td>
-                        <td>{{ $student->parent_firstname }} {{ $student->parent_lastname }}</td>
+                        <td>{{ $student->parent_name }} </td>
                         <td>{{ $student->parent_email }}</td>
-                        <td>{{ $student->student_firstname }} {{ $student->student_lastname }}</td>
+                        <td>{{ $student->student_name }}</td>
                         <td>{{ $student->school }}</td>
 
                         {{-- Remove or keep Actions if you do not support edit/delete --}}

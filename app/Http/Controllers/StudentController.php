@@ -11,21 +11,32 @@ use Illuminate\Support\Facades\DB;
 class StudentController extends Controller
 {
     // Display the list of students
+    public function index()
+    {
+        $students = Student::all(); // Fetch all students, consider pagination for large datasets
+        return view('students.index', compact('students'));
+    }
     // public function index()
     // {
-    //     $students = Student::all(); // Fetch all students, consider pagination for large datasets
+    //     // Fetch data from both sat_act_course_reg and students tables
+    //     $students = DB::table('sat_act_course_reg')
+    //         ->leftJoin('students', 'sat_act_course_reg.student_email', '=', 'students.student_email')
+    //         ->select(
+    //             'sat_act_course_reg.id',
+    //             'sat_act_course_reg.parent_firstname',
+    //             'sat_act_course_reg.parent_lastname',
+    //             'sat_act_course_reg.parent_email',
+    //             'sat_act_course_reg.student_firstname',
+    //             'sat_act_course_reg.student_lastname',
+    //             'sat_act_course_reg.school',
+    //             'students.student_email as student_email',
+    //             'students.bank_name',
+    //             'students.account_number'
+    //         )
+    //         ->get();
+    
     //     return view('students.index', compact('students'));
     // }
-    public function index()
-{
-    // Fetch relevant fields including 'id'
-    $students = DB::table('sat_act_course_reg')
-        ->select('id', 'parent_firstname', 'parent_lastname', 'parent_email', 'student_firstname', 'student_lastname', 'school')
-        ->get();
-
-    return view('students.index', compact('students'));
-}
-
 
     // Display the form to add a new student
     public function create()
@@ -35,38 +46,47 @@ class StudentController extends Controller
 
     // Store a new student in the database
     public function store(Request $request)
-    {
-        // Validate the request data
-        $validated = $request->validate([
-            'parent_name' => 'required|string|max:255',
-            'parent_phone' => 'required|string|max:15',
-            'parent_email' => 'required|email|unique:students,parent_email',
-            'student_name' => 'required|string|max:255',
-            'student_email' => 'nullable|email|unique:students,student_email',
-            'school' => 'nullable|string|max:255',
-            'bank_name' => 'nullable|string|max:255',
-            'account_number' => 'nullable|string|max:20',
+{
+    // Validate the form inputs
+    $validated = $request->validate([
+        'parent_name' => 'required|string|max:255',
+        'parent_phone' => 'required|string|max:15',
+        'parent_email' => 'required|email|unique:students,parent_email',
+        'student_name' => 'required|string|max:255',
+        'student_email' => 'nullable|email|unique:students,student_email',
+        'school' => 'nullable|string|max:255',
+        'bank_name' => 'nullable|string|max:255',
+        'account_number' => 'nullable|string|max:20',
+    ]);
+
+    try {
+        // Create the Student profile
+        $student = Student::create([
+            'parent_name' => $request->parent_name,
+            'parent_phone' => $request->parent_phone,
+            'parent_email' => $request->parent_email,
+            'student_name' => $request->student_name,
+            'student_email' => $request->student_email,
+            'school' => $request->school,
+            'bank_name' => $request->bank_name,
+            'account_number' => $request->account_number,
         ]);
 
-        try {
-            // Create the student
-            $student = Student::create($validated);
-
-            // Return a success JSON response
-            return response()->json([
-                'success' => true,
-                'message' => 'Student profile created successfully.',
-                'student' => $student,
-            ]);
-        } catch (\Exception $e) {
-            // Return error JSON response
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while creating the student profile.',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Student profile created successfully.',
+            'student' => $student,
+        ]);
+    } catch (\Exception $e) {
+        \Log::error('Student Store Error: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'An error occurred while creating the student profile.',
+            'error' => $e->getMessage(),
+        ], 500);
     }
+}
+
 
     // Show a specific student
     public function show($id)
