@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Validator;
 
 class UsersController extends Controller
 {
-    // Display the user list (read)
     public function index()
     {
         $users = User::all();  // You can use pagination if needed
@@ -27,7 +26,8 @@ class UsersController extends Controller
     {
         // dd($request->all());
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            // 'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|in:admin,tutor,parent',
@@ -40,7 +40,8 @@ class UsersController extends Controller
         }
     
         User::create([
-            'name' => $request->name,
+            'username' => $request->username,
+            // 'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
@@ -60,7 +61,8 @@ class UsersController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255',
+            // 'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $id,
             'password' => 'nullable|string|min:8|confirmed',
             'role' => 'required|in:admin,tutor,parent',
@@ -73,7 +75,8 @@ class UsersController extends Controller
         }
 
         $user = User::findOrFail($id);
-        $user->name = $request->name;
+        // $user->name = $request->name;
+        $user->username = $request->username;
         $user->email = $request->email;
         $user->role = $request->role;
 
