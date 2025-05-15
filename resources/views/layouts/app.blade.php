@@ -332,7 +332,7 @@
               </li>
             </ul>
           </li>
-          <li class="menu-item {{ request()->is('payments') ? 'active' : '' }}">
+          <!-- <li class="menu-item {{ request()->is('payments') ? 'active' : '' }}">
             <a href="{{ url('payments') }}" class="menu-link">
               <i class="menu-icon bx bx-dollar"></i>
               <div>Payments</div>
@@ -343,18 +343,18 @@
               <i class="menu-icon bx bx-book"></i>
               <div>Bookings</div>
             </a>
-          </li>
-          <li class="menu-item {{ request()->is('email-settings') ? 'active' : '' }}">
+          </li> -->
+          <!-- <li class="menu-item {{ request()->is('email-settings') ? 'active' : '' }}">
             <a href="{{ url('email-settings') }}" class="menu-link">
               <i class="menu-icon bx bx-cog"></i>
               <div>Email Settings</div>
             </a>
-          </li>
+          </li> -->
           <!-- Inquiry Dropdown -->
           <li class="menu-item">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
               <i class="menu-icon bx bx-help-circle"></i>
-              <div>Inquiries</div>
+              <div>Bookings</div>
             </a>
             <ul class="menu-sub">
               <li class="menu-item {{ Request::routeIs('sat_act_course') ? 'active' : '' }}">
