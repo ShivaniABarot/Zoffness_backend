@@ -24,9 +24,7 @@ class UsersController extends Controller
     // Store a newly created user (create)
     public function store(Request $request)
     {
-        // dd($request->all());
         $validator = Validator::make($request->all(), [
-            // 'name' => 'required|string|max:255',
             'username' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
@@ -34,6 +32,13 @@ class UsersController extends Controller
         ]);
     
         if ($validator->fails()) {
+            // If it's an AJAX request, return JSON errors
+            if ($request->ajax()) {
+                return response()->json([
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+    
             return redirect()->route('users.create')
                              ->withErrors($validator)
                              ->withInput();
@@ -41,14 +46,22 @@ class UsersController extends Controller
     
         User::create([
             'username' => $request->username,
-            // 'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
         ]);
     
+        // If it's an AJAX request, return success JSON
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'User created successfully!'
+            ]);
+        }
+    
         return redirect()->route('users')->with('success', 'User created successfully.');
     }
+    
     
     // Show the form for editing the specified user (update)
     public function edit($id)
