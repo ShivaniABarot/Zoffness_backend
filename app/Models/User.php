@@ -28,8 +28,5 @@ class User extends Authenticatable implements CanResetPasswordContract
         'email_verified_at' => 'datetime',
     ];
 
-    public function setPasswordAttribute($value)
-    {
-        $this->attributes['password'] = bcrypt($value);
-    }
+    // Removed automatic password hashing to prevent double hashing
 }
