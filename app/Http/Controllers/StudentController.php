@@ -6,15 +6,26 @@ use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
+use Illuminate\Support\Facades\DB;
 
 class StudentController extends Controller
 {
     // Display the list of students
+    // public function index()
+    // {
+    //     $students = Student::all(); // Fetch all students, consider pagination for large datasets
+    //     return view('students.index', compact('students'));
+    // }
     public function index()
-    {
-        $students = Student::all(); // Fetch all students, consider pagination for large datasets
-        return view('students.index', compact('students'));
-    }
+{
+    // Fetch relevant fields including 'id'
+    $students = DB::table('sat_act_course_reg')
+        ->select('id', 'parent_firstname', 'parent_lastname', 'parent_email', 'student_firstname', 'student_lastname', 'school')
+        ->get();
+
+    return view('students.index', compact('students'));
+}
+
 
     // Display the form to add a new student
     public function create()
@@ -60,16 +71,10 @@ class StudentController extends Controller
     // Show a specific student
     public function show($id)
     {
-        $student = Student::findOrFail($id);  // This will automatically throw a 404 error if the user is not found.
-        // dd($student);
+        $student = Student::findOrFail($id); 
         return view('students.view', compact('student'));
     }
-    // Display the form to edit a student
-    // public function edit(Student $student)
-    // {
-    //     return view('students.edit', compact('student'));
-    // }
-
+ 
     public function edit($id)
     {
         $student = Student::findOrFail($id);
