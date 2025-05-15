@@ -13,7 +13,7 @@
                 <th>Name</th>
                 <th>Designation</th>
                 <th>Bio</th>
-                <th>Image</th>
+                <!-- <th>Image</th> -->
                 <th>Actions</th>
             </tr>
         </thead>

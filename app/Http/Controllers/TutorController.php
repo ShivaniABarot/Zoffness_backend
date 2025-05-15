@@ -35,19 +35,19 @@ class TutorController extends Controller
             'name' => 'required|string|max:255',
             'designation' => 'required|string|max:255',
             'bio' => 'required|string',
-            'image' => 'required|image|mimes:jpeg,png,jpg',
+            'image' => 'image|mimes:jpeg,png,jpg',
         ]);
 
         try {
             // Handle file upload
-            $imagePath = $request->file('image')->store('tutors', 'public');
+            // $imagePath = $request->file('image')->store('tutors', 'public');
 
             // Create the Tutor profile
             $tutor = Tutor::create([
                 'name' => $request->name,
                 'designation' => $request->designation,
                 'bio' => $request->bio,
-                'image' => $imagePath,
+                // 'image' => $imagePath,
             ]);
 
             return response()->json([
@@ -74,17 +74,22 @@ class TutorController extends Controller
     }
 
     // Edit tutor profile form
-    public function edit(Tutor $tutor)
-    {
-        $this->authorize('update', $tutor); // Ensure the tutor can edit their profile
+    // public function edit(Tutor $tutor)
+    // {
+    //     $this->authorize('update', $tutor); // Ensure the tutor can edit their profile
 
+    //     return view('tutors.edit', compact('tutor'));
+    // }
+    public function edit($id)
+    {
+        $tutor = Tutor::findOrFail($id);
+        // $this->authorize('update', $tutor);
         return view('tutors.edit', compact('tutor'));
     }
-
     // Update tutor profile
     public function update(Request $request, Tutor $tutor)
     {
-        $this->authorize('update', $tutor);
+        // $this->authorize('update', $tutor);
 
         $validated = $request->validate([
             'name' => 'required|string',
