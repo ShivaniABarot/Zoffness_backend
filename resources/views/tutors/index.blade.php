@@ -12,7 +12,6 @@
                 <th>#</th>
                 <th>Name</th>
                 <th>Designation</th>
-                <th>Specialization</th>
                 <th>Bio</th>
                 <th>Image</th>
                 <th>Actions</th>
@@ -24,9 +23,14 @@
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $tutor->name }}</td>
                     <td>{{ $tutor->designation }}</td>
-                    <td>{{ $tutor->specialization }}</td>
                     <td>{{ Str::limit($tutor->bio, 50) }}</td>
-                    <td>{{ $tutor->image }}</td>
+                    <!-- <td>
+    @if ($tutor->image)
+        <img src="{{ config('app.storage_url') . '/tutors/' . $tutor->image }}" alt="{{ $tutor->name }}" style="width: 50px; height: 50px; object-fit: cover;">
+    @else
+        <span>-</span>
+    @endif
+</td> -->
                     <td>
                         <a href="{{ route('tutors.show', $tutor->id) }}" class="btn btn-info btn-sm" title="View">
                             <i class="fas fa-eye"></i>

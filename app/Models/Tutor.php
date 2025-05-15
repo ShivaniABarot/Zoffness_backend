@@ -9,9 +9,8 @@ class Tutor extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 
         'name',
-        'specialization',
+        'image',
         'designation',
         'bio',
     ];
@@ -25,4 +24,11 @@ class Tutor extends Model
     {
         return $this->hasMany(Session::class);
     }
+
+    // In Tutor.php model
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 }

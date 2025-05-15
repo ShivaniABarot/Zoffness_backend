@@ -19,10 +19,10 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-4">
-                            <h5 class="font-weight-bold">Specialization</h5>
+                            <h5 class="font-weight-bold">Designation</h5>
                         </div>
                         <div class="col-md-8">
-                            <p>{{ $tutor->specialization }}</p>
+                            <p>{{ $tutor->designation }}</p>
                         </div>
                     </div>
                     <div class="row mb-3">

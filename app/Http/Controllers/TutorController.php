@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Models\Tutor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 use Illuminate\Support\Facades\Auth;
 
@@ -33,32 +34,29 @@ class TutorController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'designation' => 'required|string|max:255',
-            'specialization' => 'required|string|max:255',
             'bio' => 'required|string',
-            'image' => 'required|image|mimes:jpeg,png,jpg', 
-            ]);
+            'image' => 'required|image|mimes:jpeg,png,jpg',
+        ]);
 
         try {
             // Handle file upload
             $imagePath = $request->file('image')->store('tutors', 'public');
-            // dd($imagePath);
+
             // Create the Tutor profile
             $tutor = Tutor::create([
-                'user_id' => Auth::id(),
                 'name' => $request->name,
                 'designation' => $request->designation,
-                'specialization' => $request->specialization,
                 'bio' => $request->bio,
                 'image' => $imagePath,
             ]);
 
-            // Return success response
             return response()->json([
                 'success' => true,
                 'message' => 'Tutor profile created successfully.',
                 'tutor' => $tutor,
             ]);
         } catch (\Exception $e) {
+            Log::error('Tutor Store Error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while creating the tutor profile.',
@@ -66,7 +64,6 @@ class TutorController extends Controller
             ], 500);
         }
     }
-
 
 
 
@@ -87,23 +84,37 @@ class TutorController extends Controller
     // Update tutor profile
     public function update(Request $request, Tutor $tutor)
     {
-        $this->authorize('update', $tutor); // Ensure the tutor can update their profile
+        $this->authorize('update', $tutor);
 
-        $request->validate([
-            'name' => 'required|string|max:255',  // Ensure 'name' is required
-            'designation' => 'required|string|max:255',  // Validate designation
-            'specialization' => 'required|string|max:255',  // Validate specialization
-            'bio' => 'required|string',  // Validate bio
-        ]);
-        $tutor->update([
-            'name' => $request->name,
-            'designation' => $request->designation,
-            'specialization' => $request->specialization,
-            'bio' => $request->bio,
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'designation' => 'required|string',
+            'bio' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg',
         ]);
 
-        return redirect()->route('tutors');
+        try {
+            if ($request->hasFile('image')) {
+                // Delete old image
+                if ($tutor->image) {
+                    Storage::disk('public')->delete($tutor->image);
+                }
+                $validated['image'] = $request->file('image')->store('tutors', 'public');
+            }
+
+            $tutor->update($validated);
+
+            return redirect()->route('tutors')->with('success', 'Tutor profile updated successfully.');
+        } catch (\Exception $e) {
+            Log::error('Tutor Update Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while updating the tutor profile.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
+
 
 
     public function destroy($id)

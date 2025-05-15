@@ -9,7 +9,7 @@
                         <h4>Create New Tutor Profile</h4>
                     </div>
                     <div class="card-body">
-                        <form method="POST" action="{{ route('tutors.store') }}" id="createTutorForm">
+                        <form method="POST" action="{{ route('tutors.update') }}" id="createTutorForm">
                             @csrf
                             <div class="form-group mb-3">
                                 <label for="name" class="form-label">Tutor Name</label>
@@ -26,13 +26,7 @@
                                 <span id="designationError" class="text-danger"></span>
                             </div>
 
-                            <div class="form-group mb-3">
-                                <label for="specialization" class="form-label">Specialization</label>
-                                <input type="text" id="specialization" name="specialization" class="form-control"
-                                    value="{{ old('specialization') }}" required>
-                                <span id="specializationError" class="text-danger"></span>
-                            </div>
-
+                        
                             <div class="form-group mb-3">
                                 <label for="bio" class="form-label">Bio</label>
                                 <textarea id="bio" name="bio" class="form-control" rows="3" required>{{ old('bio') }}</textarea>

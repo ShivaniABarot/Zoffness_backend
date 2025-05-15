@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-8">
@@ -9,28 +11,19 @@
                         <h4>Create New Tutor Profile</h4>
                     </div>
                     <div class="card-body">
-                        <form method="POST" action="{{ route('tutors.store') }}" id="createTutorForm">
+                        <form id="createTutorForm" enctype="multipart/form-data">
                             @csrf
+
                             <div class="form-group mb-3">
                                 <label for="name" class="form-label">Tutor Name</label>
-                                <input type="text" id="name" name="name" class="form-control"
-                                    value="{{ old('name') }}" required>
+                                <input type="text" id="name" name="name" class="form-control" value="{{ old('name') }}" required>
                                 <span id="nameError" class="text-danger"></span>
                             </div>
 
-
                             <div class="form-group mb-3">
                                 <label for="designation" class="form-label">Designation</label>
-                                <input type="text" id="designation" name="designation" class="form-control"
-                                    value="{{ old('designation') }}" required>
+                                <input type="text" id="designation" name="designation" class="form-control" value="{{ old('designation') }}" required>
                                 <span id="designationError" class="text-danger"></span>
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <label for="specialization" class="form-label">Specialization</label>
-                                <input type="text" id="specialization" name="specialization" class="form-control"
-                                    value="{{ old('specialization') }}" required>
-                                <span id="specializationError" class="text-danger"></span>
                             </div>
 
                             <div class="form-group mb-3">
@@ -39,13 +32,11 @@
                                 <span id="bioError" class="text-danger"></span>
                             </div>
 
-                            <div class="form-group mb-3">
+                            <!-- <div class="form-group mb-3">
                                 <label for="image" class="form-label">Profile Image</label>
-                                <input type="file" id="image" name="image" class="form-control"
-                                    accept="image/jpeg,image/png,image/jpg" required>
+                                <input type="file" id="image" name="image" class="form-control" accept="image/jpeg,image/png,image/jpg" required>
                                 <span id="imageError" class="text-danger"></span>
-                            </div>
-
+                            </div> -->
 
                             <div class="d-flex justify-content-between align-items-center">
                                 <button type="submit" class="btn btn-primary">Submit</button>
@@ -60,30 +51,34 @@
 
     <!-- Include SweetAlert from CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- CSRF for AJAX -->
+    <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+    </script>
 
     <script>
-        $(document).ready(function() {
-            $('#createTutorForm').on('submit', function(e) {
-                e.preventDefault(); // Prevent the default form submission
+        $(document).ready(function () {
+            $('#createTutorForm').on('submit', function (e) {
+                e.preventDefault();
 
                 // Clear previous errors
-                $('#nameError').text('');
-                $('#designationError').text('');
-                $('#specializationError').text('');
-                $('#bioError').text('');
-                $('#imageError').text('');
+                $('#nameError, #designationError, #bioError, #imageError').text('');
 
-                // Gather form data
                 var formData = new FormData(this);
 
-                // Send AJAX request
                 $.ajax({
                     url: '{{ route('tutors.store') }}',
-                    type: 'POST',
+                    method: 'POST',
                     data: formData,
                     processData: false,
                     contentType: false,
-                    success: function(response) {
+                    success: function (response) {
                         if (response.success) {
                             Swal.fire({
                                 title: 'Success!',
@@ -97,16 +92,21 @@
                             });
                         }
                     },
-                    error: function(xhr) {
-                        var errors = xhr.responseJSON.errors;
-                        if (errors.name) $('#nameError').text(errors.name[0]);
-                        if (errors.designation) $('#designationError').text(errors.designation[
-                            0]);
-                        if (errors.specialization) $('#specializationError').text(errors
-                            .specialization[0]);
-                        if (errors.bio) $('#bioError').text(errors.bio[0]);
-                        if (errors.image) $('#imageError').text(errors.image[0]);
-                    },
+                    error: function (xhr) {
+                        const errors = xhr.responseJSON.errors;
+                        if (errors) {
+                            if (errors.name) $('#nameError').text(errors.name[0]);
+                            if (errors.designation) $('#designationError').text(errors.designation[0]);
+                            if (errors.bio) $('#bioError').text(errors.bio[0]);
+                            if (errors.image) $('#imageError').text(errors.image[0]);
+                        } else {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Something went wrong. Please check console or logs.',
+                                icon: 'error'
+                            });
+                        }
+                    }
                 });
             });
         });

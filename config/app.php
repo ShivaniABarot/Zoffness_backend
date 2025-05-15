@@ -55,6 +55,7 @@ return [
     */
 
     'url' => env('APP_URL', 'http://zoff.bugle.space'),
+    'storage_url' => env('STORAGE_URL', 'https://srv944-files.hstgr.io/428bd9484e2dc338/files/public_html/storage/app/public'),
 
     'asset_url' => env('ASSET_URL'),
 
