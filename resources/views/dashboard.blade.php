@@ -93,48 +93,41 @@
       </div>
       <div class="card-body">
         <ul class="p-0 m-0">
-          <li class="d-flex mb-3">
+          @forelse($recentSessions as $session)
+          <li class="d-flex {{ !$loop->last ? 'mb-3' : '' }}">
             <div class="avatar flex-shrink-0 me-3">
-              <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-time"></i></span>
+              <span class="avatar-initial rounded bg-label-{{ $session->session_type == 'regular' ? 'primary' : 'info' }}">
+                <i class="bx bx-time"></i>
+              </span>
             </div>
             <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
               <div class="me-2">
-                <h6 class="mb-0">SAT Prep Session</h6>
-                <small class="text-muted">John Smith with Tutor Alex</small>
+                <h6 class="mb-0">{{ $session->title }}</h6>
+                <small class="text-muted">
+                  {{ ucfirst($session->session_type) }} - ${{ number_format($session->price_per_slot, 2) }}
+                </small>
               </div>
               <div class="user-progress">
-                <small class="fw-semibold">Today</small>
+                <small class="fw-semibold">
+                  @if($session->created_at->isToday())
+                    Today
+                  @elseif($session->created_at->isYesterday())
+                    Yesterday
+                  @else
+                    {{ $session->created_at->format('M d') }}
+                  @endif
+                </small>
               </div>
             </div>
           </li>
-          <li class="d-flex mb-3">
-            <div class="avatar flex-shrink-0 me-3">
-              <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-time"></i></span>
-            </div>
-            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-              <div class="me-2">
-                <h6 class="mb-0">College Essay Review</h6>
-                <small class="text-muted">Sarah Johnson with Tutor Maria</small>
-              </div>
-              <div class="user-progress">
-                <small class="fw-semibold">Yesterday</small>
-              </div>
+          @empty
+          <li class="text-center py-4">
+            <div class="text-muted">
+              <i class="bx bx-calendar-x fs-1 mb-2 opacity-50"></i>
+              <p>No recent sessions found</p>
             </div>
           </li>
-          <li class="d-flex">
-            <div class="avatar flex-shrink-0 me-3">
-              <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-time"></i></span>
-            </div>
-            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-              <div class="me-2">
-                <h6 class="mb-0">ACT Math Practice</h6>
-                <small class="text-muted">Michael Brown with Tutor David</small>
-              </div>
-              <div class="user-progress">
-                <small class="fw-semibold">May 5</small>
-              </div>
-            </div>
-          </li>
+          @endforelse
         </ul>
       </div>
     </div>
@@ -156,48 +149,39 @@
       </div>
       <div class="card-body">
         <ul class="p-0 m-0">
-          <li class="d-flex mb-3">
+          @forelse($recentBookings as $booking)
+          <li class="d-flex {{ !$loop->last ? 'mb-3' : '' }}">
             <div class="avatar flex-shrink-0 me-3">
-              <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-calendar"></i></span>
+              <span class="avatar-initial rounded bg-label-primary">
+                <i class="bx {{ $booking['icon'] ?? 'bx-calendar' }}"></i>
+              </span>
             </div>
             <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
               <div class="me-2">
-                <h6 class="mb-0">SAT Prep Package</h6>
-                <small class="text-muted">Emma Wilson - 10 Sessions</small>
+                <h6 class="mb-0">{{ $booking['type'] }}</h6>
+                <small class="text-muted">{{ $booking['student_name'] }} - {{ $booking['sessions'] }}</small>
               </div>
               <div class="user-progress">
-                <small class="fw-semibold">New</small>
+                <small class="fw-semibold">
+                  <span class="badge bg-label-{{
+                    $booking['status'] == 'New' ? 'info' :
+                    ($booking['status'] == 'Confirmed' ? 'success' :
+                    ($booking['status'] == 'Pending' ? 'warning' : 'primary'))
+                  }}">
+                    {{ $booking['status'] }}
+                  </span>
+                </small>
               </div>
             </div>
           </li>
-          <li class="d-flex mb-3">
-            <div class="avatar flex-shrink-0 me-3">
-              <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-calendar"></i></span>
-            </div>
-            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-              <div class="me-2">
-                <h6 class="mb-0">College Counseling</h6>
-                <small class="text-muted">James Davis - 5 Sessions</small>
-              </div>
-              <div class="user-progress">
-                <small class="fw-semibold">Confirmed</small>
-              </div>
+          @empty
+          <li class="text-center py-4">
+            <div class="text-muted">
+              <i class="bx bx-calendar-x fs-1 mb-2 opacity-50"></i>
+              <p>No recent bookings found</p>
             </div>
           </li>
-          <li class="d-flex">
-            <div class="avatar flex-shrink-0 me-3">
-              <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-calendar"></i></span>
-            </div>
-            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-              <div class="me-2">
-                <h6 class="mb-0">ACT Complete Prep</h6>
-                <small class="text-muted">Olivia Martinez - 15 Sessions</small>
-              </div>
-              <div class="user-progress">
-                <small class="fw-semibold">Pending</small>
-              </div>
-            </div>
-          </li>
+          @endforelse
         </ul>
       </div>
     </div>
@@ -219,48 +203,43 @@
       </div>
       <div class="card-body">
         <ul class="p-0 m-0">
-          <li class="d-flex mb-3">
+          @forelse($recentPayments as $payment)
+          <li class="d-flex {{ !$loop->last ? 'mb-3' : '' }}">
             <div class="avatar flex-shrink-0 me-3">
-              <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-dollar"></i></span>
+              <span class="avatar-initial rounded bg-label-{{ $payment->status == 'Completed' ? 'success' : 'warning' }}">
+                <i class="bx bx-dollar"></i>
+              </span>
             </div>
             <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
               <div class="me-2">
-                <h6 class="mb-0">$1,200.00</h6>
-                <small class="text-muted">SAT Complete Package</small>
+                <h6 class="mb-0">${{ number_format($payment->amount, 2) }}</h6>
+                <small class="text-muted">
+                  @if($payment->package_id && $payment->package)
+                    {{ $payment->package->name }}
+                  @elseif($payment->session_id && $payment->session)
+                    {{ $payment->session->title }}
+                  @else
+                    {{ $payment->payment_method }} Payment
+                  @endif
+                </small>
               </div>
               <div class="user-progress">
-                <small class="fw-semibold">Completed</small>
+                <small class="fw-semibold">
+                  <span class="badge bg-label-{{ $payment->status == 'Completed' ? 'success' : 'warning' }}">
+                    {{ $payment->status }}
+                  </span>
+                </small>
               </div>
             </div>
           </li>
-          <li class="d-flex mb-3">
-            <div class="avatar flex-shrink-0 me-3">
-              <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-dollar"></i></span>
-            </div>
-            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-              <div class="me-2">
-                <h6 class="mb-0">$850.00</h6>
-                <small class="text-muted">College Essay Review</small>
-              </div>
-              <div class="user-progress">
-                <small class="fw-semibold">Completed</small>
-              </div>
+          @empty
+          <li class="text-center py-4">
+            <div class="text-muted">
+              <i class="bx bx-dollar-circle fs-1 mb-2 opacity-50"></i>
+              <p>No recent payments found</p>
             </div>
           </li>
-          <li class="d-flex">
-            <div class="avatar flex-shrink-0 me-3">
-              <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-dollar"></i></span>
-            </div>
-            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-              <div class="me-2">
-                <h6 class="mb-0">$350.00</h6>
-                <small class="text-muted">Single Session Payment</small>
-              </div>
-              <div class="user-progress">
-                <small class="fw-semibold">Pending</small>
-              </div>
-            </div>
-          </li>
+          @endforelse
         </ul>
       </div>
     </div>

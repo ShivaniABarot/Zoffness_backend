@@ -32,10 +32,119 @@ class DashboardController extends Controller
 
     public function index()
     {
+        // Get counts for dashboard stats
         $studentCount = Student::count();
         $tutorCount = Tutor::count();
 
-        return view('dashboard', compact('studentCount', 'tutorCount'));
+        // Get recent sessions (last 5)
+        $recentSessions = \App\Models\Session::with('timeslots')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        // Get recent bookings from various tables
+        $recentBookings = $this->getRecentBookings();
+
+        // Get recent payments
+        $recentPayments = \App\Models\Payment::with(['package', 'session'])
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        return view('dashboard', compact(
+            'studentCount',
+            'tutorCount',
+            'recentSessions',
+            'recentBookings',
+            'recentPayments'
+        ));
+    }
+
+    /**
+     * Get recent bookings from various tables
+     */
+    private function getRecentBookings()
+    {
+        $bookings = collect();
+
+        // Get SAT/ACT Course bookings
+        $satActBookings = SAT_ACT_course::orderBy('created_at', 'desc')
+            ->take(3)
+            ->get()
+            ->map(function($item) {
+                return [
+                    'id' => $item->id,
+                    'type' => 'SAT Prep Package',
+                    'name' => $item->package_name ?? 'SAT/ACT Course',
+                    'student_name' => $item->student_first_name . ' ' . $item->student_last_name,
+                    'sessions' => $item->sessions ?? '10 Sessions',
+                    'status' => 'New',
+                    'created_at' => $item->created_at,
+                    'route' => 'sat_act_course.show',
+                    'icon' => 'bx-book'
+                ];
+            });
+        $bookings = $bookings->concat($satActBookings);
+
+        // Get College Admission bookings
+        $collegeAdmissionBookings = CollegeAdmission::orderBy('created_at', 'desc')
+            ->take(3)
+            ->get()
+            ->map(function($item) {
+                return [
+                    'id' => $item->id,
+                    'type' => 'College Counseling',
+                    'name' => $item->packages ?? 'College Admission',
+                    'student_name' => $item->student_first_name . ' ' . $item->student_last_name,
+                    'sessions' => $item->sessions ?? '5 Sessions',
+                    'status' => 'Confirmed',
+                    'created_at' => $item->created_at,
+                    'route' => 'college_admission.show',
+                    'icon' => 'bx-building-house'
+                ];
+            });
+        $bookings = $bookings->concat($collegeAdmissionBookings);
+
+        // Get College Essays bookings
+        $collegeEssaysBookings = CollegeEssays::orderBy('created_at', 'desc')
+            ->take(3)
+            ->get()
+            ->map(function($item) {
+                return [
+                    'id' => $item->id,
+                    'type' => 'College Essay Review',
+                    'name' => $item->packages ?? 'College Essay',
+                    'student_name' => $item->student_first_name . ' ' . $item->student_last_name,
+                    'sessions' => $item->sessions ?? '3 Sessions',
+                    'status' => 'Pending',
+                    'created_at' => $item->created_at,
+                    'route' => 'college_essays.show',
+                    'icon' => 'bx-edit'
+                ];
+            });
+        $bookings = $bookings->concat($collegeEssaysBookings);
+
+        // Get Executive Coaching bookings
+        $executiveCoachingBookings = ExecutiveCoaching::orderBy('created_at', 'desc')
+            ->take(3)
+            ->get()
+            ->map(function($item) {
+                return [
+                    'id' => $item->id,
+                    'type' => 'ACT Complete Prep',
+                    'name' => $item->package_type ?? 'Executive Coaching',
+                    'student_name' => $item->student_first_name . ' ' . $item->student_last_name,
+                    'sessions' => $item->sessions ?? '15 Sessions',
+                    'status' => 'Pending',
+                    'created_at' => $item->created_at,
+                    'route' => 'executive_coaching.show',
+                    'icon' => 'bx-brain'
+                ];
+            });
+        $bookings = $bookings->concat($executiveCoachingBookings);
+
+        // Sort by created_at and take the most recent 5
+        return $bookings->sortByDesc('created_at')->take(5)->values();
     }
 
 
@@ -83,14 +192,14 @@ class DashboardController extends Controller
                     $modelQuery = $entry['model']::where('created_at', '>=', now()->subDays(10))
                         ->latest('created_at')
                         ->take(10);
-                    
+
                     $data = $modelQuery->get()
                         ->map(function ($item) use ($entry) {
                             // Safely access the description field
-                            $description = isset($item->{$entry['description_field']}) 
-                                ? $item->{$entry['description_field']} 
+                            $description = isset($item->{$entry['description_field']})
+                                ? $item->{$entry['description_field']}
                                 : 'No description available';
-                            
+
                             return [
                                 'type' => $entry['type'],
                                 'description' => $description,
@@ -105,10 +214,10 @@ class DashboardController extends Controller
             }
 
             $result = $recentBookings->sortByDesc('created_at')->take(10)->values()->all();
-            
+
             Log::info('Recent bookings fetched successfully', ['count' => count($result)]);
             return response()->json($result);
-            
+
         } catch (\Exception $e) {
             Log::error('Error fetching recent bookings:', [
                 'error' => $e->getMessage(),
@@ -117,7 +226,7 @@ class DashboardController extends Controller
             return response()->json(['error' => 'Failed to fetch recent bookings: ' . $e->getMessage()], 500);
         }
     }
-    
+
     // Add a method for viewing all bookings
     public function allRecentBookings()
     {
