@@ -101,9 +101,7 @@
             <p><strong>The Zoffness College Prep Team</strong></p>
         </div>
 
-        <div class="footer">
-            &copy; 2025 Zoffness College Prep &mdash; Empowering Futures. All rights reserved.
-        </div>
+        <!-- Footer removed as requested -->
     </div>
 </body>
 </html>

@@ -1,111 +1,147 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
-        <h1 class="text-center">Student List</h1>
-        {{-- Remove this button if students are not created via this form --}}
-         <a href="{{ route('students.create') }}" class="btn btn-primary mb-3">Add Student</a>
+<div class="container-fluid">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Student List</h5>
+            <a href="{{ route('students.create') }}" class="btn btn-primary">
+                <i class="bx bx-plus me-1"></i> Add Student
+            </a>
+        </div>
+        <div class="card-body">
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
 
-        @if(session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-
-        <table class="table table-bordered">
-            <thead>
-                <tr>    
-                    <th>#</th>
-                    <th>Parent Name</th>
-                    <th>Parent Email</th>
-                    <th>Student Name</th>
-                    <th>School</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($students as $student)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $student->parent_name }} </td>
-                        <td>{{ $student->parent_email }}</td>
-                        <td>{{ $student->student_name }}</td>
-                        <td>{{ $student->school }}</td>
-
-                        {{-- Remove or keep Actions if you do not support edit/delete --}}
-                        <td>
-                            @if(!empty($student->id))
-                                <a href="{{ route('students.show', $student->id) }}" class="btn btn-info btn-sm" title="View">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="{{ route('students.edit', $student->id) }}" class="btn btn-warning btn-sm" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="#" class="btn btn-danger btn-sm" title="Delete" onclick="deleteTutor({{ $student->id }})">
-                            <i class="fas fa-trash"></i>
-                        </a>
-                            @else
-                                <span class="text-muted">N/A</span>
-                            @endif
-                        </td>
-
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+            <div class="table-responsive">
+                <table id="studentsTable" class="table table-striped table-hover datatable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Parent Name</th>
+                            <th>Parent Email</th>
+                            <th>Student Name</th>
+                            <th>School</th>
+                            <th class="text-center no-export">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($students as $student)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $student->parent_name }}</td>
+                                <td>{{ $student->parent_email }}</td>
+                                <td>{{ $student->student_name }}</td>
+                                <td>{{ $student->school }}</td>
+                                <td class="text-center">
+                                    @if(!empty($student->id))
+                                        <div class="d-inline-flex">
+                                            <a href="{{ route('students.show', $student->id) }}" class="btn btn-sm btn-icon btn-action-view" title="View">
+                                                <i class="bx bx-show"></i>
+                                            </a>
+                                            <a href="{{ route('students.edit', $student->id) }}" class="btn btn-sm btn-icon btn-action-edit" title="Edit">
+                                                <i class="bx bx-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-icon btn-action-delete"
+                                                    onclick="deleteStudent({{ $student->id }})" title="Delete">
+                                                <i class="bx bx-trash"></i>
+                                            </button>
+                                        </div>
+                                    @else
+                                        <span class="text-muted">N/A</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <div class="text-muted">
+                                        <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" alt="No Data" width="80" class="mb-3 opacity-50">
+                                        <p class="mb-0">No students found.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</div>
 
-    <script>
-        function deleteTutor(tutorId) {
-            // Show SweetAlert confirmation dialog
-            Swal.fire({
-                title: 'Are you sure?',
-                text: 'Do you want to delete this student profile?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'No, cancel!',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // If confirmed, send AJAX request to delete the tutor
-                    jQuery.ajax({
-                        url: '{{ route('students.delete', '') }}/' + id, 
-                        type: 'DELETE',
-                        data: {
-                            _token: '{{ csrf_token() }}', // Include CSRF token
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                // Show success message and refresh the page or redirect
-                                Swal.fire(
-                                    'Deleted!',
-                                    response.message,
-                                    'success'
-                                ).then(() => {
-                                    location.reload(); // Reload the page to update the list
-                                });
-                            } else {
-                                // Show error message if tutor not found or couldn't delete
-                                Swal.fire(
-                                    'Error!',
-                                    response.message,
-                                    'error'
-                                );
-                            }
-                        },
-                        error: function (xhr) {
-                            // Handle errors, if any
+<script>
+    function deleteStudent(studentId) {
+        // Show SweetAlert confirmation dialog
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you want to delete this student profile?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // If confirmed, send AJAX request to delete the student
+                $.ajax({
+                    url: '{{ route('students.delete', '') }}/' + studentId,
+                    type: 'DELETE',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire(
+                                'Deleted!',
+                                response.message,
+                                'success'
+                            ).then(() => {
+                                location.reload();
+                            });
+                        } else {
                             Swal.fire(
                                 'Error!',
-                                'An unexpected error occurred.',
+                                response.message,
                                 'error'
                             );
                         }
-                    });
-                }
-            });
-        }
-    </script>
+                    },
+                    error: function(xhr) {
+                        Swal.fire(
+                            'Error!',
+                            'An unexpected error occurred.',
+                            'error'
+                        );
+                    }
+                });
+            }
+        });
+}
+</script>
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        // Initialize DataTable with custom options
+        initDataTable('studentsTable', {
+            // Any custom options specific to this table
+            order: [[3, 'asc']], // Sort by student name column
+            columnDefs: [
+                { width: "5%", targets: [0] },       // Make # column narrow
+                { width: "15%", targets: [1] },      // Parent Name column width
+                { width: "20%", targets: [2] },      // Parent Email column width
+                { width: "15%", targets: [3] },      // Student Name column width
+                { width: "30%", targets: [4] },      // School column width
+                { width: "15%", targets: [5] },      // Actions column width
+                { orderable: false, targets: [5] }   // Disable sorting on actions column
+            ]
+        });
+    });
+</script>
+@endpush
 
 @endsection
