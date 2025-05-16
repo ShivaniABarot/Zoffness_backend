@@ -109,12 +109,16 @@
               </div>
               <div class="user-progress">
                 <small class="fw-semibold">
-                  @if($session->created_at->isToday())
-                    Today
-                  @elseif($session->created_at->isYesterday())
-                    Yesterday
+                  @if($session->created_at && $session->created_at instanceof \Carbon\Carbon)
+                    @if($session->created_at->isToday())
+                      Today
+                    @elseif($session->created_at->isYesterday())
+                      Yesterday
+                    @else
+                      {{ $session->created_at->format('M d') }}
+                    @endif
                   @else
-                    {{ $session->created_at->format('M d') }}
+                    N/A
                   @endif
                 </small>
               </div>

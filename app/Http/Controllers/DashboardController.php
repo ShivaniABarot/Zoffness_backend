@@ -37,19 +37,31 @@ class DashboardController extends Controller
         $tutorCount = Tutor::count();
 
         // Get recent sessions (last 5)
-        $recentSessions = \App\Models\Session::with('timeslots')
-            ->orderBy('created_at', 'desc')
-            ->take(5)
-            ->get();
+        try {
+            $recentSessions = \App\Models\Session::orderBy('created_at', 'desc')
+                ->take(5)
+                ->get();
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error loading sessions: ' . $e->getMessage());
+            $recentSessions = collect(); // Empty collection if there's an error
+        }
 
         // Get recent bookings from various tables
         $recentBookings = $this->getRecentBookings();
 
         // Get recent payments
-        $recentPayments = \App\Models\Payment::with(['package', 'session'])
-            ->orderBy('created_at', 'desc')
-            ->take(5)
-            ->get();
+        try {
+            if (class_exists('\App\Models\Payment')) {
+                $recentPayments = \App\Models\Payment::orderBy('created_at', 'desc')
+                    ->take(5)
+                    ->get();
+            } else {
+                $recentPayments = collect(); // Empty collection if Payment model doesn't exist
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error loading payments: ' . $e->getMessage());
+            $recentPayments = collect(); // Empty collection if there's an error
+        }
 
         return view('dashboard', compact(
             'studentCount',
