@@ -66,8 +66,9 @@ Route::get('/dashboard', [DashboardController::class, 'dashboard'])
     ->middleware('auth');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-
+    Route::get('/recent-bookings', [DashboardController::class, 'recentBookings'])->name('recentBookings');
+    Route::get('/all-bookings', [DashboardController::class, 'allRecentBookings'])->name('recentBookings.all');
+    
 // profile routes
 Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile')->middleware('auth');
 
