@@ -6,6 +6,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Student;
 use App\Models\Tutor;
+use App\Models\SAT_ACT_course;
+use App\Models\CollegeAdmission;
+use App\Models\CollegeEssays;
+use App\Models\ExecutiveCoaching;
+use App\Models\PraticeTest;
+use App\Models\Enroll;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -38,32 +44,32 @@ class DashboardController extends Controller
         try {
             $tables = [
                 [
-                    'model' => \App\Models\SAT_ACT_course::class,
+                    'model' => SAT_ACT_course::class,
                     'type' => 'SAT/ACT Course',
                     'description_field' => 'package_name'
                 ],
                 [
-                    'model' => \App\Models\CollegeAdmission::class,
+                    'model' => CollegeAdmission::class,
                     'type' => 'College Admission',
                     'description_field' => 'packages'
                 ],
                 [
-                    'model' => \App\Models\CollegeEssays::class,
+                    'model' => CollegeEssays::class,
                     'type' => 'College Essay',
                     'description_field' => 'packages'
                 ],
                 [
-                    'model' => \App\Models\ExecutiveCoaching::class,
+                    'model' => ExecutiveCoaching::class,
                     'type' => 'Executive Function Coaching',
                     'description_field' => 'package_type'
                 ],
                 [
-                    'model' => \App\Models\PracticeTest::class, // Fixed the typo in the model name
+                    'model' => PraticeTest::class, // Fixed the typo in the model name
                     'type' => 'Practice Test',
                     'description_field' => 'test_type'
                 ],
                 [
-                    'model' => \App\Models\Enroll::class,
+                    'model' => Enroll::class,
                     'type' => 'Enrollment',
                     'description_field' => 'packages'
                 ],
