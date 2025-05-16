@@ -1,55 +1,74 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
-        <h1 class="text-center">Package List</h1>
-        <a href="{{ route('collage_essays_packages.create') }}" class="btn btn-primary mb-3">Add New</a>
+<div class="container-fluid">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">College Admission</h5>
+            <a href="{{ route('collage_essays_packages.create') }}" class="btn btn-primary">
+                <i class="bx bx-plus me-1"></i> Add Package
+            </a>
+        </div>
+        <div class="card-body">
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
 
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Price</th>
-                    <th>Description</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($CollageEssaysPackage as $package)
-                    <tr>
-                        <td>{{ $package->id }}</td>
-                        <td>{{ $package->name }}</td>
-                        <td>${{ $package->price }}</td>
-                        <td>{{ $package->description }}</td>
-                        <td>
-                            <a href="{{ route('collage_essays_packages.show', $package->id) }}" class="btn btn-info btn-sm" title="View">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            <a href="{{ route('collage_essays_packages.edit', $package->id) }}" class="btn btn-warning btn-sm"
-                                title="Edit">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <a href="#" class="btn btn-danger btn-sm" title="Delete"
-                                onclick="deletePackage({{ $package->id }})">
-                                <i class="fas fa-trash"></i>
-                            </a>
-
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+            <div class="table-responsive">
+                <table id="collegeAdmissionTable" class="table table-striped table-hover datatable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Description</th>
+                            <th class="text-center no-export">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($CollageEssaysPackage as $package)
+                            <tr>
+                                <td>{{ $package->id }}</td>
+                                <td>{{ $package->name }}</td>
+                                <td class="fw-semibold">${{ number_format($package->price, 2) }}</td>
+                                <td>{{ Str::limit($package->description, 100) }}</td>
+                                <td class="text-center">
+                                    <div class="d-inline-flex">
+                                        <a href="{{ route('collage_essays_packages.show', $package->id) }}" class="btn btn-sm btn-icon btn-action-view" title="View">
+                                            <i class="bx bx-show"></i>
+                                        </a>
+                                        <a href="{{ route('collage_essays_packages.edit', $package->id) }}" class="btn btn-sm btn-icon btn-action-edit" title="Edit">
+                                            <i class="bx bx-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-icon btn-action-delete"
+                                                onclick="deletePackage({{ $package->id }})" title="Delete">
+                                            <i class="bx bx-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="text-center py-5">
+                                    <div class="text-muted">
+                                        <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" alt="No Data" width="80" class="mb-3 opacity-50">
+                                        <p class="mb-0">No college admission packages found.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</div>
 
-    <script>
-      function deletePackage(PID) {
+<script>
+    function deletePackage(packageId) {
         // Show SweetAlert confirmation dialog
         Swal.fire({
             title: 'Are you sure?',
@@ -61,25 +80,23 @@
             reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
-                // If confirmed, send AJAX request to delete the tutor
-                jQuery.ajax({
-                    url: '{{ route('collage_essays_packages.delete', '') }}/' + PID, // Construct URL dynamically
+                // If confirmed, send AJAX request to delete the package
+                $.ajax({
+                    url: '{{ route('collage_essays_packages.delete', '') }}/' + packageId,
                     type: 'DELETE',
                     data: {
-                        _token: '{{ csrf_token() }}', // Include CSRF token
+                        _token: '{{ csrf_token() }}',
                     },
                     success: function(response) {
                         if (response.success) {
-                            // Show success message and refresh the page or redirect
                             Swal.fire(
                                 'Deleted!',
                                 response.message,
                                 'success'
                             ).then(() => {
-                                location.reload(); // Reload the page to update the list
+                                location.reload();
                             });
                         } else {
-                            // Show error message if tutor not found or couldn't delete
                             Swal.fire(
                                 'Error!',
                                 response.message,
@@ -88,7 +105,6 @@
                         }
                     },
                     error: function(xhr) {
-                        // Handle errors, if any
                         Swal.fire(
                             'Error!',
                             'An unexpected error occurred.',
@@ -99,5 +115,27 @@
             }
         });
     }
-    </script>
+</script>
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        // Initialize DataTable with custom options
+        initDataTable('collegeAdmissionTable', {
+            // Any custom options specific to this table
+            order: [[1, 'asc']], // Sort by name column
+            columnDefs: [
+                { width: "5%", targets: [0] },       // Make # column narrow
+                { width: "30%", targets: [1] },      // Name column width
+                { width: "15%", targets: [2] },      // Price column width
+                { width: "35%", targets: [3] },      // Description column width
+                { width: "15%", targets: [4] },      // Actions column width
+                { className: 'fw-semibold', targets: [2] }, // Make price column bold
+                { orderable: false, targets: [4] }   // Disable sorting on actions column
+            ]
+        });
+    });
+</script>
+@endpush
+
 @endsection

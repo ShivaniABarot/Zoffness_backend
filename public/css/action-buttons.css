@@ -1,0 +1,110 @@
+/* Custom Action Buttons Styling for Zoffness */
+
+/* Action buttons container */
+.d-inline-flex {
+    display: inline-flex !important;
+    gap: 5px; /* Consistent spacing between buttons */
+}
+
+/* Base button styling */
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px !important;
+    transition: all 0.2s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-icon i {
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+/* View button - Teal */
+.btn-action-view {
+    background-color: #e0f7fa !important;
+    color: #00897b !important;
+    border: none !important;
+}
+
+.btn-action-view:hover {
+    background-color: #00897b !important;
+    color: #ffffff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 5px rgba(0, 137, 123, 0.3);
+}
+
+/* Edit button - Purple */
+.btn-action-edit {
+    background-color: #f3e5f5 !important;
+    color: #8e24aa !important;
+    border: none !important;
+}
+
+.btn-action-edit:hover {
+    background-color: #8e24aa !important;
+    color: #ffffff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 5px rgba(142, 36, 170, 0.3);
+}
+
+/* Delete button - Danger (Red) */
+.btn-action-delete {
+    background-color: #feebee !important;
+    color: #e53935 !important;
+    border: none !important;
+}
+
+.btn-action-delete:hover {
+    background-color: #e53935 !important;
+    color: #ffffff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 5px rgba(229, 57, 53, 0.3);
+}
+
+/* Button ripple effect */
+.btn-icon::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+    background-repeat: no-repeat;
+    background-position: 50%;
+    transform: scale(10, 10);
+    opacity: 0;
+    transition: transform 0.3s, opacity 0.5s;
+}
+
+.btn-icon:active::after {
+    transform: scale(0, 0);
+    opacity: 0.3;
+    transition: 0s;
+}
+
+/* Tooltip enhancement */
+.btn-icon:hover::before {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Mobile optimization */
+@media (max-width: 576px) {
+    .btn-icon {
+        width: 28px;
+        height: 28px;
+    }
+
+    .btn-icon i {
+        font-size: 0.85rem;
+    }
+}
