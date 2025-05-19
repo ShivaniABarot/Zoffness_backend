@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Student;
 use App\Models\Tutor;
-use App\Models\SAT_ACT_course;
+use App\Models\SAT_ACT_Course;
 use App\Models\CollegeAdmission;
 use App\Models\CollegeEssays;
 use App\Models\ExecutiveCoaching;
@@ -80,7 +80,7 @@ class DashboardController extends Controller
         $bookings = collect();
 
         // Get SAT/ACT Course bookings
-        $satActBookings = SAT_ACT_course::orderBy('created_at', 'desc')
+        $satActBookings = SAT_ACT_Course::orderBy('created_at', 'desc')
             ->take(3)
             ->get()
             ->map(function($item) {
@@ -165,7 +165,7 @@ class DashboardController extends Controller
         try {
             $tables = [
                 [
-                    'model' => SAT_ACT_course::class,
+                    'model' => SAT_ACT_Course::class,
                     'type' => 'SAT/ACT Course',
                     'description_field' => 'package_name'
                 ],
