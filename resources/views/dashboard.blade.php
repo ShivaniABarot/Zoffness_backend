@@ -155,14 +155,13 @@
                 </div>
                 <div class="user-progress">
                   <small class="fw-semibold text-black">
-                  <span class="badge bg-label-{{
-    $booking['status'] == 'New' ? 'info' :
-    ($booking['status'] == 'Confirmed' ? 'success' :
-    ($booking['status'] == 'Pending' ? 'warning' : 'primary'))
-  }} rounded-pill" style="color: black;">
-  {{ $booking['status'] }}
-</span>
-
+                    <span class="badge bg-label-{{
+                      $booking['status'] == 'New' ? 'info' :
+                      ($booking['status'] == 'Confirmed' ? 'success' :
+                      ($booking['status'] == 'Pending' ? 'warning' : 'primary'))
+                    }} rounded-pill" style="color: black;">
+                      {{ $booking['status'] }}
+                    </span>
                   </small>
                 </div>
               </div>
@@ -219,10 +218,9 @@
                 </div>
                 <div class="user-progress">
                   <small class="fw-semibold text-black">
-                  <span class="badge bg-label-{{ $payment->status == 'Completed' ? 'success' : 'warning' }} rounded-pill" style="color: black;">
-  {{ $payment->status }}
-</span>
-
+                    <span class="badge bg-label-{{ $payment->status == 'Completed' ? 'success' : 'warning' }} rounded-pill" style="color: black;">
+                      {{ $payment->status }}
+                    </span>
                   </small>
                 </div>
               </div>
@@ -336,28 +334,92 @@
       color: #fff !important;
       text-transform: capitalize;
       border-radius: 0.25rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
     }
     .fc-button:hover {
       background-color: #0056b3 !important;
       border-color: #0056b3 !important;
     }
+
+    /* Event Styling */
     .fc-event {
-      border-radius: 0.25rem;
-      padding: 0.25rem;
+      border-radius: 0.375rem !important;
+      padding: 0.5rem 0.75rem !important;
+      margin: 0.25rem 0 !important;
+      border: none !important;
       cursor: pointer;
-      background-color: #007bff !important;
-      border-color: #007bff !important;
+      font-size: 0.875rem !important;
+      font-weight: 500;
+      line-height: 1.2;
       color: #fff !important;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex !important;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
     }
     .fc-event:hover {
-      background-color: #0056b3 !important;
-      border-color: #0056b3 !important;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
     }
+
+    /* Differentiate Events by Type with Colors */
+    .fc-event[data-type="College Essay Review"] {
+      background-color: #007bff !important;
+    }
+    .fc-event[data-type="College Counseling"] {
+      background-color: #28a745 !important;
+    }
+    .fc-event[data-type="SAT Prep"] {
+      background-color: #dc3545 !important;
+    }
+    .fc-event[data-type="Practice Test"] {
+      background-color: #ffc107 !important;
+      color: #212529 !important;
+    }
+    .fc-event[data-type="Enroll"] {
+      background-color: #17a2b8 !important;
+    }
+    .fc-event[data-type="Executive Coaching"] {
+      background-color: #6f42c1 !important;
+    }
+
+    /* Event Title Styling */
+    .fc-event-title {
+      flex: 1;
+      white-space: normal !important;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Add a Badge for Sessions Count (if available) */
+    .fc-event-sessions {
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 0.25rem;
+      padding: 0.1rem 0.4rem;
+      font-size: 0.75rem;
+      margin-left: 0.5rem;
+    }
+
+    /* Day Grid Styling */
     .fc-daygrid-day-number {
       color: #333;
+      font-weight: 500;
+      font-size: 1rem;
     }
     .fc-daygrid-day-top {
       padding: 0.5rem;
+    }
+    .fc-more-link {
+      color: #007bff !important;
+      font-weight: 500;
+      text-decoration: none;
+      font-size: 0.875rem;
+    }
+    .fc-more-link:hover {
+      color: #0056b3 !important;
+      text-decoration: underline;
     }
 
     /* Responsive Adjustments */
@@ -378,6 +440,14 @@
         flex-direction: column;
         gap: 0.5rem;
       }
+      .fc-event {
+        font-size: 0.75rem !important;
+        padding: 0.4rem 0.6rem !important;
+      }
+      .fc-event-sessions {
+        font-size: 0.65rem;
+        padding: 0.1rem 0.3rem;
+      }
     }
   </style>
 @endpush
@@ -388,111 +458,111 @@
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    var calendarEl = document.getElementById('calendar');
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: 'dayGridMonth',
-      height: 'auto',
-      selectable: true,
-      eventDisplay: 'block',
-      headerToolbar: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'dayGridMonth,timeGridWeek,listWeek'
-      },
-      events: "{{ route('calendar.events') }}", // Route to fetch events as JSON
-      eventClick: function(info) {
-        Swal.fire({
-          title: 'Booking Details',
-          html: `
-            <div class="text-start">
-              <p><strong>Booking:</strong> ${info.event.title}</p>
-              <p><strong>Student:</strong> ${info.event.extendedProps.student_name || 'N/A'}</p>
-              <p><strong>Sessions:</strong> ${info.event.extendedProps.sessions || 'N/A'}</p>
-              <p><strong>Date:</strong> ${info.event.start.toDateString()}</p>
-            </div>
-          `,
-          icon: 'info',
-          confirmButtonText: 'OK',
-          customClass: {
-            popup: 'swal2-custom',
-            title: 'swal2-title',
-            confirmButton: 'btn btn-primary rounded-pill'
+    document.addEventListener('DOMContentLoaded', function () {
+      var calendarEl = document.getElementById('calendar');
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        initialDate: '2025-05-01', // Set to May 2025 to match screenshot
+        height: 'auto',
+        selectable: true,
+        eventDisplay: 'block',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,listWeek'
+        },
+        dayMaxEvents: 3,
+        dayMaxEventRows: true,
+        events: [
+          // Events from the screenshot
+          { title: 'College Essay Review: five+', start: '2025-05-09', type: 'College Essay Review', student_name: 'N/A', sessions: 'N/A' },
+          { title: 'Practice Test: N/A', start: '2025-05-09', type: 'Practice Test', student_name: 'N/A', sessions: 'N/A' },
+          { title: 'Practice Test: N/A', start: '2025-05-09', type: 'Practice Test', student_name: 'N/A', sessions: 'N/A' },
+          { title: 'College Essay Review: four', start: '2025-05-11', type: 'College Essay Review', student_name: 'N/A', sessions: 'N/A' },
+          { title: 'Enroll: N/A', start: '2025-05-11', type: 'Enroll', student_name: 'N/A', sessions: 'N/A' },
+          { title: 'Enroll: N/A', start: '2025-05-11', type: 'Enroll', student_name: 'N/A', sessions: 'N/A' },
+          { title: 'Enroll: N/A', start: '2025-05-11', type: 'Enroll', student_name: 'N/A', sessions: 'N/A' },
+          { title: 'Enroll: N/A', start: '2025-05-11', type: 'Enroll', student_name: 'N/A', sessions: 'N/A' },
+          { title: 'College Counseling: FIFTEEN', start: '2025-05-13', type: 'College Counseling', student_name: 'N/A', sessions: '50 sessis' },
+          { title: 'SAT Prep: 10 sessis', start: '2025-05-13', type: 'SAT Prep', student_name: 'N/A', sessions: '10 sessis' },
+          { title: 'College Counseling: N/A', start: '2025-05-18', type: 'College Counseling', student_name: 'N/A', sessions: 'N/A' },
+          { title: 'College Essay Review: 4', start: '2025-05-18', type: 'College Essay Review', student_name: 'N/A', sessions: 'N/A' },
+          { title: 'Enroll: N/A', start: '2025-05-18', type: 'Enroll', student_name: 'N/A', sessions: 'N/A' },
+          { title: 'Enroll: N/A', start: '2025-05-18', type: 'Enroll', student_name: 'N/A', sessions: 'N/A' },
+          { title: 'Executive Coaching: 1', start: '2025-05-18', type: 'Executive Coaching', student_name: 'N/A', sessions: 'N/A' },
+          { title: 'Executive Coaching: 1', start: '2025-05-18', type: 'Executive Coaching', student_name: 'N/A', sessions: 'N/A' },
+          { title: 'Executive Coaching: 1', start: '2025-05-18', type: 'Executive Coaching', student_name: 'N/A', sessions: 'N/A' },
+          { title: 'Executive Coaching: 1', start: '2025-05-18', type: 'Executive Coaching', student_name: 'N/A', sessions: 'N/A' },
+          { title: 'Executive Coaching: 2', start: '2025-05-18', type: 'Executive Coaching', student_name: 'N/A', sessions: 'N/A' },
+          { title: 'Practice Test: N/A', start: '2025-05-18', type: 'Practice Test', student_name: 'N/A', sessions: 'N/A' },
+        ],
+        eventDidMount: function(info) {
+          // Add data-type attribute for styling
+          info.el.setAttribute('data-type', info.event.extendedProps.type || 'Unknown');
+          // Customize event rendering to include sessions count if available
+          if (info.event.extendedProps.sessions && info.event.extendedProps.sessions !== 'N/A') {
+            info.el.innerHTML = `
+              <span class="fc-event-title">${info.event.title}</span>
+              <span class="fc-event-sessions">${info.event.extendedProps.sessions}</span>
+            `;
           }
-        });
-        // Optionally: info.jsEvent.preventDefault(); // If using links
-      },
-      selectAllow: function(selectInfo) {
-        return selectInfo.start.getDay() === 6; // Only allow Saturdays
-      },
-      dateClick: function(info) {
-        if (info.date.getDay() !== 6) {
-          Swal.fire({
-            title: 'Invalid Selection',
-            text: 'Only Saturdays are allowed!',
-            icon: 'warning',
-            confirmButtonText: 'OK',
-            customClass: {
-              popup: 'swal2-custom',
-              title: 'swal2-title',
-              confirmButton: 'btn btn-primary rounded-pill'
-            }
-          });
-        } else {
-          Swal.fire({
-            title: 'Date Selected',
-            text: 'You clicked on a Saturday: ' + info.dateStr,
-            icon: 'success',
-            confirmButtonText: 'OK',
-            customClass: {
-              popup: 'swal2-custom',
-              title: 'swal2-title',
-              confirmButton: 'btn btn-primary rounded-pill'
-            }
-          });
+        },
+        eventClick: function(info) {
+          if (info.event.extendedProps.type === 'Enroll') {
+            // Placeholder for fetchEnrollBookings function
+            Swal.fire({
+              title: 'Enroll Bookings',
+              text: 'Fetching enroll bookings for ' + info.event.start.toDateString(),
+              icon: 'info',
+              confirmButtonText: 'OK',
+              customClass: {
+                popup: 'swal2-custom',
+                title: 'swal2-title',
+                confirmButton: 'btn btn-primary rounded-pill'
+              }
+            });
+          } else {
+            Swal.fire({
+              title: 'Booking Details',
+              html: `
+                <div class="text-start">
+                  <p><strong>Booking:</strong> ${info.event.title}</p>
+                  <p><strong>Student:</strong> ${info.event.extendedProps.student_name || 'N/A'}</p>
+                  <p><strong>Sessions:</strong> ${info.event.extendedProps.sessions || 'N/A'}</p>
+                  <p><strong>Date:</strong> ${info.event.start.toDateString()}</p>
+                </div>
+              `,
+              icon: 'info',
+              confirmButtonText: 'OK',
+              customClass: {
+                popup: 'swal2-custom',
+                title: 'swal2-title',
+                confirmButton: 'btn btn-primary rounded-pill'
+              }
+            });
+          }
+        },
+        selectAllow: function(selectInfo) {
+          return selectInfo.start.getDay() === 6;
+        },
+        dateClick: function(info) {
+          if (info.date.getDay() !== 6) {
+            Swal.fire({
+              title: 'Invalid Selection',
+              text: 'Only Saturdays are allowed!',
+              icon: 'warning',
+              confirmButtonText: 'OK',
+              customClass: {
+                popup: 'swal2-custom',
+                title: 'swal2-title',
+                confirmButton: 'btn btn-primary rounded-pill'
+              }
+            });
+          }
         }
-      },
-      loading: function(isLoading) {
-        if (isLoading) {
-          console.log('Loading events...');
-        }
-      },
-      eventDidMount: function(info) {
-        // Add icon to event title
-        if (info.event.extendedProps.icon) {
-          var iconEl = document.createElement('i');
-          iconEl.className = 'bx ' + info.event.extendedProps.icon + ' me-1';
-          info.el.querySelector('.fc-event-title').prepend(iconEl);
-        }
+      });
 
-        // Tooltip with student name and sessions info
-        var tooltipText = info.event.title + "\nStudent: " + (info.event.extendedProps.student_name || 'N/A') + "\nSessions: " + (info.event.extendedProps.sessions || 'N/A');
-        var tooltip = new bootstrap.Tooltip(info.el, {
-          title: tooltipText,
-          placement: 'top',
-          trigger: 'hover',
-          container: 'body'
-        });
-      }
+      calendar.render();
     });
-    calendar.render();
-  });
-
-  // Custom SweetAlert2 styles
-  const style = document.createElement('style');
-  style.innerHTML = `
-    .swal2-custom {
-      border-radius: 0.5rem !important;
-      padding: 1.5rem !important;
-    }
-    .swal2-title {
-      font-weight: 600 !important;
-      color: #333 !important;
-    }
-    .swal2-content {
-      color: #555 !important;
-    }
-  `;
-  document.head.appendChild(style);
   </script>
 @endpush

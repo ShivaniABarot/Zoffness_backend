@@ -23,7 +23,7 @@ class DashboardController extends Controller
         $recentBookings = $this->getRecentBookings();
 
         return view('dashboard', compact('recentBookings'));
-        }
+    }
 
     public function logout()
     {
@@ -43,7 +43,7 @@ class DashboardController extends Controller
                 ->map(function ($session) {
                     $status = optional($session->session_date)->isPast() ? 'Completed' : 'Upcoming';
 
-                    return (object)[
+                    return (object) [
                         'id' => $session->id,
                         'title' => $session->title,
                         'session_type' => $session->session_type,
@@ -95,7 +95,9 @@ class DashboardController extends Controller
             ['model' => SAT_ACT_Course::class, 'type' => 'SAT Prep Package', 'description_field' => 'package_name', 'sessions_default' => '10 Sessions', 'icon' => 'bx-book', 'status' => 'New'],
             ['model' => CollegeAdmission::class, 'type' => 'College Counseling', 'description_field' => 'packages', 'sessions_default' => '5 Sessions', 'icon' => 'bx-building-house', 'status' => 'Confirmed'],
             ['model' => CollegeEssays::class, 'type' => 'College Essay Review', 'description_field' => 'packages', 'sessions_default' => '3 Sessions', 'icon' => 'bx-edit', 'status' => 'Pending'],
-            ['model' => ExecutiveCoaching::class, 'type' => 'ACT Complete Prep', 'description_field' => 'package_type', 'sessions_default' => '15 Sessions', 'icon' => 'bx-brain', 'status' => 'Pending'],
+            ['model' => Enroll::class, 'type' => 'Enroll', 'description_field' => 'package_type', 'sessions_default' => '15 Sessions', 'icon' => 'bx-brain', 'status' => 'Pending'],
+            ['model' => PraticeTest::class, 'type' => 'Pratice Test', 'description_field' => 'package_type', 'sessions_default' => '15 Sessions', 'icon' => 'bx-brain', 'status' => 'Pending'],
+            ['model' => ExecutiveCoaching::class, 'type' => 'Executive Coaching', 'description_field' => 'package_type', 'sessions_default' => '15 Sessions', 'icon' => 'bx-brain', 'status' => 'Pending'],
         ];
 
         $bookings = collect();
@@ -126,27 +128,34 @@ class DashboardController extends Controller
         return $bookings->sortByDesc('created_at')->take(5)->values();
     }
 
-
-    public function getEvents()
+    public function getEvents(Request $request)
     {
+        $typeFilter = $request->query('type', null); // Get type filter from query parameter
         $tables = [
-            ['model' => SAT_ACT_Course::class, 'type' => 'SAT Prep Package', 'description_field' => 'package_name', 'icon' => 'bx-book'],
-            ['model' => CollegeAdmission::class, 'type' => 'College Counseling', 'description_field' => 'packages', 'icon' => 'bx-building-house'],
-            ['model' => CollegeEssays::class, 'type' => 'College Essay Review', 'description_field' => 'packages', 'icon' => 'bx-edit'],
-            ['model' => ExecutiveCoaching::class, 'type' => 'ACT Complete Prep', 'description_field' => 'package_type', 'icon' => 'bx-brain'],
+            ['model' => SAT_ACT_Course::class, 'type' => 'SAT Prep Package', 'description_field' => 'package_name', 'sessions_default' => '10 Sessions', 'icon' => 'bx-book', 'status' => 'New'],
+            ['model' => CollegeAdmission::class, 'type' => 'College Counseling', 'description_field' => 'packages', 'sessions_default' => '5 Sessions', 'icon' => 'bx-building-house', 'status' => 'Confirmed'],
+            ['model' => CollegeEssays::class, 'type' => 'College Essay Review', 'description_field' => 'packages', 'sessions_default' => '3 Sessions', 'icon' => 'bx-edit', 'status' => 'Pending'],
+            ['model' => Enroll::class, 'type' => 'Enroll', 'description_field' => 'package_type', 'sessions_default' => '15 Sessions', 'icon' => 'bx-brain', 'status' => 'Pending'],
+            ['model' => PraticeTest::class, 'type' => 'Pratice Test', 'description_field' => 'package_type', 'sessions_default' => '15 Sessions', 'icon' => 'bx-brain', 'status' => 'Pending'],
+            ['model' => ExecutiveCoaching::class, 'type' => 'Executive Coaching', 'description_field' => 'package_type', 'sessions_default' => '15 Sessions', 'icon' => 'bx-brain', 'status' => 'Pending'],
         ];
 
         $events = [];
 
         foreach ($tables as $entry) {
+            // Skip non-Enroll types if type filter is set to 'Enroll'
+            if ($typeFilter && $entry['type'] !== $typeFilter) {
+                continue;
+            }
+
             if (class_exists($entry['model'])) {
-                $bookings = $entry['model']::orderBy('created_at', 'desc')->take(10)->get();
+                $query = $entry['model']::orderBy('created_at', 'desc')->take(10);
+                $bookings = $query->get();
 
                 foreach ($bookings as $booking) {
-                    // Assume booking has a date or created_at field to use for calendar event date
-                    $date = $booking->start_date ?? $booking->created_at ?? null; // Adjust field to actual date field
+                    $date = $booking->start_date ?? $booking->created_at ?? null;
                     if (!$date) {
-                        continue; // Skip if no date
+                        continue;
                     }
 
                     $events[] = [
@@ -156,7 +165,7 @@ class DashboardController extends Controller
                         'allDay' => true,
                         'extendedProps' => [
                             'student_name' => $booking->student_first_name . ' ' . $booking->student_last_name,
-                            'sessions' => $booking->sessions ?? '',
+                            'sessions' => $booking->sessions ?? $entry['sessions_default'],
                             'type' => $entry['type'],
                         ],
                         'icon' => $entry['icon'],
@@ -168,19 +177,37 @@ class DashboardController extends Controller
         return response()->json($events);
     }
 
+    public function getEnrollBookings(Request $request)
+    {
+        $date = $request->query('date');
+        $type = $request->query('type');
+
+        if (!$date || !$type || $type !== 'Enroll') {
+            return response()->json([]);
+        }
+
+        $bookings = Enroll::whereDate('start_date', $date) // Adjust to your actual date field
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'type' => 'Enroll',
+                    'name' => $item->package_type ?? 'N/A',
+                    'student_name' => $item->student_first_name . ' ' . $item->student_last_name,
+                    'sessions' => $item->sessions ?? '15 Sessions',
+                    'status' => 'Pending',
+                    'icon' => 'bx-brain'
+                ];
+            });
+
+        return response()->json($bookings);
+        }
 
 
 
 
 
 
-
-
-
-
-
-
-
-    
 
 }
