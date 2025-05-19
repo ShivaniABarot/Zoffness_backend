@@ -418,11 +418,16 @@
             title: 'No Bookings',
             text: 'No bookings found for this type and date.',
             icon: 'info',
+            showCloseButton: true, // Add top-right "X" button
             confirmButtonText: 'OK',
+            showCancelButton: true, // Optional: keep bottom "X" button
+            cancelButtonText: 'X',
             customClass: {
               popup: 'swal2-custom',
               title: 'swal2-title',
-              confirmButton: 'btn btn-primary rounded-pill'
+              confirmButton: 'btn btn-primary rounded-pill',
+              cancelButton: 'btn btn-outline-secondary rounded-pill',
+              closeButton: 'swal2-close-custom' // Custom class for styling the "X"
             }
           });
           return;
@@ -468,11 +473,16 @@
             title: info.event.extendedProps.type + ' on ' + info.event.start.toDateString(),
             html: html,
             icon: 'info',
+            showCloseButton: true, // Add top-right "X" button
             confirmButtonText: 'OK',
+            showCancelButton: true, // Optional: keep bottom "X" button
+            cancelButtonText: 'X',
             customClass: {
               popup: 'swal2-custom',
               title: 'swal2-title',
-              confirmButton: 'btn btn-primary rounded-pill'
+              confirmButton: 'btn btn-primary rounded-pill',
+              cancelButton: 'btn btn-outline-secondary rounded-pill',
+              closeButton: 'swal2-close-custom' // Custom class for styling the "X"
             }
           });
         })
@@ -481,11 +491,16 @@
             title: 'Error',
             text: 'Failed to fetch booking details.',
             icon: 'error',
+            showCloseButton: true, // Add top-right "X" button
             confirmButtonText: 'OK',
+            showCancelButton: true, // Optional: keep bottom "X" button
+            cancelButtonText: 'X',
             customClass: {
               popup: 'swal2-custom',
               title: 'swal2-title',
-              confirmButton: 'btn btn-primary rounded-pill'
+              confirmButton: 'btn btn-primary rounded-pill',
+              cancelButton: 'btn btn-outline-secondary rounded-pill',
+              closeButton: 'swal2-close-custom' // Custom class for styling the "X"
             }
           });
         });
@@ -499,11 +514,16 @@
             title: 'Invalid Selection',
             text: 'Only Saturdays are allowed!',
             icon: 'warning',
+            showCloseButton: true, // Add top-right "X" button
             confirmButtonText: 'OK',
+            showCancelButton: true, // Optional: keep bottom "X" button
+            cancelButtonText: 'X',
             customClass: {
               popup: 'swal2-custom',
               title: 'swal2-title',
-              confirmButton: 'btn btn-primary rounded-pill'
+              confirmButton: 'btn btn-primary rounded-pill',
+              cancelButton: 'btn btn-outline-secondary rounded-pill',
+              closeButton: 'swal2-close-custom' // Custom class for styling the "X"
             }
           });
         }
