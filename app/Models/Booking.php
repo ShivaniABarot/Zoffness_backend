@@ -68,7 +68,7 @@ class Booking extends Model
     }
 
     /**
-     * Scope to filter bookings by session.
+     * Scope to filter bookings by session.z
      */
     public function scopeSession($query, $sessionId)
     {

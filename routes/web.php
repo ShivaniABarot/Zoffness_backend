@@ -64,11 +64,13 @@ Route::post('/logout', [DashboardController::class, 'logout'])->name('logout');
 Route::get('/dashboard', [DashboardController::class, 'dashboard'])
     ->name('dashboard')
     ->middleware('auth');
-
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/recent-bookings', [DashboardController::class, 'recentBookings'])->name('recentBookings');
     Route::get('/all-bookings', [DashboardController::class, 'allRecentBookings'])->name('recentBookings.all');
-    
+    Route::get('/calendar/events', [DashboardController::class, 'events'])->name('calendar.events');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/calendar/events', [DashboardController::class, 'getEvents'])->name('calendar.events');
+
 // profile routes
 Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile')->middleware('auth');
 
