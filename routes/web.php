@@ -71,7 +71,8 @@ Route::get('/dashboard', [DashboardController::class, 'dashboard'])
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/calendar/events', [DashboardController::class, 'getEvents'])->name('calendar.events');
     Route::get('/calendar/enroll-bookings', [DashboardController::class, 'getEnrollBookings'])->name('calendar.enroll.bookings');
-// profile routes
+    Route::get('/calendar/events', [DashboardController::class, 'getEvents'])->name('calendar.events');
+    Route::get('/calendar/bookings', [DashboardController::class, 'getBookingsByTypeAndDate'])->name('calendar.bookings');// profile routes
 Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile')->middleware('auth');
 
 

@@ -411,19 +411,12 @@
       dayMaxEventRows: true,
       events: "{{ route('calendar.events') }}",
       eventClick: function(info) {
-        if (info.event.extendedProps.type === 'Enroll') {
-          fetchEnrollBookings(info.event.start.toDateString(), info.event.extendedProps.type);
-        } else {
+        // Ensure booking_ids exists and is an array
+        const bookingIds = info.event.extendedProps.booking_ids || [];
+        if (bookingIds.length === 0) {
           Swal.fire({
-            title: 'Booking Details',
-            html: `
-              <div class="text-start">
-                <p><strong>Booking:</strong> ${info.event.title}</p>
-                <p><strong>Student:</strong> ${info.event.extendedProps.student_name || 'N/A'}</p>
-                <p><strong>Sessions:</strong> ${info.event.extendedProps.sessions || 'N/A'}</p>
-                <p><strong>Date:</strong> ${info.event.start.toDateString()}</p>
-              </div>
-            `,
+            title: 'No Bookings',
+            text: 'No bookings found for this type and date.',
             icon: 'info',
             confirmButtonText: 'OK',
             customClass: {
@@ -432,7 +425,70 @@
               confirmButton: 'btn btn-primary rounded-pill'
             }
           });
+          return;
         }
+
+        // Fetch bookings for the selected type and date
+        fetch('{{ route('calendar.bookings') }}?type=' + encodeURIComponent(info.event.extendedProps.type) + 
+              '&date=' + info.event.start.toDateString() + 
+              '&booking_ids=' + bookingIds.join(','), {
+          headers: {
+            'Accept': 'application/json'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          // Build HTML for the popup
+          let html = '<div class="text-start">';
+          if (data.length > 0) {
+            html += '<h5 class="mb-3">' + info.event.extendedProps.type + ' Bookings</h5>';
+            html += '<ul class="list-unstyled">';
+            data.forEach(booking => {
+              html += `
+                <li class="mb-3">
+                  <strong>Booking:</strong> ${booking.name}<br>
+                  <strong>Student:</strong> ${booking.student_name}<br>
+                  <strong>Sessions:</strong> ${booking.sessions}<br>
+                  <strong>Status:</strong> <span class="badge bg-label-${
+                    booking.status === 'New' ? 'info' :
+                    booking.status === 'Confirmed' ? 'success' :
+                    booking.status === 'Pending' ? 'warning' : 'primary'
+                  } rounded-pill" style="color: black;">${booking.status}</span>
+                </li>
+              `;
+            });
+            html += '</ul>';
+          } else {
+            html += '<p>No bookings found for this type and date.</p>';
+          }
+          html += '</div>';
+
+          // Show popup with booking details
+          Swal.fire({
+            title: info.event.extendedProps.type + ' on ' + info.event.start.toDateString(),
+            html: html,
+            icon: 'info',
+            confirmButtonText: 'OK',
+            customClass: {
+              popup: 'swal2-custom',
+              title: 'swal2-title',
+              confirmButton: 'btn btn-primary rounded-pill'
+            }
+          });
+        })
+        .catch(error => {
+          Swal.fire({
+            title: 'Error',
+            text: 'Failed to fetch booking details.',
+            icon: 'error',
+            confirmButtonText: 'OK',
+            customClass: {
+              popup: 'swal2-custom',
+              title: 'swal2-title',
+              confirmButton: 'btn btn-primary rounded-pill'
+            }
+          });
+        });
       },
       selectAllow: function(selectInfo) {
         return selectInfo.start.getDay() === 6;
