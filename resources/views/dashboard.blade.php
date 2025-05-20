@@ -475,14 +475,14 @@
             icon: 'info',
             showCloseButton: true, // Add top-right "X" button
             confirmButtonText: 'OK',
-            showCancelButton: true, // Optional: keep bottom "X" button
-            cancelButtonText: 'X',
+            // showCancelButton: true, // Optional: keep bottom "X" button
+            // cancelButtonText: 'X',
             customClass: {
               popup: 'swal2-custom',
               title: 'swal2-title',
               confirmButton: 'btn btn-primary rounded-pill',
-              cancelButton: 'btn btn-outline-secondary rounded-pill',
-              closeButton: 'swal2-close-custom' // Custom class for styling the "X"
+            //   cancelButton: 'btn btn-outline-secondary rounded-pill',
+            //   closeButton: 'swal2-close-custom' // Custom class for styling the "X"
             }
           });
         })
@@ -493,14 +493,14 @@
             icon: 'error',
             showCloseButton: true, // Add top-right "X" button
             confirmButtonText: 'OK',
-            showCancelButton: true, // Optional: keep bottom "X" button
-            cancelButtonText: 'X',
+            // showCancelButton: true, // Optional: keep bottom "X" button
+            // cancelButtonText: 'X',
             customClass: {
               popup: 'swal2-custom',
               title: 'swal2-title',
               confirmButton: 'btn btn-primary rounded-pill',
-              cancelButton: 'btn btn-outline-secondary rounded-pill',
-              closeButton: 'swal2-close-custom' // Custom class for styling the "X"
+            //   cancelButton: 'btn btn-outline-secondary rounded-pill',
+            //   closeButton: 'swal2-close-custom' // Custom class for styling the "X"
             }
           });
         });
@@ -516,14 +516,14 @@
             icon: 'warning',
             showCloseButton: true, // Add top-right "X" button
             confirmButtonText: 'OK',
-            showCancelButton: true, // Optional: keep bottom "X" button
-            cancelButtonText: 'X',
+            // showCancelButton: true, // Optional: keep bottom "X" button
+            // cancelButtonText: 'X',
             customClass: {
               popup: 'swal2-custom',
               title: 'swal2-title',
               confirmButton: 'btn btn-primary rounded-pill',
-              cancelButton: 'btn btn-outline-secondary rounded-pill',
-              closeButton: 'swal2-close-custom' // Custom class for styling the "X"
+              // cancelButton: 'btn btn-outline-secondary rounded-pill',
+              // closeButton: 'swal2-close-custom' // Custom class for styling the "X"
             }
           });
         }
