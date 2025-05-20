@@ -1,43 +1,47 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-5">
+<div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card shadow-lg">
-                <div class="card-header bg-primary text-white text-center">
-                    <h3>{{ $tutor->name }}'s Profile</h3>
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white text-center rounded-top">
+                    <h4 class="mb-0 text-white">
+                        <i class="bi bi-person-circle me-2"></i>{{ $tutor->name }}'s Profile
+                    </h4>
                 </div>
-                <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <h5 class="font-weight-bold">Designation</h5>
-                        </div>
-                        <div class="col-md-8">
-                            <p>{{ $tutor->designation }}</p>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <h5 class="font-weight-bold">Designation</h5>
-                        </div>
-                        <div class="col-md-8">
-                            <p>{{ $tutor->designation }}</p>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <h5 class="font-weight-bold">Bio</h5>
-                        </div>
-                        <div class="col-md-8">
-                            <p>{{ $tutor->bio }}</p>
+                <div class="card-body px-4 py-4">
+                    {{-- Name --}}
+                    <div class="mb-4 d-flex align-items-center">
+                        <i class="bi bi-person-fill text-primary me-2 fs-5"></i>
+                        <div>
+                            <strong>Name:</strong>
+                            <div class="text-muted">{{ $tutor->name }}</div>
                         </div>
                     </div>
 
-                    <!-- Back Button -->
-                    <div class="d-flex justify-content-end">
+                    {{-- Designation --}}
+                    <div class="mb-4 d-flex align-items-center">
+                        <i class="bi bi-award-fill text-primary me-2 fs-5"></i>
+                        <div>
+                            <strong>Designation:</strong>
+                            <div class="text-muted">{{ $tutor->designation }}</div>
+                        </div>
+                    </div>
+
+                    {{-- Bio --}}
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-card-text text-primary me-2 fs-5"></i>
+                        <div>
+                            <strong>Bio:</strong>
+                            <div class="text-muted">{{ $tutor->bio }}</div>
+                        </div>
+                    </div>
+
+                    {{-- Back Button --}}
+                    <div class="mt-4 text-center">
                         <a href="{{ route('tutors') }}" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left-circle"></i> Back to List
+                            <i class="bi bi-arrow-left-circle"></i> Back to Tutors
                         </a>
                     </div>
                 </div>
@@ -46,6 +50,6 @@
     </div>
 </div>
 
-<!-- Add Bootstrap Icons (Optional) -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+{{-- Bootstrap Icons CDN --}}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 @endsection
