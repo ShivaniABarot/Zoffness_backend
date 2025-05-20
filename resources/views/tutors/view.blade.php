@@ -7,41 +7,77 @@
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-primary text-white text-center rounded-top">
                     <h4 class="mb-0 text-white">
-                        <i class="bi bi-person-circle me-2"></i>{{ $tutor->name }}'s Profile
+                        <i class="bi bi-people-fill me-2"></i>{{ $student->student_name }}'s Details
                     </h4>
                 </div>
                 <div class="card-body px-4 py-4">
-                    {{-- Name --}}
+                    {{-- Parent Name --}}
                     <div class="mb-4 d-flex align-items-center">
-                        <i class="bi bi-person-fill text-primary me-2 fs-5"></i>
+                        <i class="bi bi-person-lines-fill text-primary me-2 fs-5"></i>
                         <div>
-                            <strong>Name:</strong>
-                            <div class="text-muted">{{ $tutor->name }}</div>
+                            <strong>Parent Name:</strong>
+                            <div class="text-muted">{{ $student->parent_name }}</div>
                         </div>
                     </div>
 
-                    {{-- Designation --}}
+                    {{-- Parent Phone --}}
                     <div class="mb-4 d-flex align-items-center">
-                        <i class="bi bi-award-fill text-primary me-2 fs-5"></i>
+                        <i class="bi bi-telephone-fill text-primary me-2 fs-5"></i>
                         <div>
-                            <strong>Designation:</strong>
-                            <div class="text-muted">{{ $tutor->designation }}</div>
+                            <strong>Parent Phone:</strong>
+                            <div class="text-muted">{{ $student->parent_phone }}</div>
                         </div>
                     </div>
 
-                    {{-- Bio --}}
-                    <div class="d-flex align-items-start">
-                        <i class="bi bi-card-text text-primary me-2 fs-5"></i>
+                    {{-- Parent Email --}}
+                    <div class="mb-4 d-flex align-items-center">
+                        <i class="bi bi-envelope-fill text-primary me-2 fs-5"></i>
                         <div>
-                            <strong>Bio:</strong>
-                            <div class="text-muted">{{ $tutor->bio }}</div>
+                            <strong>Parent Email:</strong>
+                            <div class="text-muted">{{ $student->parent_email }}</div>
+                        </div>
+                    </div>
+
+                    {{-- Student Email --}}
+                    <div class="mb-4 d-flex align-items-center">
+                        <i class="bi bi-envelope-paper-fill text-primary me-2 fs-5"></i>
+                        <div>
+                            <strong>Student Email:</strong>
+                            <div class="text-muted">{{ $student->student_email }}</div>
+                        </div>
+                    </div>
+
+                    {{-- School --}}
+                    <div class="mb-4 d-flex align-items-center">
+                        <i class="bi bi-building text-primary me-2 fs-5"></i>
+                        <div>
+                            <strong>School:</strong>
+                            <div class="text-muted">{{ $student->school }}</div>
+                        </div>
+                    </div>
+
+                    {{-- Bank Name --}}
+                    <div class="mb-4 d-flex align-items-center">
+                        <i class="bi bi-bank text-primary me-2 fs-5"></i>
+                        <div>
+                            <strong>Bank Name:</strong>
+                            <div class="text-muted">{{ $student->bank_name }}</div>
+                        </div>
+                    </div>
+
+                    {{-- Account Number --}}
+                    <div class="mb-4 d-flex align-items-center">
+                        <i class="bi bi-credit-card-2-front-fill text-primary me-2 fs-5"></i>
+                        <div>
+                            <strong>Account Number:</strong>
+                            <div class="text-muted">{{ $student->account_number }}</div>
                         </div>
                     </div>
 
                     {{-- Back Button --}}
                     <div class="mt-4 text-center">
-                        <a href="{{ route('tutors') }}" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left-circle"></i> Back to Tutors
+                        <a href="{{ route('student') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left-circle"></i> Back to Students
                         </a>
                     </div>
                 </div>
