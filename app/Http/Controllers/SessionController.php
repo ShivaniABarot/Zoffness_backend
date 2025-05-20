@@ -71,8 +71,12 @@ class SessionController extends Controller
         $session->price_per_slot = $request->price_per_slot;
         $session->max_capacity = $request->max_capacity;
         $session->save();
-
-        return redirect()->route('sessions')->with('success', 'Session updated successfully.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Session updated successfully.'
+        ]);
+        
+        // return redirect()->route('sessions')->with('success', 'Session updated successfully.');
     }
 
     public function show($id)
