@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -11,9 +13,9 @@
                     </h4>
                 </div>
                 <div class="card-body p-4">
-                    <form action="{{ route('users.update', $user->id) }}" method="POST">
+                    <form id="editUserForm">
                         @csrf
-                        @method('PUT')
+                        <!-- <input type="hidden" name="_method" value="PUT"> -->
 
                         {{-- Username --}}
                         <div class="form-floating mb-3">
@@ -69,16 +71,17 @@
     </div>
 </div>
 
-<!-- Optional: Password strength script + tooltip init -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{{-- Dependencies --}}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
     $(function () {
         // Tooltip init
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        tooltipTriggerList.map(el => new bootstrap.Tooltip(el))
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(el => new bootstrap.Tooltip(el));
 
         // Password strength
         $('#password').on('input', function () {
@@ -89,6 +92,48 @@
             else if (length < 10) strength = 'Medium';
             else strength = 'Strong';
             $('#passwordStrength').text(strength ? `Password strength: ${strength}` : '');
+        });
+
+        // AJAX form submit
+        $('#editUserForm').on('submit', function (e) {
+            e.preventDefault();
+
+            const formData = $(this).serializeArray();
+            formData.push({ name: '_token', value: $('meta[name="csrf-token"]').attr('content') });
+            // formData.push({ name: '_method', value: 'PUT' });
+
+            $.ajax({
+                url: '{{ route('users.update', $user->id) }}',
+                type: 'POST',
+                data: formData,
+                success: function () {
+                    Swal.fire({
+                        title: 'Updated!',
+                        text: 'User updated successfully.',
+                        icon: 'success',
+                        confirmButtonText: 'Go back'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '{{ route('users') }}';
+                        }
+                    });
+                },
+                error: function (xhr) {
+                    if (xhr.status === 422) {
+                        Swal.fire({
+                            title: 'Validation Error!',
+                            text: 'Please check the form fields.',
+                            icon: 'warning'
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Something went wrong.',
+                            icon: 'error'
+                        });
+                    }
+                }
+            });
         });
     });
 </script>
