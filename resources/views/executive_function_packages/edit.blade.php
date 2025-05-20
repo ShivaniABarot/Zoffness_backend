@@ -1,37 +1,65 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <h1 class="text-center">Edit Executive addmissions Package</h1>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white text-center rounded-top">
+                    <h4 class="mb-0 text-white">
+                        <i class="bi bi-pencil-square me-2"></i>Edit Executive Admissions Package
+                    </h4>
+                </div>
 
-    <form action="{{ route('executive_function_packages.update', $ExecutivePackage->id) }}" method="POST">
-    @csrf
+                <div class="card-body p-4">
+                    <form action="{{ route('executive_function_packages.update', $ExecutivePackage->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
 
-        <div class="form-group">
-            <label for="name">Package Name</label>
-            <input type="text" name="name" id="name" class="form-control" value="{{ old('name', $ExecutivePackage->name) }}" required>
-            @error('name')
-                <div class="text-danger">{{ $message }}</div>
-            @enderror
+                        {{-- Package Name --}}
+                        <div class="form-floating mb-3">
+                            <input type="text" name="name" id="name" class="form-control" placeholder="Package Name"
+                                value="{{ old('name', $ExecutivePackage->name) }}" required>
+                            <label for="name"><i class="bi bi-card-text me-2"></i>Package Name</label>
+                            @error('name')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        {{-- Price --}}
+                        <div class="form-floating mb-3">
+                            <input type="number" step="0.01" name="price" id="price" class="form-control" placeholder="Package Price"
+                                value="{{ old('price', $ExecutivePackage->price) }}" required>
+                            <label for="price"><i class="bi bi-currency-dollar me-2"></i>Package Price</label>
+                            @error('price')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        {{-- Description --}}
+                        <div class="form-floating mb-3">
+                            <textarea name="description" id="description" class="form-control" placeholder="Enter description..." style="height: 100px">{{ old('description', $ExecutivePackage->description) }}</textarea>
+                            <label for="description"><i class="bi bi-info-circle-fill me-2"></i>Description</label>
+                            @error('description')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{{ route('executive_function_packages.index') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-save2-fill"></i> Update
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label for="price">Package Price</label>
-            <input type="number" step="0.01" name="price" id="price" class="form-control" value="{{ old('price', $ExecutivePackage->price) }}" required>
-            @error('price')
-                <div class="text-danger">{{ $message }}</div>
-            @enderror
-        </div>
-
-        <div class="form-group">
-            <label for="description">Package Description</label>
-            <textarea name="description" id="description" class="form-control" rows="4">{{ old('description', $ExecutivePackage->description) }}</textarea>
-            @error('description')
-                <div class="text-danger">{{ $message }}</div>
-            @enderror
-        </div>
-
-        <button type="submit" class="btn btn-primary">Update</button>
-    </form>
+    </div>
 </div>
+
+{{-- Bootstrap Icons --}}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 @endsection
