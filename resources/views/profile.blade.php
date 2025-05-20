@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('content')
@@ -53,21 +52,21 @@
 <style>
     /* Card Styling */
     .card {
-        border-radius: 1rem;
+        border-radius: 1.25rem;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         background: linear-gradient(145deg, #ffffff, #f8f9fa);
         overflow: hidden;
     }
 
     .hover-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2) !important;
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
     }
 
     .card-header.bg-gradient-primary {
         background: linear-gradient(135deg, #007bff, #00aaff);
-        border-radius: 1rem 1rem 0 0;
-        padding: 2rem;
+        border-radius: 1.25rem 1.25rem 0 0;
+        padding: 2.5rem;
         position: relative;
         overflow: hidden;
     }
@@ -79,39 +78,41 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: radial-gradient(circle, rgba(255,255,255,0.2), transparent);
+        background: radial-gradient(circle, rgba(255,255,255,0.25), transparent);
         opacity: 0.3;
     }
 
     .card-header h3 {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-family: 'Inter', sans-serif;
         font-weight: 700;
-        font-size: 1.75rem;
+        font-size: 1.8rem;
         color: #ffffff;
-        position: relative;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .card-header p {
         font-size: 1rem;
         font-weight: 400;
-        position: relative;
+        color: #e6f0ff;
     }
 
     .card-body {
-        padding: 2rem;
+        padding: 2.5rem;
     }
 
     .list-group-item {
         border: none;
-        padding: 1.25rem 1.5rem;
+        padding: 1.5rem;
         background: transparent;
         transition: all 0.3s ease;
+        border-radius: 0.5rem;
+        margin-bottom: 0.5rem;
     }
 
     .hover-item:hover {
         background: #e6f0ff;
-        transform: translateX(8px);
-        border-radius: 0.5rem;
+        transform: translateX(10px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
     }
 
     .fw-semibold {
@@ -137,41 +138,25 @@
     .btn-primary {
         background: #007bff;
         border: none;
-        border-radius: 0.75rem;
-        padding: 0.75rem 1.75rem;
+        border-radius: 1rem;
+        padding: 0.8rem 2rem;
         transition: all 0.3s ease;
         font-weight: 500;
     }
 
     .btn-primary:hover {
         background: #0056b3;
-        transform: translateY(-3px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .btn-outline-primary {
-        border-color: #007bff;
-        color: #007bff;
-        border-radius: 0.75rem;
-        padding: 0.75rem 1.75rem;
-        transition: all 0.3s ease;
-    }
-
-    .btn-outline-primary:hover {
-        background: #007bff;
-        color: #ffffff;
-        transform: translateY(-3px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     }
 
     /* Avatar Styling */
     .avatar.avatar-xl {
-        width: 80px;
-        height: 80px;
+        width: 90px;
+        height: 90px;
         display: flex;
         align-items: center;
         justify-content: center;
-        position: relative;
         transition: transform 0.3s ease;
     }
 
@@ -179,25 +164,25 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
-        font-size: 2rem;
+        font-size: 2.5rem;
         font-weight: 600;
         background: #0056b3;
-        border: 3px solid #ffffff;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border: 4px solid #ffffff;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
     }
 
     .avatar.avatar-xl:hover {
-        transform: scale(1.05);
+        transform: scale(1.1);
     }
 
     /* Responsive Adjustments */
     @media (max-width: 768px) {
         .card-header {
-            padding: 1.5rem;
+            padding: 2rem;
         }
 
         .card-header h3 {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
         }
 
         .card-body {
@@ -208,28 +193,28 @@
             padding: 1rem;
         }
 
-        .btn-primary, .btn-outline-primary {
-            padding: 0.6rem 1.5rem;
+        .btn-primary {
+            padding: 0.7rem 1.8rem;
             font-size: 0.9rem;
         }
 
         .avatar.avatar-xl {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
         }
 
         .avatar.avatar-xl .avatar-initial {
-            font-size: 1.5rem;
+            font-size: 2rem;
         }
     }
 
     @media (max-width: 576px) {
         .card-header {
-            padding: 1rem;
+            padding: 1.5rem;
         }
 
         .card-header h3 {
-            font-size: 1.25rem;
+            font-size: 1.3rem;
         }
 
         .card-body {
@@ -244,15 +229,15 @@
         }
 
         .avatar.avatar-xl {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
         }
 
         .avatar.avatar-xl .avatar-initial {
-            font-size: 1.25rem;
+            font-size: 1.5rem;
         }
 
-        .btn-primary, .btn-outline-primary {
+        .btn-primary {
             width: 100%;
             margin-bottom: 0.5rem;
         }
