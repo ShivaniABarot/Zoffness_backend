@@ -21,6 +21,7 @@
                 <table id="usersTable" class="table table-striped table-hover datatable">
                     <thead>
                         <tr>
+                            <th>Sr No</th>
                             <th>Name</th>
                             <th>Email</th>
                             <th>Role</th>
@@ -28,8 +29,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($users as $user)
+                        @forelse ($users as $index => $user)
                             <tr>
+                                <td>{{ $index + 1 }}</td>
                                 <td>{{ $user->username }}</td>
                                 <td>{{ $user->email }}</td>
                                 <td>
@@ -54,7 +56,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="text-center py-5">
+                                <td colspan="5" class="text-center py-5">
                                     <div class="text-muted">
                                         <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" alt="No Data" width="80" class="mb-3 opacity-50">
                                         <p class="mb-0">No users found.</p>
@@ -71,7 +73,6 @@
 
 <script>
   function deleteUser(userID) {
-    // Show SweetAlert confirmation dialog
     Swal.fire({
         title: 'Are you sure?',
         text: 'Do you want to delete this user?',
@@ -82,18 +83,17 @@
         reverseButtons: true
     }).then((result) => {
         if (result.isConfirmed) {
-            // If confirmed, send AJAX request to delete the user
             $.ajax({
                 url: '{{ route('users.delete', '') }}/' + userID,
                 type: 'DELETE',
-                data: {
-                    _token: '{{ csrf_token() }}',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
                 success: function(response) {
                     if (response.success) {
                         Swal.fire(
                             'Deleted!',
-                            response.message,
+                            response.message || 'User deleted successfully.',
                             'success'
                         ).then(() => {
                             location.reload();
@@ -101,7 +101,7 @@
                     } else {
                         Swal.fire(
                             'Error!',
-                            response.message,
+                            response.message || 'Failed to delete user.',
                             'error'
                         );
                     }
@@ -109,7 +109,7 @@
                 error: function(xhr) {
                     Swal.fire(
                         'Error!',
-                        'An unexpected error occurred.',
+                        xhr.responseJSON?.message || 'An unexpected error occurred.',
                         'error'
                     );
                 }
@@ -122,13 +122,11 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        // Initialize DataTable with custom options
         initDataTable('usersTable', {
-            // Any custom options specific to this table
-            order: [[0, 'asc']],
+            order: [[1, 'asc']],
             columnDefs: [
-                { className: 'text-center', targets: [2] },  // Center the role badges
-                { orderable: false, targets: [3] }           // Disable sorting on actions column
+                { orderable: false, targets: [0, 4] }, // Disable sorting on Sr No and Actions
+                { className: 'text-center', targets: [0, 3, 4] } // Center Sr No, Role, and Actions
             ]
         });
     });
