@@ -27,6 +27,7 @@ class SAT_ACT_Course extends Model
         'price',
         // Add other fillable attributes as needed
     ];
+    protected $dates = ['created_at', 'updated_at'];
 
     /**
      * Get the packages associated with this course.

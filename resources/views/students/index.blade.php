@@ -22,9 +22,9 @@
                     <thead>
                         <tr>
                             <th>#</th>
+                            <th>Student Name</th>
                             <th>Parent Name</th>
                             <th>Parent Email</th>
-                            <th>Student Name</th>
                             <th>School</th>
                             <th class="text-center no-export">Actions</th>
                         </tr>
@@ -33,10 +33,10 @@
                         @forelse($students as $student)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ $student->parent_name }}</td>
-                                <td>{{ $student->parent_email }}</td>
-                                <td>{{ $student->student_name }}</td>
-                                <td>{{ $student->school }}</td>
+                                <td>{{ $student->student_name ?? 'N/A' }}</td>
+                                <td>{{ $student->parent_name ?? 'N/A' }}</td>
+                                <td>{{ $student->parent_email ?? 'N/A' }}</td>
+                                <td>{{ $student->school ?? 'N/A' }}</td>
                                 <td class="text-center">
                                     @if(!empty($student->id))
                                         <div class="d-inline-flex">
@@ -120,7 +120,7 @@
                 });
             }
         });
-}
+    }
 </script>
 
 @push('scripts')
@@ -129,12 +129,12 @@
         // Initialize DataTable with custom options
         initDataTable('studentsTable', {
             // Any custom options specific to this table
-            order: [[3, 'asc']], // Sort by student name column
+            order: [[1, 'asc']], // Sort by student name column
             columnDefs: [
                 { width: "5%", targets: [0] },       // Make # column narrow
-                { width: "15%", targets: [1] },      // Parent Name column width
-                { width: "20%", targets: [2] },      // Parent Email column width
-                { width: "15%", targets: [3] },      // Student Name column width
+                { width: "15%", targets: [1] },      // Student Name column width
+                { width: "20%", targets: [2] },      // Parent Name column width
+                { width: "15%", targets: [3] },      // Parent Email column width
                 { width: "30%", targets: [4] },      // School column width
                 { width: "15%", targets: [5] },      // Actions column width
                 { orderable: false, targets: [5] }   // Disable sorting on actions column
