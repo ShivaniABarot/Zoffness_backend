@@ -28,6 +28,7 @@ class StudentController extends Controller
                     DB::raw("CONCAT(COALESCE(parent_first_name, ''), ' ', COALESCE(parent_last_name, '')) as parent_name"),
                     'parent_email',
                     'school',
+                    'total',
                     'created_at'
                 ))
             ->union(DB::table('college_admissions')
@@ -45,6 +46,7 @@ class StudentController extends Controller
                     DB::raw("CONCAT(COALESCE(student_first_name, ''), ' ', COALESCE(student_last_name, '')) as student_name"),
                     DB::raw("CONCAT(COALESCE(parent_first_name, ''), ' ', COALESCE(parent_last_name, '')) as parent_name"),
                     'parent_email',
+                    '',
                     DB::raw("'' as school"), // <-- Add this line if school column does not exist
                     'created_at'
                 ))
@@ -136,25 +138,25 @@ class StudentController extends Controller
     {
         $student = Student::with([
             'collegeAdmissions' => function ($query) {
-                $query->select('id', 'student_email', 'packages', 'created_at', 'status');
+                $query->select('id', 'student_email', 'packages', 'created_at', 'status', 'subtotal');
             },
             'collegeEssays' => function ($query) {
-                $query->select('id', 'student_email', 'packages', 'created_at', 'status');
+                $query->select('id', 'student_email', 'packages', 'created_at', 'status', 'sessions');
             },
             'enrollments' => function ($query) {
-                $query->select('id', 'student_email', 'packages', 'created_at', 'status');
+                $query->select('id', 'student_email', 'packages', 'created_at', 'status', 'total_amount');
             },
             'satActCourseRegistrations' => function ($query) {
-                $query->select('id', 'student_email', 'package_name', 'created_at', 'status');
+                $query->select('id', 'student_email', 'package_name', 'created_at', 'status', 'amount');
             },
             'practiceTests' => function ($query) {
-                $query->select('id', 'student_email', 'test_type', 'date', 'created_at', 'status');
+                $query->select('id', 'student_email', 'test_type', 'date', 'created_at', 'status', 'subtotal');
             },
             'executiveFunctionCoaching' => function ($query) {
-                $query->select('id', 'student_email', 'package_type', 'created_at', 'status');
+                $query->select('id', 'student_email', 'package_type', 'created_at', 'status', 'subtotal');
             }
         ])->findOrFail($id);
-
+    
         return view('students.view', compact('student'));
     }
 

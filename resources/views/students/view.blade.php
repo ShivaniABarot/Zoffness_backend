@@ -4,7 +4,7 @@
 <div class="container-fluid">
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">Student Details: {{ $student->student_name }}</h5>
+            <h5 class="card-title mb-0">Student Details:</h5>
             <a href="{{ route('student') }}" class="btn btn-secondary">
                 <i class="bx bx-arrow-back me-1"></i> Back to List
             </a>
@@ -35,9 +35,10 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Exam Type</th>
+                                <th>Practice Test</th>
                                 <th>Name</th>
                                 <th>Date</th>
+                                <th>Amount</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -51,6 +52,7 @@
                                         <td>College Admission</td>
                                         <td>{{ $exam->packages ?? 'N/A' }}</td>
                                         <td>{{ $exam->created_at ? $exam->created_at->format('M d, Y') : 'N/A' }}</td>
+                                        <td>{{ $exam->subtotal ? '$' . number_format($exam->subtotal, 2) : 'N/A' }}</td>
                                         <td><span class="badge bg-info">Booked</span></td>
                                     </tr>
                                 @endif
@@ -63,6 +65,7 @@
                                         <td>College Essay</td>
                                         <td>{{ $essay->packages ?? 'N/A' }}</td>
                                         <td>{{ $essay->created_at ? $essay->created_at->format('M d, Y') : 'N/A' }}</td>
+                                        <td>N/A</td> <!-- College Essays has no amount field -->
                                         <td><span class="badge bg-info">Booked</span></td>
                                     </tr>
                                 @endif
@@ -75,6 +78,7 @@
                                         <td>Enrollment</td>
                                         <td>{{ $enrollment->packages ?? 'N/A' }}</td>
                                         <td>{{ $enrollment->created_at ? $enrollment->created_at->format('M d, Y') : 'N/A' }}</td>
+                                        <td>{{ $enrollment->total_amount ? '$' . number_format($enrollment->total_amount, 2) : 'N/A' }}</td>
                                         <td><span class="badge bg-info">Booked</span></td>
                                     </tr>
                                 @endif
@@ -87,6 +91,7 @@
                                         <td>SAT/ACT Course</td>
                                         <td>{{ $course->package_name ?? 'N/A' }}</td>
                                         <td>{{ $course->created_at ? $course->created_at->format('M d, Y') : 'N/A' }}</td>
+                                        <td>{{ $course->amount ? '$' . number_format($course->amount, 2) : 'N/A' }}</td>
                                         <td><span class="badge bg-info">Booked</span></td>
                                     </tr>
                                 @endif
@@ -107,6 +112,7 @@
                                         <td>Practice Test</td>
                                         <td>{{ $test->test_type ?? 'N/A' }}</td>
                                         <td>{{ $testDate ? $testDate->format('M d, Y') : ($test->created_at ? $test->created_at->format('M d, Y') : 'N/A') }}</td>
+                                        <td>{{ $test->subtotal ? '$' . number_format($test->subtotal, 2) : 'N/A' }}</td>
                                         <td><span class="badge bg-info">Booked</span></td>
                                     </tr>
                                 @endif
@@ -117,15 +123,16 @@
                                     <tr>
                                         <td>{{ $counter }}</td>
                                         <td>Executive Function Coaching</td>
-                                        <td>{{ $coaching->package_name ?? 'N/A' }}</td>
+                                        <td>{{ $coaching->package_type ?? 'N/A' }}</td>
                                         <td>{{ $coaching->created_at ? $coaching->created_at->format('M d, Y') : 'N/A' }}</td>
+                                        <td>{{ $coaching->subtotal ? '$' . number_format($coaching->subtotal, 2) : 'N/A' }}</td>
                                         <td><span class="badge bg-info">Booked</span></td>
                                     </tr>
                                 @endif
                             @endforeach
                             @if($counter == 0)
                                 <tr>
-                                    <td colspan="5" class="text-center py-3">No booked exams found.</td>
+                                    <td colspan="6" class="text-center py-3">No booked exams found.</td>
                                 </tr>
                             @endif
                         </tbody>
@@ -141,9 +148,10 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Exam Type</th>
+                                <th>Practice Test</th>
                                 <th>Name</th>
                                 <th>Date</th>
+                                <th>Amount</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -157,6 +165,7 @@
                                         <td>College Admission</td>
                                         <td>{{ $exam->packages ?? 'N/A' }}</td>
                                         <td>{{ $exam->created_at ? $exam->created_at->format('M d, Y') : 'N/A' }}</td>
+                                        <td>{{ $exam->subtotal ? '$' . number_format($exam->subtotal, 2) : 'N/A' }}</td>
                                         <td><span class="badge bg-success">Completed</span></td>
                                     </tr>
                                 @endif
@@ -169,6 +178,7 @@
                                         <td>College Essay</td>
                                         <td>{{ $essay->packages ?? 'N/A' }}</td>
                                         <td>{{ $essay->created_at ? $essay->created_at->format('M d, Y') : 'N/A' }}</td>
+                                        <td>N/A</td> <!-- College Essays has no amount field -->
                                         <td><span class="badge bg-success">Completed</span></td>
                                     </tr>
                                 @endif
@@ -181,6 +191,7 @@
                                         <td>Enrollment</td>
                                         <td>{{ $enrollment->packages ?? 'N/A' }}</td>
                                         <td>{{ $enrollment->created_at ? $enrollment->created_at->format('M d, Y') : 'N/A' }}</td>
+                                        <td>{{ $enrollment->total_amount ? '$' . number_format($enrollment->total_amount, 2) : 'N/A' }}</td>
                                         <td><span class="badge bg-success">Completed</span></td>
                                     </tr>
                                 @endif
@@ -193,6 +204,7 @@
                                         <td>SAT/ACT Course</td>
                                         <td>{{ $course->package_name ?? 'N/A' }}</td>
                                         <td>{{ $course->created_at ? $course->created_at->format('M d, Y') : 'N/A' }}</td>
+                                        <td>{{ $course->amount ? '$' . number_format($course->amount, 2) : 'N/A' }}</td>
                                         <td><span class="badge bg-success">Completed</span></td>
                                     </tr>
                                 @endif
@@ -213,6 +225,7 @@
                                         <td>Practice Test</td>
                                         <td>{{ $test->test_type ?? 'N/A' }}</td>
                                         <td>{{ $testDate ? $testDate->format('M d, Y') : ($test->created_at ? $test->created_at->format('M d, Y') : 'N/A') }}</td>
+                                        <td>{{ $test->subtotal ? '$' . number_format($test->subtotal, 2) : 'N/A' }}</td>
                                         <td><span class="badge bg-success">Completed</span></td>
                                     </tr>
                                 @endif
@@ -223,15 +236,16 @@
                                     <tr>
                                         <td>{{ $counter }}</td>
                                         <td>Executive Function Coaching</td>
-                                        <td>{{ $coaching->package_name ?? 'N/A' }}</td>
+                                        <td>{{ $coaching->package_type ?? 'N/A' }}</td>
                                         <td>{{ $coaching->created_at ? $coaching->created_at->format('M d, Y') : 'N/A' }}</td>
+                                        <td>{{ $coaching->subtotal ? '$' . number_format($coaching->subtotal, 2) : 'N/A' }}</td>
                                         <td><span class="badge bg-success">Completed</span></td>
                                     </tr>
                                 @endif
                             @endforeach
                             @if($counter == 0)
                                 <tr>
-                                    <td colspan="5" class="text-center py-3">No completed exams found.</td>
+                                    <td colspan="6" class="text-center py-3">No completed exams found.</td>
                                 </tr>
                             @endif
                         </tbody>
