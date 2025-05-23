@@ -103,13 +103,6 @@
             <p><strong>School:</strong> {{ $school }}</p>
             <p><strong>Package:</strong> {{ $packageName }}</p>
 
-            <p><strong>Courses Enrolled:</strong></p>
-            <ul>
-                @foreach($courses as $course)
-                    <li>{{ $course['name'] }} – ${{ number_format($course['price'], 2) }}</li>
-                @endforeach
-            </ul>
-
             <p><strong>Total Amount:</strong> ${{ number_format($totalAmount, 2) }}</p>
             <p><strong>Payment Status:</strong> {{ $paymentStatus }}</p>
         </div>
