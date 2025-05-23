@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\DB;
 class StudentController extends Controller
 {
     public function index()
-    {
-        // Use a UNION query to fetch student names, parent names, parent email, and school from all tables
-        $studentsFromTables = DB::table('sat_act_course_reg')
+{
+    // Use a UNION query to fetch student names, parent names, parent email, and school from all tables
+    $studentsFromTables = DB::table('sat_act_course_reg')
         ->select(
             'student_email',
             DB::raw("CONCAT(student_firstname, ' ', student_lastname) as student_name"),
@@ -21,73 +21,70 @@ class StudentController extends Controller
             'school',
             'created_at'
         )
-            ->union(DB::table('practice_tests')
-                ->select(
-                    'student_email',
-                    DB::raw("CONCAT(COALESCE(student_first_name, ''), ' ', COALESCE(student_last_name, '')) as student_name"),
-                    DB::raw("CONCAT(COALESCE(parent_first_name, ''), ' ', COALESCE(parent_last_name, '')) as parent_name"),
-                    'parent_email',
-                    'school',
-                    'total',
-                    'created_at'
-                ))
-            ->union(DB::table('college_admissions')
-                ->select(
-                    'student_email',
-                    DB::raw("CONCAT(COALESCE(student_first_name, ''), ' ', COALESCE(student_last_name, '')) as student_name"),
-                    DB::raw("CONCAT(COALESCE(parent_first_name, ''), ' ', COALESCE(parent_last_name, '')) as parent_name"),
-                    'parent_email',
-                    'school',
-                    'created_at'
-                ))
-                ->union(DB::table('college_essays')
-                ->select(
-                    'student_email',
-                    DB::raw("CONCAT(COALESCE(student_first_name, ''), ' ', COALESCE(student_last_name, '')) as student_name"),
-                    DB::raw("CONCAT(COALESCE(parent_first_name, ''), ' ', COALESCE(parent_last_name, '')) as parent_name"),
-                    'parent_email',
-                    '',
-                    DB::raw("'' as school"), // <-- Add this line if school column does not exist
-                    'created_at'
-                ))
-            
-            ->union(DB::table('enrollments')
-                ->select(
-                    'student_email',
-                    DB::raw("CONCAT(COALESCE(student_first_name, ''), ' ', COALESCE(student_last_name, '')) as student_name"),
-                    DB::raw("CONCAT(COALESCE(parent_first_name, ''), ' ', COALESCE(parent_last_name, '')) as parent_name"),
-                    'parent_email',
-                    'school',
-                    'created_at'
-                ))
-            ->union(DB::table('executive_function_coaching')
-                ->select(
-                    'student_email',
-                    DB::raw("CONCAT(COALESCE(student_first_name, ''), ' ', COALESCE(student_last_name, '')) as student_name"),
-                    DB::raw("CONCAT(COALESCE(parent_first_name, ''), ' ', COALESCE(parent_last_name, '')) as parent_name"),
-                    'parent_email',
-                    'school',
-                    'created_at'
-                ));
-    
-        // Deduplicate by student_email, sort by created_at to resolve conflicts, and join with students table for id
-        $students = DB::table(DB::raw("({$studentsFromTables->toSql()}) as combined_students"))
-            ->mergeBindings($studentsFromTables)
+        ->union(DB::table('practice_tests')
             ->select(
-                'combined_students.student_email',
-                'combined_students.student_name',
-                'combined_students.parent_name',
-                'combined_students.parent_email',
-                'combined_students.school',
-                'students.id'
-            )
-            ->distinct('combined_students.student_email')
-            ->leftJoin('students', 'combined_students.student_email', '=', 'students.student_email')
-            ->orderBy('combined_students.created_at', 'desc') // Ensure most recent record is used for duplicates
-            ->get();
-    
-        return view('students.index', compact('students'));
-    }
+                'student_email',
+                DB::raw("CONCAT(COALESCE(student_first_name, ''), ' ', COALESCE(student_last_name, '')) as student_name"),
+                DB::raw("CONCAT(COALESCE(parent_first_name, ''), ' ', COALESCE(parent_last_name, '')) as parent_name"),
+                'parent_email',
+                'school',
+                'created_at' // Removed 'total' to match column count
+            ))
+        ->union(DB::table('college_admissions')
+            ->select(
+                'student_email',
+                DB::raw("CONCAT(COALESCE(student_first_name, ''), ' ', COALESCE(student_last_name, '')) as student_name"),
+                DB::raw("CONCAT(COALESCE(parent_first_name, ''), ' ', COALESCE(parent_last_name, '')) as parent_name"),
+                'parent_email',
+                'school',
+                'created_at'
+            ))
+        ->union(DB::table('college_essays')
+            ->select(
+                'student_email',
+                DB::raw("CONCAT(COALESCE(student_first_name, ''), ' ', COALESCE(student_last_name, '')) as student_name"),
+                DB::raw("CONCAT(COALESCE(parent_first_name, ''), ' ', COALESCE(parent_last_name, '')) as parent_name"),
+                'parent_email',
+                DB::raw("'' as school"), // Ensure 'school' is handled consistently
+                'created_at'
+            ))
+        ->union(DB::table('enrollments')
+            ->select(
+                'student_email',
+                DB::raw("CONCAT(COALESCE(student_first_name, ''), ' ', COALESCE(student_last_name, '')) as student_name"),
+                DB::raw("CONCAT(COALESCE(parent_first_name, ''), ' ', COALESCE(parent_last_name, '')) as parent_name"),
+                'parent_email',
+                'school',
+                'created_at'
+            ))
+        ->union(DB::table('executive_function_coaching')
+            ->select(
+                'student_email',
+                DB::raw("CONCAT(COALESCE(student_first_name, ''), ' ', COALESCE(student_last_name, '')) as student_name"),
+                DB::raw("CONCAT(COALESCE(parent_first_name, ''), ' ', COALESCE(parent_last_name, '')) as parent_name"),
+                'parent_email',
+                'school',
+                'created_at'
+            ));
+
+    // Deduplicate by student_email, sort by created_at to resolve conflicts, and join with students table for id
+    $students = DB::table(DB::raw("({$studentsFromTables->toSql()}) as combined_students"))
+        ->mergeBindings($studentsFromTables)
+        ->select(
+            'combined_students.student_email',
+            'combined_students.student_name',
+            'combined_students.parent_name',
+            'combined_students.parent_email',
+            'combined_students.school',
+            'students.id'
+        )
+        ->distinct('combined_students.student_email')
+        ->leftJoin('students', 'combined_students.student_email', '=', 'students.student_email')
+        ->orderBy('combined_students.created_at', 'desc') // Ensure most recent record is used for duplicates
+        ->get();
+
+    return view('students.index', compact('students'));
+}
 
     public function create()
     {
@@ -143,7 +140,7 @@ class StudentController extends Controller
             'collegeEssays' => function ($query) {
                 $query->select('id', 'student_email', 'packages', 'created_at', 'status', 'sessions');
             },
-            'enrollments' => function ($query) {
+            'enrollments' => function ($query): void {
                 $query->select('id', 'student_email', 'packages', 'created_at', 'status', 'total_amount');
             },
             'satActCourseRegistrations' => function ($query) {

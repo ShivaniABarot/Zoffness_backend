@@ -32,7 +32,7 @@ class Student extends Model
 
     public function enrollments()
     {
-        return $this->hasMany(Enroll::class, 'student_email', 'student_email');
+        return $this->hasMany(Enroll::class);
     }
 
     public function executiveFunctionCoaching()

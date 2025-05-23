@@ -34,6 +34,9 @@ class Enroll extends Model
         'total_amount',
         'packages'
     ];
-
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
+    }
  
 }
