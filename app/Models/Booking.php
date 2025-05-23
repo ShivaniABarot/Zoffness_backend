@@ -30,10 +30,10 @@ class Booking extends Model
     /**
      * Define a relationship with the Timeslot model.
      */
-    public function timeslot()
-    {
-        return $this->belongsTo(Timeslot::class);
-    }
+    // public function timeslot()
+    // {
+    //     return $this->belongsTo(Timeslot::class);
+    // }
 
     /**
      * Define a relationship with the Package model.

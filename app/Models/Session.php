@@ -39,10 +39,10 @@ class Session extends Model
     /**
      * Get the timeslots associated with the session.
      */
-    public function timeslots()
-    {
-        return $this->hasMany(Timeslot::class);
-    }
+    // public function timeslots()
+    // {
+    //     return $this->hasMany(Timeslot::class);
+    // }
 
     /**
      * Get the package-sessions relationships.
