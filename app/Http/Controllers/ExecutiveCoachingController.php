@@ -29,7 +29,9 @@ class ExecutiveCoachingController extends Controller
             'student_email' => 'required|email|max:255',
             'school' => 'required|string|max:255',
             'package_type' => 'required|string|max:100',
-            'subtotal' => 'required|numeric|min:0'
+            'subtotal' => 'required|numeric|min:0',
+            'bank_name' => 'nullable|string|max:255',
+            'account_number' => 'nullable|string|max:255'
         ]);
     
         if ($validator->fails()) {
@@ -39,48 +41,81 @@ class ExecutiveCoachingController extends Controller
             ], 422);
         }
     
-        $coaching = ExecutiveCoaching::create($request->all());
+        try {
+            DB::transaction(function () use ($request, &$coaching) {
+                $parentName = $request->parent_first_name . ' ' . $request->parent_last_name;
+                $studentName = $request->student_first_name . ' ' . $request->student_last_name;
     
-        // Prepare email data
-        $school = $request->school;
-        $packageType = $request->package_type;
-        $subtotal = $request->subtotal;
+                // Create or update student
+                $student = Student::updateOrCreate(
+                    ['student_email' => $request->student_email],
+                    [
+                        'parent_name' => $parentName,
+                        'parent_phone' => $request->parent_phone,
+                        'parent_email' => $request->parent_email,
+                        'student_name' => $studentName,
+                        'school' => $request->school,
+                        'bank_name' => $request->bank_name,
+                        'account_number' => $request->account_number
+                    ]
+                );
     
-        // Send emails
-        $studentName = $request->student_first_name . ' ' . $request->student_last_name;
-        $parentName = $request->parent_first_name . ' ' . $request->parent_last_name;
-        
-        // Send email to parent
-        Mail::to($request->parent_email)->send(
-            new ExecutiveCoachingConfirmation(
-                $studentName,
-                $request->school,
-                $request->package_type,
-                $request->subtotal,
-                $parentName,
-                'parent'
-            )
-        );
-        
-        // Send email to student
-        Mail::to($request->student_email)->send(
-            new ExecutiveCoachingConfirmation(
-                $studentName,
-                $request->school,
-                $request->package_type,
-                $request->subtotal,
-                $studentName,
-                'student'
-            )
-        );
-        
+                // Create executive coaching entry
+                $coaching = ExecutiveCoaching::create([
+                    'parent_first_name' => $request->parent_first_name,
+                    'parent_last_name' => $request->parent_last_name,
+                    'parent_phone' => $request->parent_phone,
+                    'parent_email' => $request->parent_email,
+                    'student_first_name' => $request->student_first_name,
+                    'student_last_name' => $request->student_last_name,
+                    'student_email' => $request->student_email,
+                    'school' => $request->school,
+                    'package_type' => $request->package_type,
+                    'subtotal' => $request->subtotal,
+                    'student_id' => $student->id
+                ]);
+            });
     
-        return response()->json([
-            'status' => 'success',
-            'data' => $coaching
-        ], 201);
+            $studentName = $request->student_first_name . ' ' . $request->student_last_name;
+            $parentName = $request->parent_first_name . ' ' . $request->parent_last_name;
+    
+            // Send email to parent
+            Mail::to($request->parent_email)->send(
+                new ExecutiveCoachingConfirmation(
+                    $studentName,
+                    $request->school,
+                    $request->package_type,
+                    $request->subtotal,
+                    $parentName,
+                    'parent'
+                )
+            );
+    
+            // Send email to student
+            Mail::to($request->student_email)->send(
+                new ExecutiveCoachingConfirmation(
+                    $studentName,
+                    $request->school,
+                    $request->package_type,
+                    $request->subtotal,
+                    $studentName,
+                    'student'
+                )
+            );
+    
+            return response()->json([
+                'status' => 'success',
+                'data' => $coaching
+            ], 201);
+    
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to process request: ' . $e->getMessage()
+            ], 500);
+        }
     }
-    
+      
 
     /**
      * Display the specified resource.
