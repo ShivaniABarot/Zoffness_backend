@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Student;
 use App\Models\SAT_ACT_Course;
 use Illuminate\Http\Request;
 use App\Mail\SatActCourseConfirmation;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 use Illuminate\Support\Facades\Validator;
