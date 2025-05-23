@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\CollegeEssays;
 use Illuminate\Support\Facades\Validator;
+use App\Models\CollegeEssays;
+use App\Models\Student;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\CollegeEssayConfirmation;
-
-
+use Illuminate\Support\Facades\DB;
 class CollegeEssaysController extends Controller
 {
     public function index()

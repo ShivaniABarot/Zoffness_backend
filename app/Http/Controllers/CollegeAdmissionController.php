@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\CollegeAdmission;
+use App\Models\Student;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\CollegeAdmissionConfirmation;
-
+use Illuminate\Support\Facades\DB;
 class CollegeAdmissionController extends Controller
 {
     public function index()
