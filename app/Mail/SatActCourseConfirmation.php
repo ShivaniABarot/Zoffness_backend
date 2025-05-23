@@ -11,7 +11,6 @@ class SatActCourseConfirmation extends Mailable
     use Queueable, SerializesModels;
 
     public $studentName;
-    public $courses;
     public $school;
     public $packageName;
     public $totalAmount;
@@ -19,10 +18,9 @@ class SatActCourseConfirmation extends Mailable
     public $recipientName;
     public $recipientType;
 
-    public function __construct($studentName, $courses, $school, $packageName, $totalAmount, $paymentStatus, $recipientName, $recipientType)
+    public function __construct($studentName, $school, $packageName, $totalAmount, $paymentStatus, $recipientName, $recipientType)
     {
         $this->studentName = $studentName;
-        $this->courses = $courses;
         $this->school = $school;
         $this->packageName = $packageName;
         $this->totalAmount = $totalAmount;

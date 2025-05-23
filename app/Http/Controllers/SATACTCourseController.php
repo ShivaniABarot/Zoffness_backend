@@ -31,9 +31,9 @@ class SATACTCourseController extends Controller
         'student_lastname' => 'required|string',
         'student_email' => 'required|email',
         'school' => 'required|string',
-        'courses' => 'array|min:1',
-        'courses.*.name' => 'string',
-        'courses.*.price' => 'required|numeric',
+        // 'courses' => 'array|min:1',
+        // 'courses.*.name' => 'string',
+        // 'courses.*.price' => 'required|numeric',
         'package_name' => 'required|string',
         'payment_status' => 'required|string|in:Success,Failed,Pending',
         'bank_name' => 'nullable|string|max:255',
@@ -78,7 +78,7 @@ class SATACTCourseController extends Controller
                 'student_email' => $request->student_email,
                 'school' => $request->school,
                 'amount' => $totalAmount,
-                'courses' => $request->courses, // Should be casted to JSON
+                // 'courses' => $request->courses, // Should be casted to JSON
                 'package_name' => $request->package_name,
                 'student_id' => $student->id // if you want to relate
             ]);
@@ -88,7 +88,6 @@ class SATACTCourseController extends Controller
         Mail::to($request->parent_email)->send(
             new SatActCourseConfirmation(
                 $studentName,
-                $request->courses,
                 $request->school,
                 $request->package_name,
                 $totalAmount,
@@ -97,11 +96,11 @@ class SATACTCourseController extends Controller
                 'parent'
             )
         );
+        
 
         Mail::to($request->student_email)->send(
             new SatActCourseConfirmation(
                 $studentName,
-                $request->courses,
                 $request->school,
                 $request->package_name,
                 $totalAmount,
