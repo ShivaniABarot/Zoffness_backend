@@ -28,7 +28,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   @stack('styles')
   <style>
-    /* Force sidebar to be visible and properly sized */
+    /* Sidebar with Toggle Functionality */
     .layout-menu {
       width: 260px !important;
       position: fixed !important;
@@ -37,19 +37,116 @@
       left: 0 !important;
       z-index: 1000 !important;
       overflow-y: auto !important;
-      background-color: #fff !important;
-      box-shadow: 0 0.125rem 0.375rem 0 rgba(161, 172, 184, 0.12) !important;
+      background: #ffffff !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
       display: block !important;
       visibility: visible !important;
-      transform: none !important;
+      transform: translateX(0) !important;
       opacity: 1 !important;
+      transition: transform 0.3s ease !important;
+      border-right: 1px solid #e5e7eb !important;
     }
-    /* Force content to be properly positioned */
+
+    /* Custom scrollbar for sidebar */
+    .layout-menu::-webkit-scrollbar {
+      width: 4px !important;
+    }
+
+    .layout-menu::-webkit-scrollbar-track {
+      background: #f8fafc !important;
+    }
+
+    .layout-menu::-webkit-scrollbar-thumb {
+      background: #cbd5e1 !important;
+      border-radius: 2px !important;
+    }
+
+    .layout-menu::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8 !important;
+    }
+
+    /* Collapsed Sidebar */
+    body.layout-menu-collapsed .layout-menu {
+      transform: translateX(-260px) !important;
+    }
+
+    /* Sidebar Toggle Button */
+    .sidebar-toggle-btn {
+      position: fixed !important;
+      top: 20px !important;
+      left: 20px !important;
+      z-index: 999 !important;
+      width: 40px !important;
+      height: 40px !important;
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      border-radius: 8px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      transition: all 0.2s ease, left 0.3s ease !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+      color: #64748b !important;
+      font-size: 18px !important;
+    }
+
+    .sidebar-toggle-btn:hover {
+      background: #f8fafc !important;
+      color: #3b82f6 !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+      transform: none !important;
+      border-color: #cbd5e1 !important;
+    }
+
+    /* When sidebar is collapsed, keep toggle button at left */
+    body.layout-menu-collapsed .sidebar-toggle-btn {
+      left: 20px !important;
+    }
+
+    /* When sidebar is expanded, move toggle button inside sidebar */
+    body.layout-menu-expanded .sidebar-toggle-btn {
+      left: 210px !important;
+      z-index: 1001 !important;
+      background: #f8fafc !important;
+      color: #64748b !important;
+      border: 1px solid #e2e8f0 !important;
+    }
+
+    body.layout-menu-expanded .sidebar-toggle-btn:hover {
+      background: #f1f5f9 !important;
+      color: #3b82f6 !important;
+      border-color: #cbd5e1 !important;
+    }
+    /* Content positioning with sidebar toggle */
     .layout-page {
       margin-left: 260px !important;
       width: calc(100% - 260px) !important;
       position: relative !important;
       display: block !important;
+      transition: margin-left 0.3s ease, width 0.3s ease !important;
+      z-index: 1 !important;
+      background: #f5f5f9 !important;
+      min-height: 100vh !important;
+    }
+
+    /* When sidebar is collapsed, expand content */
+    body.layout-menu-collapsed .layout-page {
+      margin-left: 0 !important;
+      width: 100% !important;
+    }
+
+    /* Ensure content wrapper has proper stacking */
+    .content-wrapper {
+      position: relative !important;
+      z-index: 1 !important;
+      background: transparent !important;
+    }
+
+    /* Ensure container has proper stacking */
+    .container-xxl {
+      position: relative !important;
+      z-index: 1 !important;
     }
     /* Dashboard header styling - transparent */
     .d-flex.justify-content-end.align-items-center {
@@ -71,6 +168,17 @@
       padding-top: 0 !important;
       padding-bottom: 1.5rem !important;
     }
+    /* Prevent sidebar overlap on main content */
+    .card, .stat-card, .mini-stat {
+      position: relative !important;
+      z-index: 2 !important;
+    }
+
+    /* Ensure dropdown menus appear above everything */
+    .dropdown-menu {
+      z-index: 1050 !important;
+    }
+
     /* Mobile adjustments */
     @media (max-width: 1199.98px) {
       .layout-menu {
@@ -84,6 +192,16 @@
       body.layout-menu-expanded .layout-menu {
         margin-left: 0 !important;
       }
+
+      /* Adjust toggle button for mobile */
+      .sidebar-toggle-btn {
+        z-index: 1002 !important;
+      }
+
+      body.layout-menu-expanded .sidebar-toggle-btn {
+        left: 220px !important;
+        z-index: 1002 !important;
+      }
     }
     /* Force menu items to be properly displayed */
     .menu-inner {
@@ -93,9 +211,14 @@
       display: block !important;
       visibility: visible !important;
     }
+    /* Menu Inner Container */
+    .menu-inner {
+      padding: 0 0.75rem 2rem 0.75rem !important;
+    }
+
     /* Force menu items to take full width */
     .menu-item {
-      margin: 3px 0 !important;
+      margin: 0.25rem 0 !important;
       width: 100% !important;
       position: relative !important;
       display: block !important;
@@ -103,17 +226,22 @@
     }
     /* Force menu links to be properly displayed */
     .menu-link {
-      border-radius: 5px !important;
-      margin: 0 8px !important;
+      border-radius: 8px !important;
+      margin: 0 !important;
       display: flex !important;
       align-items: center !important;
-      padding: 0.6rem 1rem !important;
-      width: calc(100% - 16px) !important;
+      padding: 12px 16px !important;
+      width: 100% !important;
       position: relative !important;
       left: 0 !important;
       z-index: 1 !important;
       visibility: visible !important;
       opacity: 1 !important;
+      color: #64748b !important;
+      text-decoration: none !important;
+      transition: all 0.2s ease !important;
+      font-weight: 500 !important;
+      font-size: 0.875rem !important;
     }
     /* Force menu icons to be properly aligned */
     .menu-icon {
@@ -128,6 +256,9 @@
       left: 0 !important;
       visibility: visible !important;
       opacity: 1 !important;
+      color: #94a3b8 !important;
+      font-size: 1rem !important;
+      transition: all 0.2s ease !important;
     }
     /* Force menu text to be visible */
     .menu-link div {
@@ -154,7 +285,31 @@
       height: auto !important;
       transform: none !important;
     }
-    /* Force app brand text to be visible */
+    /* App Brand Styling */
+    .app-brand {
+      padding: 24px !important;
+      border-bottom: 1px solid #f1f5f9 !important;
+      margin-bottom: 0.5rem !important;
+      background: #ffffff !important;
+    }
+
+    .app-brand-link {
+      display: flex !important;
+      align-items: center !important;
+      text-decoration: none !important;
+      color: #1e293b !important;
+    }
+
+    .app-brand-logo {
+      margin-right: 0.75rem !important;
+    }
+
+    .app-brand-logo img {
+      height: 36px !important;
+      width: auto !important;
+      filter: none !important;
+    }
+
     .app-brand-text {
       display: block !important;
       visibility: visible !important;
@@ -163,12 +318,81 @@
       width: auto !important;
       height: auto !important;
       transform: none !important;
+      color: #1e293b !important;
+      font-size: 1.125rem !important;
+      font-weight: 600 !important;
+      letter-spacing: -0.3px !important;
     }
-    /* Hover effect */
+    /* Hover and Active Effects */
     .menu-link:hover {
-      background-color: rgba(105, 108, 255, 0.08) !important;
-      color: #696cff !important;
-      transform: translateX(5px) !important;
+      background: #f8fafc !important;
+      color: #3b82f6 !important;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    .menu-link:hover .menu-icon {
+      color: #3b82f6 !important;
+      transform: none !important;
+    }
+
+    /* Active menu item */
+    .menu-item.active .menu-link {
+      background: #eff6ff !important;
+      color: #2563eb !important;
+      box-shadow: none !important;
+      border-left: 3px solid #3b82f6 !important;
+      margin-left: -3px !important;
+    }
+
+    .menu-item.active .menu-icon {
+      color: #2563eb !important;
+    }
+
+    /* Sub-menu styling */
+    .menu-sub {
+      background: #f8fafc !important;
+      border-radius: 6px !important;
+      margin: 0.25rem 0 !important;
+      padding: 0.5rem 0 !important;
+      border-left: 2px solid #e2e8f0 !important;
+      margin-left: 1rem !important;
+    }
+
+    .menu-sub .menu-link {
+      padding: 8px 16px 8px 24px !important;
+      font-size: 0.8rem !important;
+      color: #64748b !important;
+      border-radius: 4px !important;
+      border-left: none !important;
+      margin-left: 0 !important;
+    }
+
+    .menu-sub .menu-link:hover {
+      background: #f1f5f9 !important;
+      color: #3b82f6 !important;
+      transform: none !important;
+    }
+
+    .menu-sub .menu-item.active .menu-link {
+      background: #dbeafe !important;
+      color: #2563eb !important;
+      border-left: none !important;
+      margin-left: 0 !important;
+    }
+
+    /* Menu toggle arrow */
+    .menu-toggle::after {
+      content: '\e930' !important;
+      font-family: 'boxicons' !important;
+      position: absolute !important;
+      right: 1rem !important;
+      transition: transform 0.3s ease !important;
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    .menu-item.open .menu-toggle::after {
+      transform: rotate(90deg) !important;
     }
     /* Fix for collapsed menu */
     .layout-menu-collapsed .menu-text,
@@ -185,6 +409,12 @@
     /* Force body to show expanded menu */
     body {
       overflow-x: hidden !important;
+      position: relative !important;
+    }
+
+    /* Ensure proper scrolling behavior */
+    html, body {
+      scroll-behavior: smooth !important;
     }
     /* Force layout wrapper to be properly sized */
     .layout-wrapper {
@@ -224,23 +454,26 @@
   </style>
 </head>
 <body class="layout-menu-expanded">
+  <!-- Sidebar Toggle Button -->
+  <button class="sidebar-toggle-btn" id="sidebarToggle">
+    <i class="bx bx-menu"></i>
+  </button>
   <!-- Layout wrapper -->
   <div class="layout-wrapper layout-content-navbar">
     <div class="layout-container">
       <!-- Menu -->
-      <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme" style="width: 260px !important; position: fixed !important; top: 0 !important; bottom: 0 !important; left: 0 !important; z-index: 1000 !important; overflow-y: auto !important; background-color: #fff !important; box-shadow: 0 0.125rem 0.375rem 0 rgba(161, 172, 184, 0.12) !important; display: block !important; visibility: visible !important; transform: none !important; opacity: 1 !important;">
+      <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
         <div class="app-brand demo">
           <a href="{{ route('dashboard') }}" class="app-brand-link">
-            <img src="/zoffnesscollegeprep-logo.png" alt="Zoffness College Prep Logo" class="app-brand-logo demo" style="height: 40px; margin-left: 10px;">
-            <!-- <span class="app-brand-text demo menu-text fw-bolder ms-2">Zoffness</span> -->
+            <img src="/zoffnesscollegeprep-logo.png" alt="Zoffness College Prep Logo" class="app-brand-logo demo" style="height: 40px;">
           </a>
         </div>
         <ul class="menu-inner py-1">
           <!-- Dashboard -->
           <li class="menu-item {{ request()->is('dashboard') ? 'active' : '' }}">
-            <a href="{{ route('dashboard') }}" class="menu-link" style="display: flex !important; align-items: center !important; padding: 0.6rem 1rem !important; width: calc(100% - 16px) !important; position: relative !important; left: 0 !important; z-index: 1 !important; visibility: visible !important; opacity: 1 !important;">
-              <i class="menu-icon bx bx-home-circle" style="display: flex !important; align-items: center !important; justify-content: center !important; width: 20px !important; height: 20px !important; margin-right: 12px !important; flex-shrink: 0 !important; position: relative !important; left: 0 !important; visibility: visible !important; opacity: 1 !important;"></i>
-              <div style="display: block !important; visibility: visible !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; opacity: 1 !important; position: static !important; width: auto !important; height: auto !important; transform: none !important; margin-left: 0 !important;">Dashboard</div>
+            <a href="{{ route('dashboard') }}" class="menu-link">
+              <i class="menu-icon bx bx-home-circle"></i>
+              <div>Dashboard</div>
             </a>
           </li>
           <!-- Menu Items -->
@@ -513,13 +746,28 @@
         layoutPage.style.marginLeft = '260px';
         layoutPage.style.width = 'calc(100% - 260px)';
       }
-      const menuToggle = document.querySelector('.layout-menu-toggle');
-      if (menuToggle) {
-        menuToggle.addEventListener('click', function (e) {
+      // Handle sidebar toggle button
+      const sidebarToggle = document.getElementById('sidebarToggle');
+      if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function (e) {
           e.preventDefault();
+
+          // Toggle collapsed state
+          document.body.classList.toggle('layout-menu-collapsed');
           document.body.classList.toggle('layout-menu-expanded');
+
+          // Update toggle button icon
+          const icon = sidebarToggle.querySelector('i');
+          if (document.body.classList.contains('layout-menu-collapsed')) {
+            icon.className = 'bx bx-menu-alt-right';
+          } else {
+            icon.className = 'bx bx-menu';
+          }
         });
       }
+
+      // Initialize sidebar state
+      document.body.classList.add('layout-menu-expanded');
       const menuToggles = document.querySelectorAll('.menu-toggle');
       menuToggles.forEach(toggle => {
         toggle.addEventListener('click', function (e) {

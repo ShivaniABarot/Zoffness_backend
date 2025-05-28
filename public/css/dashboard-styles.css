@@ -781,3 +781,46 @@ a:hover {
   overflow: hidden;
   border-top: 1px solid var(--border-color);
 }
+
+/* Sidebar Toggle Button */
+.sidebar-toggle-btn {
+  position: fixed;
+  top: 15px;
+  left: 270px;
+  z-index: 1001;
+  width: 35px;
+  height: 35px;
+  border: 1px solid #d9dee3;
+  background: #fff;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-toggle-btn:hover {
+  background-color: #696cff;
+  border-color: #696cff;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(105, 108, 255, 0.3);
+}
+
+.sidebar-toggle-btn i {
+  font-size: 20px;
+  color: #697a8d;
+  transition: color 0.3s ease;
+}
+
+.sidebar-toggle-btn:hover i {
+  color: white;
+}
+
+/* When sidebar is collapsed, move toggle button to left */
+.layout-menu-collapsed .sidebar-toggle-btn {
+  left: 20px;
+  transition: left 0.3s ease-in-out;
+}
