@@ -1836,6 +1836,17 @@
       margin-bottom: 0.5rem;
     }
 
+
+    /* Animation for top statistics cards */
+    .stat-card {
+      transition: transform 0.25s ease-out, box-shadow 0.25s ease-out; /* Smooth transition for hover out */
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px) scale(1.03); /* Subtle lift and scale effect */
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08), 0 3px 6px rgba(0, 0, 0, 0.05); /* Softer, layered shadow */
+    }
+
     .activity-item:hover {
       background: rgba(59, 130, 246, 0.02);
       transform: translateY(-1px);
