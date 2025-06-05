@@ -53,8 +53,8 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 // Forget password and reset password link send routes
-Route::get('/forgot_password', [LoginController::class, 'showForgotPasswordForm'])->name('forgot_password');
-Route::post('/forgot_password', [EmailController::class, 'sendPasswordResetLink'])->name('send_password_link');
+Route::post('/forgot_password', [LoginController::class, 'showForgotPasswordForm'])->name('forgot_password');
+Route::post('/forgot_password_link', [EmailController::class, 'sendPasswordResetLink'])->name('send_password_link');
 Route::get('password/reset/{token}', [EmailController::class, 'showResetForm'])->name('password.reset');
 Route::post('password/reset', [EmailController::class, 'resetPassword'])->name('password.update');
 // Logout routes
