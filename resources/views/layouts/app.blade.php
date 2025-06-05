@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="en" class="light-style" dir="ltr" data-theme="theme-default">
+
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
   <title>@yield('title', 'Dashboard')</title>
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="{{ asset('zoffnesscollegeprep-logo.png') }}">
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+    rel="stylesheet" />
   <!-- Icons -->
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
@@ -118,6 +122,7 @@
       color: #3b82f6 !important;
       border-color: #cbd5e1 !important;
     }
+
     /* Content positioning with sidebar toggle */
     .layout-page {
       margin-left: 260px !important;
@@ -148,28 +153,35 @@
       position: relative !important;
       z-index: 1 !important;
     }
+
     /* Dashboard header styling - transparent */
     .d-flex.justify-content-end.align-items-center {
       background: transparent;
       box-shadow: none;
       margin-bottom: 0 !important;
     }
+
     /* Content wrapper adjustments */
     .content-wrapper {
       padding-top: 0 !important;
       margin-top: 0 !important;
     }
+
     .container-xxl {
       padding-top: 0 !important;
       padding-bottom: 0 !important;
     }
+
     /* Remove extra spacing */
     .container-p-y {
       padding-top: 0 !important;
       padding-bottom: 1.5rem !important;
     }
+
     /* Prevent sidebar overlap on main content */
-    .card, .stat-card, .mini-stat {
+    .card,
+    .stat-card,
+    .mini-stat {
       position: relative !important;
       z-index: 2 !important;
     }
@@ -185,10 +197,12 @@
         margin-left: -260px !important;
         transition: margin-left 0.3s ease-in-out !important;
       }
+
       .layout-page {
         margin-left: 0 !important;
         width: 100% !important;
       }
+
       body.layout-menu-expanded .layout-menu {
         margin-left: 0 !important;
       }
@@ -203,6 +217,7 @@
         z-index: 1002 !important;
       }
     }
+
     /* Force menu items to be properly displayed */
     .menu-inner {
       padding-top: 0 !important;
@@ -211,6 +226,7 @@
       display: block !important;
       visibility: visible !important;
     }
+
     /* Menu Inner Container */
     .menu-inner {
       padding: 0 0.75rem 2rem 0.75rem !important;
@@ -224,6 +240,7 @@
       display: block !important;
       visibility: visible !important;
     }
+
     /* Force menu links to be properly displayed */
     .menu-link {
       border-radius: 8px !important;
@@ -243,6 +260,7 @@
       font-weight: 500 !important;
       font-size: 0.875rem !important;
     }
+
     /* Force menu icons to be properly aligned */
     .menu-icon {
       display: flex !important;
@@ -260,6 +278,7 @@
       font-size: 1rem !important;
       transition: all 0.2s ease !important;
     }
+
     /* Force menu text to be visible */
     .menu-link div {
       line-height: 20px !important;
@@ -275,6 +294,7 @@
       transform: none !important;
       margin-left: 0 !important;
     }
+
     /* Force menu text to be visible */
     .menu-text {
       display: block !important;
@@ -285,6 +305,7 @@
       height: auto !important;
       transform: none !important;
     }
+
     /* App Brand Styling */
     .app-brand {
       padding: 24px !important;
@@ -323,6 +344,7 @@
       font-weight: 600 !important;
       letter-spacing: -0.3px !important;
     }
+
     /* Hover and Active Effects */
     .menu-link:hover {
       background: #f8fafc !important;
@@ -394,6 +416,7 @@
     .menu-item.open .menu-toggle::after {
       transform: rotate(90deg) !important;
     }
+
     /* Fix for collapsed menu */
     .layout-menu-collapsed .menu-text,
     .layout-menu-collapsed .app-brand-text,
@@ -402,10 +425,12 @@
       visibility: visible !important;
       opacity: 1 !important;
     }
+
     /* Fix for menu toggle */
     .layout-menu-toggle {
       display: none !important;
     }
+
     /* Force body to show expanded menu */
     body {
       overflow-x: hidden !important;
@@ -413,9 +438,11 @@
     }
 
     /* Ensure proper scrolling behavior */
-    html, body {
+    html,
+    body {
       scroll-behavior: smooth !important;
     }
+
     /* Force layout wrapper to be properly sized */
     .layout-wrapper {
       display: flex !important;
@@ -423,6 +450,7 @@
       align-items: stretch !important;
       flex: 1 1 auto !important;
     }
+
     /* Force layout container to be properly sized */
     .layout-container {
       display: flex !important;
@@ -430,6 +458,7 @@
       flex-direction: row !important;
       min-height: 100vh !important;
     }
+
     /* Force content wrapper to be properly sized */
     .content-wrapper {
       flex: 1 !important;
@@ -437,6 +466,7 @@
       display: flex !important;
       flex-direction: column !important;
     }
+
     /* Force container to be properly sized */
     .container-xxl {
       width: 100% !important;
@@ -446,6 +476,7 @@
       margin-left: auto !important;
       max-width: 1440px !important;
     }
+
     /* Force content padding */
     .container-p-y {
       padding-top: 1.625rem !important;
@@ -453,30 +484,54 @@
     }
   </style>
 </head>
+
 <body class="layout-menu-expanded">
   <!-- Sidebar Toggle Button -->
   <button class="sidebar-toggle-btn" id="sidebarToggle">
     <i class="bx bx-menu"></i>
   </button>
   <!-- Layout wrapper -->
-  <div class="layout-wrapper layout-content-navbar">
-    <div class="layout-container">
-      <!-- Menu -->
-      <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
-        <div class="app-brand demo">
-          <a href="{{ route('dashboard') }}" class="app-brand-link">
-            <img src="/zoffnesscollegeprep-logo.png" alt="Zoffness College Prep Logo" class="app-brand-logo demo" style="height: 40px;">
+  @php
+    use Illuminate\Support\Facades\Auth;
+    $userRole = Auth::check() ? Auth::user()->role : null;
+@endphp
+
+<div class="layout-wrapper layout-content-navbar">
+  <div class="layout-container">
+
+    <!-- Sidebar Menu -->
+    <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+      <div class="app-brand demo">
+        <a href="{{ route('dashboard') }}" class="app-brand-link">
+          <img src="/zoffnesscollegeprep-logo.png" alt="Zoffness College Prep Logo" class="app-brand-logo demo" style="height: 40px;">
+        </a>
+      </div>
+
+      <ul class="menu-inner py-1">
+        <!-- Always show Dashboard -->
+        <li class="menu-item {{ request()->is('dashboard') ? 'active' : '' }}">
+          <a href="{{ route('dashboard') }}" class="menu-link">
+            <i class="menu-icon bx bx-home-circle"></i>
+            <div>Dashboard</div>
           </a>
-        </div>
-        <ul class="menu-inner py-1">
-          <!-- Dashboard -->
-          <li class="menu-item {{ request()->is('dashboard') ? 'active' : '' }}">
-            <a href="{{ route('dashboard') }}" class="menu-link">
-              <i class="menu-icon bx bx-home-circle"></i>
-              <div>Dashboard</div>
+        </li>
+
+        @if($userRole === 'tutor')
+          <!-- Tutors can only see Tutors and Students -->
+          <li class="menu-item {{ request()->is('tutors') ? 'active' : '' }}">
+            <a href="{{ url('tutors') }}" class="menu-link">
+              <i class="menu-icon bx bx-user-voice"></i>
+              <div>Tutors</div>
             </a>
           </li>
-          <!-- Menu Items -->
+          <li class="menu-item {{ request()->is('student') ? 'active' : '' }}">
+            <a href="{{ url('student') }}" class="menu-link">
+              <i class="menu-icon bx bx-user-pin"></i>
+              <div>Students</div>
+            </a>
+          </li>
+        @else
+          <!-- Full menu for admins or other roles -->
           <li class="menu-item {{ request()->is('users') ? 'active' : '' }}">
             <a href="{{ route('users') }}" class="menu-link">
               <i class="menu-icon bx bx-user"></i>
@@ -533,25 +588,6 @@
               </li>
             </ul>
           </li>
-          <!-- <li class="menu-item {{ request()->is('payments') ? 'active' : '' }}">
-            <a href="{{ url('payments') }}" class="menu-link">
-              <i class="menu-icon bx bx-dollar"></i>
-              <div>Payments</div>
-            </a>
-          </li>
-          <li class="menu-item {{ request()->is('bookings') ? 'active' : '' }}">
-            <a href="{{ url('bookings') }}" class="menu-link">
-              <i class="menu-icon bx bx-book"></i>
-              <div>Bookings</div>
-            </a>
-          </li> -->
-          <!-- <li class="menu-item {{ request()->is('email-settings') ? 'active' : '' }}">
-            <a href="{{ url('email-settings') }}" class="menu-link">
-              <i class="menu-icon bx bx-cog"></i>
-              <div>Email Settings</div>
-            </a>
-          </li> -->
-          <!-- Inquiry Dropdown -->
           <li class="menu-item">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
               <i class="menu-icon bx bx-help-circle"></i>
@@ -590,83 +626,59 @@
               </li>
             </ul>
           </li>
-        </ul>
-      </aside>
-      <!-- / Menu -->
-      <!-- Layout container -->
-      <div class="layout-page" style="margin-left: 260px !important; width: calc(100% - 260px) !important; position: relative !important; display: block !important;">
-        <!-- Header with Profile -->
-        <div class="d-flex justify-content-end align-items-center px-4 pt-1 pb-0" style="background: transparent; box-shadow: none; margin: 0;">
-          <div class="d-flex align-items-center">
-            <div class="dropdown">
-              <a class="dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown" style="text-decoration: none;">
-                <div class="avatar" style="position: relative; width: 40px; height: 40px; background-color: #696cff; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                  <i class="bx bx-user-circle" style="color: white; font-size: 24px;"></i>
-                  <span style="position: absolute; bottom: 0; right: 0; width: 10px; height: 10px; background-color: #71DD37; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"></span>
+        @endif
+      </ul>
+    </aside>
+    <!-- / Sidebar Menu -->
+
+    <!-- Main Content -->
+    <div class="layout-page" style="margin-left: 260px !important; width: calc(100% - 260px) !important;">
+      <!-- Header/Profile section -->
+      <div class="d-flex justify-content-end align-items-center px-4 pt-1 pb-0">
+        <!-- Profile Dropdown -->
+        <div class="d-flex align-items-center">
+          <div class="dropdown">
+            <a class="dropdown-toggle hide-arrow" href="#" data-bs-toggle="dropdown">
+              <div class="avatar" style="width: 40px; height: 40px; background-color: #696cff; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff;">
+                <i class="bx bx-user-circle" style="color: white; font-size: 24px;"></i>
+                <span style="position: absolute; bottom: 0; right: 0; width: 10px; height: 10px; background-color: #71DD37; border-radius: 50%; border: 2px solid #fff;"></span>
+              </div>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li class="dropdown-item-text">
+                <div class="d-flex align-items-center">
+                  <div class="avatar me-3" style="background-color: #696cff;">
+                    <i class="bx bx-user-circle text-white"></i>
+                  </div>
+                  <div>
+                    <strong>{{ Auth::user()->name }}</strong><br>
+                    <small class="text-muted">{{ ucfirst($userRole) }}</small>
+                  </div>
                 </div>
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end">
-                <li>
-                  <a class="dropdown-item" href="#">
-                    <div class="d-flex">
-                      <div class="flex-shrink-0 me-3">
-                        <div class="avatar" style="position: relative; width: 40px; height: 40px; background-color: #696cff; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                          <i class="bx bx-user-circle" style="color: white; font-size: 24px;"></i>
-                          <span style="position: absolute; bottom: 0; right: 0; width: 10px; height: 10px; background-color: #71DD37; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"></span>
-                        </div>
-                      </div>
-                      <div class="flex-grow-1">
-                        <span class="fw-semibold d-block">{{ Auth::check() ? Auth::user()->name : 'Guest' }}</span>
-                        <small class="text-muted">Admin</small>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <div class="dropdown-divider"></div>
-                </li>
-                <li>
-                  <a class="dropdown-item d-flex align-items-center" href="{{ route('profile') }}">
-                    <i class="bx bx-user me-2 text-primary"></i>
-                    <span class="align-middle">My Profile</span>
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item d-flex align-items-center" href="#">
-                    <i class="bx bx-cog me-2 text-primary"></i>
-                    <span class="align-middle">Settings</span>
-                  </a>
-                </li>
-                <li>
-                  <div class="dropdown-divider"></div>
-                </li>
-                <li>
-                  <form action="{{ route('logout') }}" method="POST" class="m-0" id="logoutForm">
-                    @csrf
-                    <button type="submit" class="dropdown-item d-flex align-items-center" id="logoutButton">
-                      <i class="bx bx-power-off me-2 text-danger"></i>
-                      <span class="align-middle">Log Out</span>
-                    </button>
-                  </form>
-                </li>
-              </ul>
-            </div>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{{ route('profile') }}"><i class="bx bx-user me-2 text-primary"></i>My Profile</a></li>
+              <li>
+                <form action="{{ route('logout') }}" method="POST">
+                  @csrf
+                  <button type="submit" class="dropdown-item"><i class="bx bx-power-off me-2 text-danger"></i>Log Out</button>
+                </form>
+              </li>
+            </ul>
           </div>
         </div>
-        <!-- Content wrapper -->
-        <div class="content-wrapper">
-          <!-- Content -->
-          <div class="container-xxl flex-grow-1 container-p-y">
-            @yield('content')
-          </div>
-          <!-- / Content -->
-          <!-- Footer removed as requested -->
-        </div>
-        <!-- / Content wrapper -->
       </div>
-      <!-- / Layout container -->
+
+      <!-- Page content -->
+      <div class="content-wrapper">
+        <div class="container-xxl flex-grow-1 container-p-y">
+          @yield('content')
+        </div>
+      </div>
     </div>
   </div>
+</div>
+
   <!-- / Layout wrapper -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <!-- jQuery -->
@@ -778,7 +790,7 @@
       });
       const submenuItems = document.querySelectorAll('.menu-sub .menu-item .menu-link');
       submenuItems.forEach(item => {
-        item.addEventListener('click', function(e) {
+        item.addEventListener('click', function (e) {
           const parentMenuItem = this.closest('.menu-sub').parentElement;
           if (parentMenuItem) {
             localStorage.setItem('activeMenuParent', parentMenuItem.querySelector('.menu-link').textContent.trim());
@@ -860,4 +872,5 @@
     });
   </script>
 </body>
+
 </html>
