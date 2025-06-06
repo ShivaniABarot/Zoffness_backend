@@ -65,7 +65,7 @@
             <div class="mb-3 text-center">
               <p class="mb-2">Or sign in with</p>
               <a href="{{ url('/login/google') }}" class="btn btn-outline-danger w-100 mb-2">
-  <i class="fab fa-google me-2"></i> Sign in with Google
+  <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" style="width: 18px; height: 18px; margin-right: 8px;"> Sign in with Google
 </a>
 
               <!-- <a href="{{ url('/login/facebook') }}" class="btn btn-outline-primary w-100">
