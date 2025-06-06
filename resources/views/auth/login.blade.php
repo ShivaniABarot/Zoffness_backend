@@ -42,7 +42,9 @@
                   <!-- Your SVG logo (unchanged) -->
                   <!-- ... -->
                 </span>
-                <span class="app-brand-text demo text-body fw-bolder">Zoffness</span>
+                <img src="/zoffnesscollegeprep-logo.png" alt="Zoffness College Prep Logo" class="app-brand-logo demo" style="height: 50px;">
+
+                <!-- <span class="app-brand-text demo text-body fw-bolder">Zoffness</span> -->
               </a>
             </div>
 
