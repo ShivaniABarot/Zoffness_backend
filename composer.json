@@ -11,6 +11,7 @@
         "jeroennoten/laravel-adminlte": "^3.14",
         "laravel/framework": "^9.52",
         "laravel/sanctum": "^3.0",
+        "laravel/socialite": "^5.21",
         "laravel/tinker": "^2.7",
         "open-admin-org/open-admin": "^1.0",
         "stripe/stripe-php": "^16.3",

@@ -24,6 +24,8 @@ use App\Http\Controllers\ExecutiveCoachingController;
 use App\Http\Controllers\SATACTCourseController;
 use App\Http\Controllers\ExecutivePackageController;
 use App\Http\Controllers\CollageEssaysPackageController;
+use App\Http\Controllers\SocialLoginController;
+use App\Http\Controllers\Auth\GoogleController;
 
 
 
@@ -189,3 +191,9 @@ Route::get('/inquiry/college_essays', [CollegeEssaysController::class, 'index'])
 Route::get('/inquiry/executive_function', [ExecutiveCoachingController::class, 'index'])->name('executive_function');
 
 Route::get('/sat_act_course', [SATACTCourseController::class, 'sat_act_course'])->name('sat_act_course');
+
+
+Route::get('login/{provider}', [SocialLoginController::class, 'redirect']);
+Route::get('login/{provider}/callback', [SocialLoginController::class, 'callback']);
+Route::get('/login/google', [GoogleController::class, 'redirectToGoogle'])->name('login.google');
+Route::get('/login/google/callback', [GoogleController::class, 'handleGoogleCallback']);
