@@ -2,7 +2,7 @@
 <html lang="en" class="light-style" dir="ltr" data-theme="theme-default">
 
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" />  
   <meta name="viewport"
     content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
   <title>@yield('title', 'Dashboard')</title>
@@ -492,192 +492,200 @@
   </button>
   <!-- Layout wrapper -->
   @php
-    use Illuminate\Support\Facades\Auth;
-    $userRole = Auth::check() ? Auth::user()->role : null;
+  use Illuminate\Support\Facades\Auth;
+  $userRole = Auth::check() ? Auth::user()->role : null;
 @endphp
 
-<div class="layout-wrapper layout-content-navbar">
-  <div class="layout-container">
+  <div class="layout-wrapper layout-content-navbar">
+    <div class="layout-container">
 
-    <!-- Sidebar Menu -->
-    <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
-      <div class="app-brand demo">
-        <a href="{{ route('dashboard') }}" class="app-brand-link">
-          <img src="/zoffnesscollegeprep-logo.png" alt="Zoffness College Prep Logo" class="app-brand-logo demo" style="height: 40px;">
-        </a>
-      </div>
-
-      <ul class="menu-inner py-1">
-        <!-- Always show Dashboard -->
-        <li class="menu-item {{ request()->is('dashboard') ? 'active' : '' }}">
-          <a href="{{ route('dashboard') }}" class="menu-link">
-            <i class="menu-icon bx bx-home-circle"></i>
-            <div>Dashboard</div>
+      <!-- Sidebar Menu -->
+      <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+        <div class="app-brand demo">
+          <a href="{{ route('dashboard') }}" class="app-brand-link">
+            <img src="/zoffnesscollegeprep-logo.png" alt="Zoffness College Prep Logo" class="app-brand-logo demo"
+              style="height: 40px;">
           </a>
+        </div>
+
+        <ul class="menu-inner py-1">
+          <!-- Always show Dashboard -->
+          <li class="menu-item {{ request()->is('dashboard') ? 'active' : '' }}">
+            <a href="{{ route('dashboard') }}" class="menu-link">
+              <i class="menu-icon bx bx-home-circle"></i>
+              <div>Dashboard</div>
+            </a>
+          </li>
+
+          @if($userRole === 'tutor')
+        <!-- Tutors can only see Tutors and Students -->
+        <li class="menu-item {{ request()->is('tutors') ? 'active' : '' }}">
+        <a href="{{ url('tutors') }}" class="menu-link">
+          <i class="menu-icon bx bx-user-voice"></i>
+          <div>Tutors</div>
+        </a>
         </li>
+        <li class="menu-item {{ request()->is('student') ? 'active' : '' }}">
+        <a href="{{ url('student') }}" class="menu-link">
+          <i class="menu-icon bx bx-user-pin"></i>
+          <div>Students</div>
+        </a>
+        </li>
+      @else
+        <!-- Full menu for admins or other roles -->
+        <li class="menu-item {{ request()->is('users') ? 'active' : '' }}">
+        <a href="{{ route('users') }}" class="menu-link">
+          <i class="menu-icon bx bx-user"></i>
+          <div>Users</div>
+        </a>
+        </li>
+        <li class="menu-item {{ request()->is('tutors') ? 'active' : '' }}">
+        <a href="{{ url('tutors') }}" class="menu-link">
+          <i class="menu-icon bx bx-user-voice"></i>
+          <div>Tutors</div>
+        </a>
+        </li>
+        <li class="menu-item {{ request()->is('student') ? 'active' : '' }}">
+        <a href="{{ url('student') }}" class="menu-link">
+          <i class="menu-icon bx bx-user-pin"></i>
+          <div>Students</div>
+        </a>
+        </li>
+        <li
+        class="menu-item {{ request()->is('session') || request()->is('sat_act_packages') || request()->is('package') ? 'active open' : '' }}">
+        <a href="#" class="menu-link menu-toggle">
+          <i class="menu-icon bx bx-package"></i>
+          <div>Packages</div>
+        </a>
+        <ul class="menu-sub">
+          <li class="menu-item {{ request()->is('session') ? 'active' : '' }}">
+          <a href="{{ url('session') }}" class="menu-link">
+            <i class="menu-icon bx bx-time"></i>
+            <div>Sessions</div>
+          </a>
+          </li>
+          <li class="menu-item {{ request()->is('sat_act_packages') ? 'active' : '' }}">
+          <a href="{{ url('sat_act_packages') }}" class="menu-link">
+            <i class="menu-icon bx bx-calendar"></i>
+            <div>SAT-ACT Packages</div>
+          </a>
+          </li>
+          <li class="menu-item {{ request()->is('package') ? 'active' : '' }}">
+          <a href="{{ url('package') }}" class="menu-link">
+            <i class="menu-icon bx bx-package"></i>
+            <div>College Admissions Packages</div>
+          </a>
+          </li>
+          <li class="menu-item {{ request()->is('executive_package') ? 'active' : '' }}">
+          <a href="{{ url('executive_package') }}" class="menu-link">
+            <i class="menu-icon bx bx-briefcase-alt"></i>
+            <div>Executive Packages</div>
+          </a>
+          </li>
+          <li class="menu-item {{ request()->is('collage_essays_packages') ? 'active' : '' }}">
+          <a href="{{ url('collage_essays_packages') }}" class="menu-link">
+            <i class="menu-icon bx bx-book-content"></i>
+            <div>Essays Packages</div>
+          </a>
+          </li>
+        </ul>
+        </li>
+        <li class="menu-item">
+        <a href="javascript:void(0);" class="menu-link menu-toggle">
+          <i class="menu-icon bx bx-help-circle"></i>
+          <div>Bookings</div>
+        </a>
+        <ul class="menu-sub">
+          <li class="menu-item {{ Request::routeIs('sat_act_course') ? 'active' : '' }}">
+          <a href="{{ route('sat_act_course') }}" class="menu-link">
+            <div>SAT/ACT Course</div>
+          </a>
+          </li>
+          <li class="menu-item {{ Request::routeIs('enroll.list') ? 'active' : '' }}">
+          <a href="{{ route('enroll.list') }}" class="menu-link">
+            <div>Enroll/Register</div>
+          </a>
+          </li>
+          <li class="menu-item {{ Request::routeIs('pratice_test') ? 'active' : '' }}">
+          <a href="{{ route('pratice_test') }}" class="menu-link">
+            <div>Practice Test & Analysis</div>
+          </a>
+          </li>
+          <li class="menu-item {{ Request::routeIs('collegeadmission.index') ? 'active' : '' }}">
+          <a href="{{ route('collegeadmission.index') }}" class="menu-link">
+            <div>College Admission Counseling</div>
+          </a>
+          </li>
+          <li class="menu-item {{ Request::routeIs('college_essays') ? 'active' : '' }}">
+          <a href="{{ route('college_essays') }}" class="menu-link">
+            <div>College Essays</div>
+          </a>
+          </li>
+          <li class="menu-item {{ Request::routeIs('executive_function') ? 'active' : '' }}">
+          <a href="{{ route('executive_function') }}" class="menu-link">
+            <div>Executive Function</div>
+          </a>
+          </li>
+        </ul>
+        </li>
+      @endif
+        </ul>
+      </aside>
+      <!-- / Sidebar Menu -->
 
-        @if($userRole === 'tutor')
-          <!-- Tutors can only see Tutors and Students -->
-          <li class="menu-item {{ request()->is('tutors') ? 'active' : '' }}">
-            <a href="{{ url('tutors') }}" class="menu-link">
-              <i class="menu-icon bx bx-user-voice"></i>
-              <div>Tutors</div>
-            </a>
-          </li>
-          <li class="menu-item {{ request()->is('student') ? 'active' : '' }}">
-            <a href="{{ url('student') }}" class="menu-link">
-              <i class="menu-icon bx bx-user-pin"></i>
-              <div>Students</div>
-            </a>
-          </li>
-        @else
-          <!-- Full menu for admins or other roles -->
-          <li class="menu-item {{ request()->is('users') ? 'active' : '' }}">
-            <a href="{{ route('users') }}" class="menu-link">
-              <i class="menu-icon bx bx-user"></i>
-              <div>Users</div>
-            </a>
-          </li>
-          <li class="menu-item {{ request()->is('tutors') ? 'active' : '' }}">
-            <a href="{{ url('tutors') }}" class="menu-link">
-              <i class="menu-icon bx bx-user-voice"></i>
-              <div>Tutors</div>
-            </a>
-          </li>
-          <li class="menu-item {{ request()->is('student') ? 'active' : '' }}">
-            <a href="{{ url('student') }}" class="menu-link">
-              <i class="menu-icon bx bx-user-pin"></i>
-              <div>Students</div>
-            </a>
-          </li>
-          <li class="menu-item {{ request()->is('session') || request()->is('sat_act_packages') || request()->is('package') ? 'active open' : '' }}">
-            <a href="#" class="menu-link menu-toggle">
-              <i class="menu-icon bx bx-package"></i>
-              <div>Packages</div>
-            </a>
-            <ul class="menu-sub">
-              <li class="menu-item {{ request()->is('session') ? 'active' : '' }}">
-                <a href="{{ url('session') }}" class="menu-link">
-                  <i class="menu-icon bx bx-time"></i>
-                  <div>Sessions</div>
-                </a>
-              </li>
-              <li class="menu-item {{ request()->is('sat_act_packages') ? 'active' : '' }}">
-                <a href="{{ url('sat_act_packages') }}" class="menu-link">
-                  <i class="menu-icon bx bx-calendar"></i>
-                  <div>SAT-ACT Packages</div>
-                </a>
-              </li>
-              <li class="menu-item {{ request()->is('package') ? 'active' : '' }}">
-                <a href="{{ url('package') }}" class="menu-link">
-                  <i class="menu-icon bx bx-package"></i>
-                  <div>College Admissions Packages</div>
-                </a>
-              </li>
-              <li class="menu-item {{ request()->is('executive_package') ? 'active' : '' }}">
-                <a href="{{ url('executive_package') }}" class="menu-link">
-                  <i class="menu-icon bx bx-briefcase-alt"></i>
-                  <div>Executive Packages</div>
-                </a>
-              </li>
-              <li class="menu-item {{ request()->is('collage_essays_packages') ? 'active' : '' }}">
-                <a href="{{ url('collage_essays_packages') }}" class="menu-link">
-                  <i class="menu-icon bx bx-book-content"></i>
-                  <div>Essays Packages</div>
-                </a>
-              </li>
-            </ul>
-          </li>
-          <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-              <i class="menu-icon bx bx-help-circle"></i>
-              <div>Bookings</div>
-            </a>
-            <ul class="menu-sub">
-              <li class="menu-item {{ Request::routeIs('sat_act_course') ? 'active' : '' }}">
-                <a href="{{ route('sat_act_course') }}" class="menu-link">
-                  <div>SAT/ACT Course</div>
-                </a>
-              </li>
-              <li class="menu-item {{ Request::routeIs('enroll.list') ? 'active' : '' }}">
-                <a href="{{ route('enroll.list') }}" class="menu-link">
-                  <div>Enroll/Register</div>
-                </a>
-              </li>
-              <li class="menu-item {{ Request::routeIs('pratice_test') ? 'active' : '' }}">
-                <a href="{{ route('pratice_test') }}" class="menu-link">
-                  <div>Practice Test & Analysis</div>
-                </a>
-              </li>
-              <li class="menu-item {{ Request::routeIs('collegeadmission.index') ? 'active' : '' }}">
-                <a href="{{ route('collegeadmission.index') }}" class="menu-link">
-                  <div>College Admission Counseling</div>
-                </a>
-              </li>
-              <li class="menu-item {{ Request::routeIs('college_essays') ? 'active' : '' }}">
-                <a href="{{ route('college_essays') }}" class="menu-link">
-                  <div>College Essays</div>
-                </a>
-              </li>
-              <li class="menu-item {{ Request::routeIs('executive_function') ? 'active' : '' }}">
-                <a href="{{ route('executive_function') }}" class="menu-link">
-                  <div>Executive Function</div>
-                </a>
-              </li>
-            </ul>
-          </li>
-        @endif
-      </ul>
-    </aside>
-    <!-- / Sidebar Menu -->
-
-    <!-- Main Content -->
-    <div class="layout-page" style="margin-left: 260px !important; width: calc(100% - 260px) !important;">
-      <!-- Header/Profile section -->
-      <div class="d-flex justify-content-end align-items-center px-4 pt-1 pb-0">
-        <!-- Profile Dropdown -->
-        <div class="d-flex align-items-center">
-          <div class="dropdown">
-            <a class="dropdown-toggle hide-arrow" href="#" data-bs-toggle="dropdown">
-              <div class="avatar" style="width: 40px; height: 40px; background-color: #696cff; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff;">
-                <i class="bx bx-user-circle" style="color: white; font-size: 24px;"></i>
-                <span style="position: absolute; bottom: 0; right: 0; width: 10px; height: 10px; background-color: #71DD37; border-radius: 50%; border: 2px solid #fff;"></span>
-              </div>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end">
-              <li class="dropdown-item-text">
-                <div class="d-flex align-items-center">
-                  <div class="avatar me-3" style="background-color: #696cff;">
-                    <i class="bx bx-user-circle text-white"></i>
-                  </div>
-                  <div>
-                    <strong>{{ Auth::user()->name }}</strong><br>
-                    <small class="text-muted">{{ ucfirst($userRole) }}</small>
-                  </div>
+      <!-- Main Content -->
+      <div class="layout-page" style="margin-left: 260px !important; width: calc(100% - 260px) !important;">
+        <!-- Header/Profile section -->
+        <div class="d-flex justify-content-end align-items-center px-4 pt-1 pb-0">
+          <!-- Profile Dropdown -->
+          <div class="d-flex align-items-center">
+            <div class="dropdown">
+              <a class="dropdown-toggle hide-arrow" href="#" data-bs-toggle="dropdown">
+                <div class="avatar"
+                  style="width: 40px; height: 40px; background-color: #696cff; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff;">
+                  <i class="bx bx-user-circle" style="color: white; font-size: 24px;"></i>
+                  <span
+                    style="position: absolute; bottom: 0; right: 0; width: 10px; height: 10px; background-color: #71DD37; border-radius: 50%; border: 2px solid #fff;"></span>
                 </div>
-              </li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="{{ route('profile') }}"><i class="bx bx-user me-2 text-primary"></i>My Profile</a></li>
-              <li>
-                <form action="{{ route('logout') }}" method="POST">
-                  @csrf
-                  <button type="submit" class="dropdown-item"><i class="bx bx-power-off me-2 text-danger"></i>Log Out</button>
-                </form>
-              </li>
-            </ul>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li class="dropdown-item-text">
+                  <div class="d-flex align-items-center">
+                    <div class="avatar me-3" style="background-color: #696cff;">
+                      <i class="bx bx-user-circle text-white"></i>
+                    </div>
+                    <div>
+                      <strong>{{ Auth::user()->name }}</strong><br>
+                      <small class="text-muted">{{ ucfirst($userRole) }}</small>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" href="{{ route('profile') }}"><i
+                      class="bx bx-user me-2 text-primary"></i>My Profile</a></li>
+                <li>
+                  <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="dropdown-item"><i class="bx bx-power-off me-2 text-danger"></i>Log
+                      Out</button>
+                  </form>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Page content -->
-      <div class="content-wrapper">
-        <div class="container-xxl flex-grow-1 container-p-y">
-          @yield('content')
+        <!-- Page content -->
+        <div class="content-wrapper">
+          <div class="container-xxl flex-grow-1 container-p-y">
+            @yield('content')
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
   <!-- / Layout wrapper -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

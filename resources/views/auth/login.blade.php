@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" class="light-style customizer-hide" dir="ltr">
+
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>Login - Zoffness Collage Prep</title>
 
@@ -12,10 +14,13 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+    rel="stylesheet" />
 
   <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    crossorigin="anonymous" />
 
   <!-- Core CSS -->
   <link rel="stylesheet" href="{{ asset('css/login-page-styles.css') }}" />
@@ -42,7 +47,8 @@
                   <!-- Your SVG logo (unchanged) -->
                   <!-- ... -->
                 </span>
-                <img src="/zoffnesscollegeprep-logo.png" alt="Zoffness College Prep Logo" class="app-brand-logo demo" style="height: 50px;">
+                <img src="/zoffnesscollegeprep-logo.png" alt="Zoffness College Prep Logo" class="app-brand-logo demo"
+                  style="height: 50px;">
 
                 <!-- <span class="app-brand-text demo text-body fw-bolder">Zoffness</span> -->
               </a>
@@ -52,24 +58,25 @@
             <p class="mb-4">Please sign-in to your account and start the adventure</p>
 
             @if(session('success'))
-              <div class="alert alert-success mb-3">
-                {{ session('success') }}
-              </div>
-            @endif
+        <div class="alert alert-success mb-3">
+          {{ session('success') }}
+        </div>
+      @endif
 
             @if(session('error'))
-              <div class="alert alert-danger mb-3">
-                {{ session('error') }}
-              </div>
-            @endif
+        <div class="alert alert-danger mb-3">
+          {{ session('error') }}
+        </div>
+      @endif
 
             <!-- Social Login -->
             <div class="mb-3 text-center">
-             
+
               <a href="{{ url('/login/google') }}" class="btn btn-outline-danger w-100 mb-2">
-  <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" style="width: 18px; height: 18px; margin-right: 8px;"> Sign in with Google
-</a>
-<p class="mb-2">Or sign in with</p>
+                <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo"
+                  style="width: 18px; height: 18px; margin-right: 8px;"> Sign in with Google
+              </a>
+              <p class="mb-2">Or sign in with</p>
 
               <!-- <a href="{{ url('/login/facebook') }}" class="btn btn-outline-primary w-100">
                 <i class="fab fa-facebook-f me-2"></i> Sign in with Facebook
@@ -80,7 +87,8 @@
             <form id="login-form" class="mb-3">
               <div class="mb-3">
                 <label for="email" class="form-label">Email or Username</label>
-                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" autofocus />
+                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email"
+                  autofocus />
                 <div class="text-danger mt-1" id="email-error" style="display: none;">Email is required</div>
               </div>
 
@@ -126,73 +134,74 @@
 
   <!-- Core JS -->
   <script>
-    $(document).ready(function() {
-        // Toggle Password
-        $('.password-toggle-icon').on('click', function() {
-            const passwordInput = $('#password');
-            const icon = $(this).find('i');
-            if (passwordInput.attr('type') === 'password') {
-                passwordInput.attr('type', 'text');
-                icon.removeClass('fa-eye-slash').addClass('fa-eye');
-            } else {
-                passwordInput.attr('type', 'password');
-                icon.removeClass('fa-eye').addClass('fa-eye-slash');
-            }
-        });
+    $(document).ready(function () {
+      // Toggle Password
+      $('.password-toggle-icon').on('click', function () {
+        const passwordInput = $('#password');
+        const icon = $(this).find('i');
+        if (passwordInput.attr('type') === 'password') {
+          passwordInput.attr('type', 'text');
+          icon.removeClass('fa-eye-slash').addClass('fa-eye');
+        } else {
+          passwordInput.attr('type', 'password');
+          icon.removeClass('fa-eye').addClass('fa-eye-slash');
+        }
+      });
 
-        // Submit Login
-        $('#login-form').on('submit', function(e) {
-            e.preventDefault();
-            $('#email-error').hide();
-            $('#password-error').hide();
+      // Submit Login
+      $('#login-form').on('submit', function (e) {
+        e.preventDefault();
+        $('#email-error').hide();
+        $('#password-error').hide();
 
-            let hasError = false;
-            if ($('#email').val().trim() === '') {
-                $('#email-error').show();
-                hasError = true;
-            }
-            if ($('#password').val().trim() === '') {
-                $('#password-error').show();
-                hasError = true;
-            }
+        let hasError = false;
+        if ($('#email').val().trim() === '') {
+          $('#email-error').show();
+          hasError = true;
+        }
+        if ($('#password').val().trim() === '') {
+          $('#password-error').show();
+          hasError = true;
+        }
 
-            if (hasError) return;
+        if (hasError) return;
 
-            $.ajax({
-                url: "{{ url('/login') }}",
-                type: "POST",
-                data: {
-                    email: $('#email').val(),
-                    password: $('#password').val(),
-                    remember: $('#remember').is(':checked')
-                },
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                },
-                success: function(response) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success',
-                        text: response.message,
-                        showConfirmButton: false,
-                        timer: 1500
-                    }).then(() => {
-                        if (response.success) {
-                            window.location.href = "{{ url('/dashboard') }}";
-                        }
-                    });
-                },
-                error: function(xhr) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: xhr.responseJSON?.message || 'An error occurred.',
-                        confirmButtonText: 'OK'
-                    });
-                },
+        $.ajax({
+          url: "{{ url('/login') }}",
+          type: "POST",
+          data: {
+            email: $('#email').val(),
+            password: $('#password').val(),
+            remember: $('#remember').is(':checked')
+          },
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+          },
+          success: function (response) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Success',
+              text: response.message,
+              showConfirmButton: false,
+              timer: 1500
+            }).then(() => {
+              if (response.success) {
+                window.location.href = "{{ url('/dashboard') }}";
+              }
             });
+          },
+          error: function (xhr) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: xhr.responseJSON?.message || 'An error occurred.',
+              confirmButtonText: 'OK'
+            });
+          },
         });
+      });
     });
   </script>
 </body>
+
 </html>
