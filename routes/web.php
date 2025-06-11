@@ -26,8 +26,7 @@ use App\Http\Controllers\ExecutivePackageController;
 use App\Http\Controllers\CollageEssaysPackageController;
 use App\Http\Controllers\SocialLoginController;
 use App\Http\Controllers\Auth\GoogleController;
-
-
+use App\Http\Controllers\AnnouncementController;
 
 
 
@@ -197,3 +196,10 @@ Route::get('login/{provider}', [SocialLoginController::class, 'redirect']);
 Route::get('login/{provider}/callback', [SocialLoginController::class, 'callback']);
 Route::get('/login/google', [GoogleController::class, 'redirectToGoogle'])->name('login.google');
 Route::get('/login/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+
+// announcements routes
+
+Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
+Route::get('/announcements/create', [AnnouncementController::class, 'create'])->name('announcements.create');
+Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+Route::delete('/announcements/{id}', [AnnouncementController::class, 'destroy'])->name('announcements.delete');

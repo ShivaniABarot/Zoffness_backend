@@ -482,6 +482,14 @@
       padding-top: 1.625rem !important;
       padding-bottom: 1.625rem !important;
     }
+
+    /* Fallback icon for announcements */
+    .menu-icon.fallback-icon.bx-bullhorn::before {
+      content: '\f0a1' !important; /* Font Awesome bullhorn icon */
+      font-family: 'Font Awesome 6 Free' !important;
+      font-weight: 900 !important;
+      display: inline-block !important;
+    }
   </style>
 </head>
 
@@ -492,9 +500,9 @@
   </button>
   <!-- Layout wrapper -->
   @php
-  use Illuminate\Support\Facades\Auth;
-  $userRole = Auth::check() ? Auth::user()->role : null;
-@endphp
+    use Illuminate\Support\Facades\Auth;
+    $userRole = Auth::check() ? Auth::user()->role : null;
+  @endphp
 
   <div class="layout-wrapper layout-content-navbar">
     <div class="layout-container">
@@ -518,117 +526,125 @@
           </li>
 
           @if($userRole === 'tutor')
-        <!-- Tutors can only see Tutors and Students -->
-        <li class="menu-item {{ request()->is('tutors') ? 'active' : '' }}">
-        <a href="{{ url('tutors') }}" class="menu-link">
-          <i class="menu-icon bx bx-user-voice"></i>
-          <div>Tutors</div>
-        </a>
-        </li>
-        <li class="menu-item {{ request()->is('student') ? 'active' : '' }}">
-        <a href="{{ url('student') }}" class="menu-link">
-          <i class="menu-icon bx bx-user-pin"></i>
-          <div>Students</div>
-        </a>
-        </li>
-      @else
-        <!-- Full menu for admins or other roles -->
-        <li class="menu-item {{ request()->is('users') ? 'active' : '' }}">
-        <a href="{{ route('users') }}" class="menu-link">
-          <i class="menu-icon bx bx-user"></i>
-          <div>Users</div>
-        </a>
-        </li>
-        <li class="menu-item {{ request()->is('tutors') ? 'active' : '' }}">
-        <a href="{{ url('tutors') }}" class="menu-link">
-          <i class="menu-icon bx bx-user-voice"></i>
-          <div>Tutors</div>
-        </a>
-        </li>
-        <li class="menu-item {{ request()->is('student') ? 'active' : '' }}">
-        <a href="{{ url('student') }}" class="menu-link">
-          <i class="menu-icon bx bx-user-pin"></i>
-          <div>Students</div>
-        </a>
-        </li>
-        <li
-        class="menu-item {{ request()->is('session') || request()->is('sat_act_packages') || request()->is('package') ? 'active open' : '' }}">
-        <a href="#" class="menu-link menu-toggle">
-          <i class="menu-icon bx bx-package"></i>
-          <div>Packages</div>
-        </a>
-        <ul class="menu-sub">
-          <li class="menu-item {{ request()->is('session') ? 'active' : '' }}">
-          <a href="{{ url('session') }}" class="menu-link">
-            <i class="menu-icon bx bx-time"></i>
-            <div>Sessions</div>
-          </a>
-          </li>
-          <li class="menu-item {{ request()->is('sat_act_packages') ? 'active' : '' }}">
-          <a href="{{ url('sat_act_packages') }}" class="menu-link">
-            <i class="menu-icon bx bx-calendar"></i>
-            <div>SAT-ACT Packages</div>
-          </a>
-          </li>
-          <li class="menu-item {{ request()->is('package') ? 'active' : '' }}">
-          <a href="{{ url('package') }}" class="menu-link">
-            <i class="menu-icon bx bx-package"></i>
-            <div>College Admissions Packages</div>
-          </a>
-          </li>
-          <li class="menu-item {{ request()->is('executive_package') ? 'active' : '' }}">
-          <a href="{{ url('executive_package') }}" class="menu-link">
-            <i class="menu-icon bx bx-briefcase-alt"></i>
-            <div>Executive Packages</div>
-          </a>
-          </li>
-          <li class="menu-item {{ request()->is('collage_essays_packages') ? 'active' : '' }}">
-          <a href="{{ url('collage_essays_packages') }}" class="menu-link">
-            <i class="menu-icon bx bx-book-content"></i>
-            <div>Essays Packages</div>
-          </a>
-          </li>
-        </ul>
-        </li>
-        <li class="menu-item">
-        <a href="javascript:void(0);" class="menu-link menu-toggle">
-          <i class="menu-icon bx bx-help-circle"></i>
-          <div>Bookings</div>
-        </a>
-        <ul class="menu-sub">
-          <li class="menu-item {{ Request::routeIs('sat_act_course') ? 'active' : '' }}">
-          <a href="{{ route('sat_act_course') }}" class="menu-link">
-            <div>SAT/ACT Course</div>
-          </a>
-          </li>
-          <li class="menu-item {{ Request::routeIs('enroll.list') ? 'active' : '' }}">
-          <a href="{{ route('enroll.list') }}" class="menu-link">
-            <div>Enroll/Register</div>
-          </a>
-          </li>
-          <li class="menu-item {{ Request::routeIs('pratice_test') ? 'active' : '' }}">
-          <a href="{{ route('pratice_test') }}" class="menu-link">
-            <div>Practice Test & Analysis</div>
-          </a>
-          </li>
-          <li class="menu-item {{ Request::routeIs('collegeadmission.index') ? 'active' : '' }}">
-          <a href="{{ route('collegeadmission.index') }}" class="menu-link">
-            <div>College Admission Counseling</div>
-          </a>
-          </li>
-          <li class="menu-item {{ Request::routeIs('college_essays') ? 'active' : '' }}">
-          <a href="{{ route('college_essays') }}" class="menu-link">
-            <div>College Essays</div>
-          </a>
-          </li>
-          <li class="menu-item {{ Request::routeIs('executive_function') ? 'active' : '' }}">
-          <a href="{{ route('executive_function') }}" class="menu-link">
-            <div>Executive Function</div>
-          </a>
-          </li>
-        </ul>
-        </li>
-      @endif
+            <!-- Tutors can only see Students and Announcements -->
+            <li class="menu-item {{ request()->is('student') ? 'active' : '' }}">
+              <a href="{{ url('student') }}" class="menu-link">
+                <i class="menu-icon bx bx-user-pin"></i>
+                <div>Students</div>
+              </a>
+            </li>
+            <!-- Announcements Menu Item -->
+            <li class="menu-item {{ request()->is('announcements') ? 'active' : '' }}">
+              <a href="{{ url('announcements') }}" class="menu-link">
+                <i class="menu-icon bx bx-bullhorn fallback-icon"></i>
+                <div>Announcements</div>
+              </a>
+            </li>
+          @else
+            <!-- Full menu for admins or other roles -->
+            <li class="menu-item {{ request()->is('users') ? 'active' : '' }}">
+              <a href="{{ route('users') }}" class="menu-link">
+                <i class="menu-icon bx bx-user"></i>
+                <div>Users</div>
+              </a>
+            </li>
+            <li class="menu-item {{ request()->is('tutors') ? 'active' : '' }}">
+              <a href="{{ url('tutors') }}" class="menu-link">
+                <i class="menu-icon bx bx-user-voice"></i>
+                <div>Tutors</div>
+              </a>
+            </li>
+            <li class="menu-item {{ request()->is('student') ? 'active' : '' }}">
+              <a href="{{ url('student') }}" class="menu-link">
+                <i class="menu-icon bx bx-user-pin"></i>
+                <div>Students</div>
+              </a>
+            </li>
+            <li
+              class="menu-item {{ request()->is('session') || request()->is('sat_act_packages') || request()->is('package') || request()->is('executive_package') || request()->is('collage_essays_packages') ? 'active open' : '' }}">
+              <a href="#" class="menu-link menu-toggle">
+                <i class="menu-icon bx bx-package"></i>
+                <div>Packages</div>
+              </a>
+              <ul class="menu-sub">
+                <li class="menu-item {{ request()->is('session') ? 'active' : '' }}">
+                  <a href="{{ url('session') }}" class="menu-link">
+                    <i class="menu-icon bx bx-time"></i>
+                    <div>Sessions</div>
+                  </a>
+                </li>
+                <li class="menu-item {{ request()->is('sat_act_packages') ? 'active' : '' }}">
+                  <a href="{{ url('sat_act_packages') }}" class="menu-link">
+                    <i class="menu-icon bx bx-calendar"></i>
+                    <div>SAT-ACT Packages</div>
+                  </a>
+                </li>
+                <li class="menu-item {{ request()->is('package') ? 'active' : '' }}">
+                  <a href="{{ url('package') }}" class="menu-link">
+                    <i class="menu-icon bx bx-package"></i>
+                    <div>College Admissions Packages</div>
+                  </a>
+                </li>
+                <li class="menu-item {{ request()->is('executive_package') ? 'active' : '' }}">
+                  <a href="{{ url('executive_package') }}" class="menu-link">
+                    <i class="menu-icon bx bx-briefcase-alt"></i>
+                    <div>Executive Packages</div>
+                  </a>
+                </li>
+                <li class="menu-item {{ request()->is('collage_essays_packages') ? 'active' : '' }}">
+                  <a href="{{ url('collage_essays_packages') }}" class="menu-link">
+                    <i class="menu-icon bx bx-book-content"></i>
+                    <div>Essays Packages</div>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li class="menu-item">
+              <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon bx bx-help-circle"></i>
+                <div>Bookings</div>
+              </a>
+              <ul class="menu-sub">
+                <li class="menu-item {{ Request::routeIs('sat_act_course') ? 'active' : '' }}">
+                  <a href="{{ route('sat_act_course') }}" class="menu-link">
+                    <div>SAT/ACT Course</div>
+                  </a>
+                </li>
+                <li class="menu-item {{ Request::routeIs('enroll.list') ? 'active' : '' }}">
+                  <a href="{{ route('enroll.list') }}" class="menu-link">
+                    <div>Enroll/Register</div>
+                  </a>
+                </li>
+                <li class="menu-item {{ Request::routeIs('pratice_test') ? 'active' : '' }}">
+                  <a href="{{ route('pratice_test') }}" class="menu-link">
+                    <div>Practice Test & Analysis</div>
+                  </a>
+                </li>
+                <li class="menu-item {{ Request::routeIs('collegeadmission.index') ? 'active' : '' }}">
+                  <a href="{{ route('collegeadmission.index') }}" class="menu-link">
+                    <div>College Admission Counseling</div>
+                  </a>
+                </li>
+                <li class="menu-item {{ Request::routeIs('college_essays') ? 'active' : '' }}">
+                  <a href="{{ route('college_essays') }}" class="menu-link">
+                    <div>College Essays</div>
+                  </a>
+                </li>
+                <li class="menu-item {{ Request::routeIs('executive_function') ? 'active' : '' }}">
+                  <a href="{{ route('executive_function') }}" class="menu-link">
+                    <div>Executive Function</div>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <!-- Announcements Menu Item -->
+            <li class="menu-item {{ request()->is('announcements') ? 'active' : '' }}">
+              <a href="{{ route('announcements') }}" class="menu-link">
+                <i class="menu-icon bx bx-bullhorn fallback-icon"></i>
+                <div>Announcements</div>
+              </a>
+            </li>
+          @endif
         </ul>
       </aside>
       <!-- / Sidebar Menu -->
@@ -703,6 +719,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
   <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
   <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
+  <link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <script src="{{ asset('js/custom-datatables.js') }}"></script>
   @stack('scripts')
   <!-- SweetAlert Logout Confirmation -->
