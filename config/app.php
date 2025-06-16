@@ -214,6 +214,7 @@ return [
         // 'ExampleClass' => App\Example\ExampleClass::class,
 
         'Socialite' => Laravel\Socialite\Facades\Socialite::class,
+'Pdf' => Barryvdh\DomPDF\Facade\Pdf::class,
 
     ])->toArray(),
 

@@ -637,6 +637,14 @@
                 </li>
               </ul>
             </li>
+              <!-- Logs module -->
+            <li class="menu-item {{ request()->is('logs*') ? 'active' : '' }}">
+    <a href="{{ route('logs.index') }}" class="menu-link">
+        <i class="menu-icon bx bx-file"></i>
+        <div>Logs</div>
+    </a>
+</li>
+
             <!-- Announcements Menu Item -->
         
           @endif

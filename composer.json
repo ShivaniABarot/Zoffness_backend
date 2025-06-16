@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.0.2",
+        "barryvdh/laravel-dompdf": "^3.1",
         "guzzlehttp/guzzle": "^7.2",
         "illuminate/auth": "*",
         "jeroennoten/laravel-adminlte": "^3.14",
@@ -13,6 +14,7 @@
         "laravel/sanctum": "^3.0",
         "laravel/socialite": "^5.21",
         "laravel/tinker": "^2.7",
+        "maatwebsite/excel": "^3.1",
         "open-admin-org/open-admin": "^1.0",
         "stripe/stripe-php": "^16.3",
         "yajra/laravel-datatables": "*",

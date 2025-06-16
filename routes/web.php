@@ -27,7 +27,7 @@ use App\Http\Controllers\CollageEssaysPackageController;
 use App\Http\Controllers\SocialLoginController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\AnnouncementController;
-
+use App\Http\Controllers\LogController;
 
 
 
@@ -203,3 +203,16 @@ Route::get('/announcements', [AnnouncementController::class, 'index'])->name('an
 Route::get('/announcements/create', [AnnouncementController::class, 'create'])->name('announcements.create');
 Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
 Route::delete('/announcements/{id}', [AnnouncementController::class, 'destroy'])->name('announcements.delete');
+
+// LOGIN LOGS AND EMAIL LOGS 
+Route::prefix('logs')->group(function () {
+    Route::get('/', [LogController::class, 'index'])->name('logs.index');
+    Route::get('/login-logs', [LogController::class, 'loginLogs'])->name('logs.login');
+    Route::get('/email-logs', [LogController::class, 'emailLogs'])->name('logs.email');
+
+    // Export routes
+    Route::get('/export/login-logs/excel', [LogController::class, 'exportLoginLogsExcel'])->name('logs.login.export.excel');
+    Route::get('/export/email-logs/excel', [LogController::class, 'exportEmailLogsExcel'])->name('logs.email.export.excel');
+    Route::get('/export/login-logs/pdf', [LogController::class, 'exportLoginLogsPdf'])->name('logs.login.export.pdf');
+    Route::get('/export/email-logs/pdf', [LogController::class, 'exportEmailLogsPdf'])->name('logs.email.export.pdf');
+});

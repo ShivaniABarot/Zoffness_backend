@@ -28,11 +28,28 @@ class LogSentEmail
     {
         $message = $event->message;
 
+        // Safely extract body content
+        $body = '';
+
+        // Check if getBody() is a TextPart or similar
+        $bodyPart = $message->getBody();
+
+        if (is_object($bodyPart) && method_exists($bodyPart, 'getContent')) {
+            $body = $bodyPart->getContent();
+        } elseif (is_string($bodyPart)) {
+            $body = $bodyPart;
+        }
+
+        // Optional: limit large body size
+        $body = \Illuminate\Support\Str::limit($body, 10000);
+
         EmailLog::create([
-            'to'      => implode(', ', array_keys($message->getTo() ?? [])),
+            'to' => implode(', ', array_keys($message->getTo() ?? [])),
             'subject' => $message->getSubject(),
-            'body'    => $message->getBody(),
-            'status'  => 'sent',
+            'body' => $body,
+            'status' => 'sent',
         ]);
     }
+
+
 }

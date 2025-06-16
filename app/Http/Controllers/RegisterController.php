@@ -90,8 +90,25 @@ class RegisterController extends Controller
         }
     }
 
+    // protected function sendRegistrationEmail(User $user)
+    // {
+    //     Mail::to($user->email)->send(new RegistrationSuccessMail($user));
+    // }
+
     protected function sendRegistrationEmail(User $user)
-    {
-        Mail::to($user->email)->send(new RegistrationSuccessMail($user));
-    }
+{
+    $mail = new RegistrationSuccessMail($user);
+
+    // Send the email
+    \Mail::to($user->email)->send($mail);
+
+    // Log it manually (basic log)
+    \App\Models\EmailLog::create([
+        'to'      => $user->email,
+        'subject' => method_exists($mail, 'build') ? $mail->build()->subject : 'Registration Success',
+        'body'    => method_exists($mail, 'render') ? $mail->render() : null,
+        'status'  => 'sent',
+    ]);
+}
+
 }
