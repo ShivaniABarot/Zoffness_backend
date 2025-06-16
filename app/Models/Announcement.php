@@ -8,10 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class Announcement extends Model
 {
     use HasFactory;
+    protected $table = 'announcements';
+
 
     protected $fillable = [
         'title',
-        'message',
+        'content',
         'publish_at',
+        'is_active',
+        'created_at',
+        'updated_at',
+
     ];
 }

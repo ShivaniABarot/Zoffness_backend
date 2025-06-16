@@ -646,6 +646,12 @@
 </li>
 
             <!-- Announcements Menu Item -->
+            <li class="menu-item {{ request()->is('announcements') ? 'active' : '' }}">
+              <a href="{{ url('announcements') }}" class="menu-link">
+                <i class="menu-icon bx bx-bullhorn fallback-icon"></i>
+                <div>Announcements</div>
+              </a>
+            </li>
         
           @endif
         </ul>

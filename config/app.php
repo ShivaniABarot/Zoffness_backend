@@ -196,6 +196,9 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Laravel\Socialite\SocialiteServiceProvider::class,
+        jdavidbakr\MailTracker\MailTrackerServiceProvider::class,
+
+
 
     ],
 
@@ -215,6 +218,7 @@ return [
 
         'Socialite' => Laravel\Socialite\Facades\Socialite::class,
 'Pdf' => Barryvdh\DomPDF\Facade\Pdf::class,
+
 
     ])->toArray(),
 

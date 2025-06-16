@@ -201,8 +201,12 @@ Route::get('/login/google/callback', [GoogleController::class, 'handleGoogleCall
 
 Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
 Route::get('/announcements/create', [AnnouncementController::class, 'create'])->name('announcements.create');
-Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+Route::post('/announcements/store', [AnnouncementController::class, 'store'])->name('announcements.store');
 Route::delete('/announcements/{id}', [AnnouncementController::class, 'destroy'])->name('announcements.delete');
+Route::post('/send-announcement', [AnnouncementController::class, 'sendAnnouncement'])->name('send.announcement');
+Route::post('/send-announcement', [AnnouncementController::class, 'sendAnnouncement'])
+    ->middleware('auth')
+    ->name('send.announcement');
 
 // LOGIN LOGS AND EMAIL LOGS 
 Route::prefix('logs')->group(function () {
