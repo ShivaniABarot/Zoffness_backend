@@ -12,6 +12,8 @@ class AnnouncementMail extends Mailable
 
     public $announcement;
 
+
+    
     public function __construct($announcement)
     {
         $this->announcement = $announcement;
