@@ -30,6 +30,13 @@
                             <small id="designationError" class="text-danger"></small>
                         </div>
 
+                        {{-- Email --}}
+                        <div class="form-floating mb-3">
+                            <input type="email" id="email" name="email" class="form-control" placeholder="Email Address" required>
+                            <label for="email"><i class="bi bi-envelope-fill me-2"></i>Email Address</label>
+                            <small id="emailError" class="text-danger"></small>
+                        </div>
+
                         {{-- Bio --}}
                         <div class="mb-3">
                             <label for="bio" class="form-label"><i class="bi bi-card-text me-2"></i>Bio</label>
@@ -77,7 +84,7 @@
     $(document).ready(function () {
         $('#createTutorForm').on('submit', function (e) {
             e.preventDefault();
-            $('#nameError, #designationError, #bioError, #imageError').text('');
+            $('#nameError, #designationError, #emailError, #bioError, #imageError').text('');
             var formData = new FormData(this);
 
             $.ajax({
@@ -105,6 +112,7 @@
                     if (errors) {
                         if (errors.name) $('#nameError').text(errors.name[0]);
                         if (errors.designation) $('#designationError').text(errors.designation[0]);
+                        if (errors.email) $('#emailError').text(errors.email[0]);
                         if (errors.bio) $('#bioError').text(errors.bio[0]);
                         if (errors.image) $('#imageError').text(errors.image[0]);
                     } else {

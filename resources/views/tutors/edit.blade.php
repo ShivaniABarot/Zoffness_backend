@@ -24,6 +24,13 @@
                             <small id="nameError" class="text-danger"></small>
                         </div>
 
+                        {{-- Email --}}
+                        <div class="form-floating mb-3">
+                            <input type="email" id="email" name="email" class="form-control" placeholder="Email" value="{{ old('email', $tutor->email) }}" required>
+                            <label for="email"><i class="bi bi-envelope-fill me-2"></i>Email</label>
+                            <small id="emailError" class="text-danger"></small>
+                        </div>
+
                         {{-- Designation --}}
                         <div class="form-floating mb-3">
                             <input type="text" id="designation" name="designation" class="form-control" placeholder="Designation" value="{{ old('designation', $tutor->designation) }}" required>
@@ -83,7 +90,7 @@
             e.preventDefault();
 
             // Clear previous errors
-            $('#nameError, #designationError, #bioError').text('');
+            $('#nameError, #emailError, #designationError, #bioError').text('');
 
             let formData = new FormData(this);
             formData.append('_method', 'PUT');
@@ -110,6 +117,7 @@
                     if (xhr.status === 422) {
                         let errors = xhr.responseJSON.errors;
                         if (errors.name) $('#nameError').text(errors.name[0]);
+                        if (errors.email) $('#emailError').text(errors.email[0]);
                         if (errors.designation) $('#designationError').text(errors.designation[0]);
                         if (errors.bio) $('#bioError').text(errors.bio[0]);
                     } else {

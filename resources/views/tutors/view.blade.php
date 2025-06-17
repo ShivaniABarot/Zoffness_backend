@@ -7,77 +7,63 @@
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-primary text-white text-center rounded-top">
                     <h4 class="mb-0 text-white">
-                        <i class="bi bi-people-fill me-2"></i>{{ $student->student_name }}'s Details
+                        <i class="bi bi-person-badge-fill me-2"></i>{{ $tutor->name }}'s Profile
                     </h4>
                 </div>
                 <div class="card-body px-4 py-4">
-                    {{-- Parent Name --}}
+                    {{-- Tutor Name --}}
                     <div class="mb-4 d-flex align-items-center">
-                        <i class="bi bi-person-lines-fill text-primary me-2 fs-5"></i>
+                        <i class="bi bi-person-fill text-primary me-2 fs-5"></i>
                         <div>
-                            <strong>Parent Name:</strong>
-                            <div class="text-muted">{{ $student->parent_name }}</div>
+                            <strong>Name:</strong>
+                            <div class="text-muted">{{ $tutor->name }}</div>
                         </div>
                     </div>
 
-                    {{-- Parent Phone --}}
-                    <div class="mb-4 d-flex align-items-center">
-                        <i class="bi bi-telephone-fill text-primary me-2 fs-5"></i>
-                        <div>
-                            <strong>Parent Phone:</strong>
-                            <div class="text-muted">{{ $student->parent_phone }}</div>
-                        </div>
-                    </div>
-
-                    {{-- Parent Email --}}
+                    {{-- Email --}}
                     <div class="mb-4 d-flex align-items-center">
                         <i class="bi bi-envelope-fill text-primary me-2 fs-5"></i>
                         <div>
-                            <strong>Parent Email:</strong>
-                            <div class="text-muted">{{ $student->parent_email }}</div>
+                            <strong>Email:</strong>
+                            <div class="text-muted">{{ $tutor->email }}</div>
                         </div>
                     </div>
 
-                    {{-- Student Email --}}
+                    {{-- Designation --}}
                     <div class="mb-4 d-flex align-items-center">
-                        <i class="bi bi-envelope-paper-fill text-primary me-2 fs-5"></i>
+                        <i class="bi bi-award-fill text-primary me-2 fs-5"></i>
                         <div>
-                            <strong>Student Email:</strong>
-                            <div class="text-muted">{{ $student->student_email }}</div>
+                            <strong>Designation:</strong>
+                            <div class="text-muted">{{ $tutor->designation }}</div>
                         </div>
                     </div>
 
-                    {{-- School --}}
-                    <div class="mb-4 d-flex align-items-center">
-                        <i class="bi bi-building text-primary me-2 fs-5"></i>
+                    {{-- Bio --}}
+                    <div class="mb-4 d-flex align-items-start">
+                        <i class="bi bi-card-text text-primary me-2 fs-5 mt-1"></i>
                         <div>
-                            <strong>School:</strong>
-                            <div class="text-muted">{{ $student->school }}</div>
+                            <strong>Bio:</strong>
+                            <div class="text-muted">{{ $tutor->bio }}</div>
                         </div>
                     </div>
 
-                    {{-- Bank Name --}}
+                    {{-- Profile Image (if exists) --}}
+                    @if ($tutor->image)
                     <div class="mb-4 d-flex align-items-center">
-                        <i class="bi bi-bank text-primary me-2 fs-5"></i>
+                        <i class="bi bi-image text-primary me-2 fs-5"></i>
                         <div>
-                            <strong>Bank Name:</strong>
-                            <div class="text-muted">{{ $student->bank_name }}</div>
+                            <strong>Profile Image:</strong>
+                            <div class="mt-2">
+                                <img src="{{ asset('storage/' . $tutor->image) }}" alt="Tutor Image" class="img-thumbnail" style="max-width: 150px;">
+                            </div>
                         </div>
                     </div>
-
-                    {{-- Account Number --}}
-                    <div class="mb-4 d-flex align-items-center">
-                        <i class="bi bi-credit-card-2-front-fill text-primary me-2 fs-5"></i>
-                        <div>
-                            <strong>Account Number:</strong>
-                            <div class="text-muted">{{ $student->account_number }}</div>
-                        </div>
-                    </div>
+                    @endif
 
                     {{-- Back Button --}}
                     <div class="mt-4 text-center">
-                        <a href="{{ route('student') }}" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left-circle"></i> Back to Students
+                        <a href="{{ route('tutors') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left-circle"></i> Back to Tutors
                         </a>
                     </div>
                 </div>

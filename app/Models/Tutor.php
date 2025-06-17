@@ -13,6 +13,7 @@ class Tutor extends Model
         'image',
         'designation',
         'bio',
+        'email',
     ];
 
     // public function user()

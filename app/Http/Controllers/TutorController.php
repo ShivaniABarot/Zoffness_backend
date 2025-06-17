@@ -30,26 +30,21 @@ class TutorController extends Controller
 
     public function store(Request $request)
     {
-        // Validate the form inputs
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'designation' => 'required|string|max:255',
             'bio' => 'required|string',
+            'email' => 'required|email|unique:tutors,email',
             'image' => 'image|mimes:jpeg,png,jpg',
         ]);
-
+    
         try {
-            // Handle file upload
-            // $imagePath = $request->file('image')->store('tutors', 'public');
-
-            // Create the Tutor profile
-            $tutor = Tutor::create([
-                'name' => $request->name,
-                'designation' => $request->designation,
-                'bio' => $request->bio,
-                // 'image' => $imagePath,
-            ]);
-
+            if ($request->hasFile('image')) {
+                $validated['image'] = $request->file('image')->store('tutors', 'public');
+            }
+    
+            $tutor = Tutor::create($validated);
+    
             return response()->json([
                 'success' => true,
                 'message' => 'Tutor profile created successfully.',
@@ -64,8 +59,7 @@ class TutorController extends Controller
             ], 500);
         }
     }
-
-
+    
 
     // Show tutor profile
     public function show(Tutor $tutor)
@@ -89,26 +83,24 @@ class TutorController extends Controller
     // Update tutor profile
     public function update(Request $request, Tutor $tutor)
     {
-        // $this->authorize('update', $tutor);
-
         $validated = $request->validate([
-            'name' => 'required|string',
-            'designation' => 'required|string',
+            'name' => 'required|string|max:255',
+            'designation' => 'required|string|max:255',
             'bio' => 'required|string',
+            'email' => 'required|email|unique:tutors,email,' . $tutor->id,
             'image' => 'nullable|image|mimes:jpeg,png,jpg',
         ]);
-
+    
         try {
             if ($request->hasFile('image')) {
-                // Delete old image
                 if ($tutor->image) {
                     Storage::disk('public')->delete($tutor->image);
                 }
                 $validated['image'] = $request->file('image')->store('tutors', 'public');
             }
-
+    
             $tutor->update($validated);
-
+    
             return redirect()->route('tutors')->with('success', 'Tutor profile updated successfully.');
         } catch (\Exception $e) {
             Log::error('Tutor Update Error: ' . $e->getMessage());
@@ -119,8 +111,7 @@ class TutorController extends Controller
             ], 500);
         }
     }
-
-
+    
 
     public function destroy($id)
     {

@@ -24,6 +24,7 @@
                         <tr>
                             <th>#</th>
                             <th>Name</th>
+                            <th>Email</th>
                             <th>Designation</th>
                             <th>Bio</th>
                             <th class="text-center no-export">Actions</th>
@@ -34,6 +35,7 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $tutor->name }}</td>
+                                <td>{{ $tutor->email }}</td>
                                 <td>{{ $tutor->designation }}</td>
                                 <td>{{ Str::limit($tutor->bio, 100) }}</td>
                                 <td class="text-center">
