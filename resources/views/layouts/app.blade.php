@@ -680,9 +680,10 @@
                       <i class="bx bx-user-circle text-white"></i>
                     </div>
                     <div>
-                      <strong>{{ Auth::user()->name }}</strong><br>
-                      <small class="text-muted">{{ ucfirst($userRole) }}</small>
-                    </div>
+  <strong>{{ optional(Auth::user())->name ?? 'Guest' }}</strong><br>
+  <small class="text-muted">{{ ucfirst($userRole ?? 'Guest') }}</small>
+</div>
+
                   </div>
                 </li>
                 <li>
