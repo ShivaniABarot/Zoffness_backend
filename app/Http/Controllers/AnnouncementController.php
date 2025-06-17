@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Announcement;
 use App\Models\User;
+use App\Models\Student;
 use App\Mail\AnnouncementMail;
 use Illuminate\Support\Facades\Mail;
 
@@ -20,37 +21,43 @@ class AnnouncementController extends Controller
     }
 
     /**
-     * Show the create form.
+     * Show the create form with students.
      */
+
+
     public function create()
-    {
-        return view('announcements.create');
+{
+    $students = Student::select('student_email')->distinct()->get();
+    return view('announcements.create', compact('students'));
+}
+
+public function store(Request $request)
+{
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'to_emails' => 'required|array',
+        'to_emails.*' => 'email|exists:students,student_email',
+        'content' => 'required|string',
+        'publish_at' => 'nullable|date',
+    ]);
+
+    $announcement = Announcement::create([
+        'title' => $request->title,
+        'content' => $request->content,
+        'publish_at' => $request->publish_at,
+        'is_active' => $request->has('is_active') ? true : false,
+    ]);
+
+    foreach ($request->to_emails as $email) {
+        Mail::to($email)->queue(new AnnouncementMail($announcement));
     }
 
-    /**
-     * Store a new announcement.
-     */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'publish_at' => 'nullable|date',
-        ]);
-    
-        Announcement::create([
-            'title' => $request->title,
-            'content' => $request->content,
-            'publish_at' => $request->publish_at,
-            'is_active' => $request->is_active ? true : false,
-        ]);
-    
-        return response()->json([
-            'success' => true,
-            'message' => 'Announcement created successfully.'
-        ]);
-    }
-    
+    return response()->json([
+        'success' => true,
+        'message' => 'Announcement created and emails queued successfully.'
+    ]);
+}
+   
 
     /**
      * Send the selected announcement to users.
@@ -64,9 +71,6 @@ class AnnouncementController extends Controller
         }
 
         $recipients = User::where('receive_announcements', true)->pluck('email')->toArray();
-
-        // Example fallback emails:
-        // $recipients = ['shivanidbarot@gmail.com', 'dev@bugletech.com'];
 
         foreach ($recipients as $email) {
             Mail::to($email)->queue(new AnnouncementMail($announcement));

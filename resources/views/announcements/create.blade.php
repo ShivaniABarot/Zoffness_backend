@@ -1,26 +1,30 @@
 @extends('layouts.app')
 
 @section('head')
-    {{-- jQuery should load first --}}
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    {{-- TinyMCE --}}
-    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-
-    {{-- SweetAlert --}}
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     {{-- TinyMCE Init --}}
     <script>
-        $(document).ready(function () {
-            tinymce.init({
-                selector: '#content',
-                plugins: 'link image code lists',
-                toolbar: 'undo redo | formatselect | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image | code',
-                menubar: false,
-                height: 300
-            });
+       $(document).ready(function () {
+        tinymce.init({
+            selector: '#content',
+            plugins: 'link image code lists',
+            toolbar: 'undo redo | formatselect | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image | code',
+            menubar: false,
+            height: 300
         });
+
+        // Initialize Select2 for student emails
+        $('#to_emails').select2({
+            placeholder: 'Select student emails',
+            allowClear: true,
+            width: '100%'
+        });
+    });
     </script>
 @endsection
 
@@ -47,6 +51,17 @@
                             <label for="title"><i class="bi bi-type me-2"></i>Title</label>
                             <small id="titleError" class="text-danger"></small>
                         </div>
+
+                          {{-- Student Emails --}}
+                    <div class="mb-3">
+                        <label for="to_emails" class="form-label fw-bold"><i class="bi bi-envelope me-2"></i> To Email <span class="text-danger">*</span></label>
+                        <select id="to_emails" name="to_emails[]" class="form-control" multiple="multiple" required>
+                            @foreach($students as $student)
+                                <option value="{{ $student->student_email }}">{{ $student->student_email }}</option>
+                            @endforeach
+                        </select>
+                        <small id="to_emailsError" class="text-danger"></small>
+                    </div>
 
                         {{-- Content --}}
                             <div class="mb-3">
@@ -98,7 +113,7 @@
             e.preventDefault();
 
             // Clear error messages
-            $('#titleError, #contentError, #publish_atError').text('');
+            $('#titleError, #contentError, #publish_atError,#to_emailError').text('');
 
             // Get content from TinyMCE safely
             let content = '';
@@ -136,6 +151,7 @@
                     if (errors) {
                         if (errors.title) $('#titleError').text(errors.title[0]);
                         if (errors.content) $('#contentError').text(errors.content[0]);
+                        if (errors.to_email) $('#to_emailError').text(errors.to_email[0]);
                         if (errors.publish_at) $('#publish_atError').text(errors.publish_at[0]);
                     } else {
                         Swal.fire({
