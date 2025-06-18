@@ -6,6 +6,10 @@
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
 <script>
     $(document).ready(function () {
         tinymce.init({
@@ -48,7 +52,7 @@
                             <small id="titleError" class="text-danger"></small>
                         </div>
 
-                        {{-- From Email (Tutor) --}}
+                        <!-- {{-- From Email (Tutor) --}}
                         <div class="mb-3">
                             <label for="from_email" class="form-label fw-bold"><i class="bi bi-person-lines-fill me-2"></i>From Email (Tutor) <span class="text-danger">*</span></label>
                             <select id="from_email" name="from_email" class="form-control" required>
@@ -58,12 +62,14 @@
                                 @endforeach
                             </select>
                             <small id="from_emailError" class="text-danger"></small>
-                        </div>
+                        </div> -->
 
                         {{-- Student Emails --}}
+
                         <div class="mb-3">
                             <label for="to_emails" class="form-label fw-bold"><i class="bi bi-envelope me-2"></i> To Email <span class="text-danger">*</span></label>
-                            <select id="to_emails" name="to_emails[]" class="form-control" multiple="multiple" required>
+                            <select id="to_emails" name="to_emails[]" class="form-control js-example-basic-multiple" multiple="multiple" required>
+                            <option value="">select email</option>
                                 @foreach($students as $student)
                                     <option value="{{ $student->student_email }}">{{ $student->student_email }}</option>
                                 @endforeach
@@ -73,10 +79,11 @@
 
                         {{-- Content --}}
                         <div class="mb-3">
-                            <label for="content" class="form-label fw-bold"><i class="bi bi-card-text me-1"></i>Content <span class="text-danger">*</span></label>
-                            <textarea name="content" id="content" class="form-control" rows="8"></textarea>
-                            <small id="contentError" class="text-danger"></small>
-                        </div>
+                                <label for="content" class="form-label fw-bold"><i class="bi bi-card-text me-1"></i>Content <span class="text-danger">*</span></label>
+                                <textarea name="content" id="content" class="form-control" rows="8"></textarea>
+
+                                <small id="contentError" class="text-danger"></small>
+                            </div>
 
                         {{-- Publish At --}}
                         <div class="form-floating mb-3">
@@ -173,4 +180,57 @@
         });
     });
 </script>
+
+@push('scripts')
+<script src="https://cdn.ckeditor.com/ckeditor5/35.1.0/classic/ckeditor.js"></script>
+<script>
+    ClassicEditor
+        .create(document.querySelector('#content'))
+        .catch(error => {
+            console.error(error);
+        });
+</script>
+@endpush
+
+
+<script>
+
+$('#announcementType').change(function () {
+    let type = $(this).val();
+
+    $.ajax({
+        url: '/announcement/students-by-type',
+        method: 'GET',
+        data: { type: type },
+        success: function (response) {
+            let $toEmails = $('#to_emails');
+            $toEmails.empty();
+
+            if (response.length === 0) {
+                $toEmails.append('<option disabled>No students found for this type</option>');
+            } else {
+                response.forEach(student => {
+                    let option = new Option(`${student.name} (${student.email})`, student.email, false, false);
+                    $toEmails.append(option);
+                });
+            }
+
+            $toEmails.trigger('change'); 
+        },
+        error: function () {
+            alert('Failed to fetch students');
+        }
+    });
+});
+
+
+$(document).ready(function () {
+    $('#to_emails').select2({
+        placeholder: 'Select recipient emails',
+        allowClear: true
+    });
+});
+
+</script>
+
 @endsection
