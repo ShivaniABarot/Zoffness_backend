@@ -1,15 +1,13 @@
 @extends('layouts.app')
 
 @section('head')
-
 <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    {{-- TinyMCE Init --}}
-    <script>
-       $(document).ready(function () {
+<script>
+    $(document).ready(function () {
         tinymce.init({
             selector: '#content',
             plugins: 'link image code lists',
@@ -18,14 +16,13 @@
             height: 300
         });
 
-        // Initialize Select2 for student emails
         $('#to_emails').select2({
             placeholder: 'Select student emails',
             allowClear: true,
             width: '100%'
         });
     });
-    </script>
+</script>
 @endsection
 
 @section('content')
@@ -41,8 +38,7 @@
                     </h4>
                 </div>
                 <div class="card-body p-4">
-                <form id="announcementForm" method="POST" action="{{ route('announcements.store') }}">
-
+                    <form id="announcementForm" method="POST" action="{{ route('announcements.store') }}">
                         @csrf
 
                         {{-- Title --}}
@@ -52,24 +48,35 @@
                             <small id="titleError" class="text-danger"></small>
                         </div>
 
-                          {{-- Student Emails --}}
-                    <div class="mb-3">
-                        <label for="to_emails" class="form-label fw-bold"><i class="bi bi-envelope me-2"></i> To Email <span class="text-danger">*</span></label>
-                        <select id="to_emails" name="to_emails[]" class="form-control" multiple="multiple" required>
-                            @foreach($students as $student)
-                                <option value="{{ $student->student_email }}">{{ $student->student_email }}</option>
-                            @endforeach
-                        </select>
-                        <small id="to_emailsError" class="text-danger"></small>
-                    </div>
+                        {{-- From Email (Tutor) --}}
+                        <div class="mb-3">
+                            <label for="from_email" class="form-label fw-bold"><i class="bi bi-person-lines-fill me-2"></i>From Email (Tutor) <span class="text-danger">*</span></label>
+                            <select id="from_email" name="from_email" class="form-control" required>
+                                <option value="">-- Select Tutor Email --</option>
+                                @foreach($tutors as $tutor)
+                                    <option value="{{ $tutor->email }}">{{ $tutor->email }}</option>
+                                @endforeach
+                            </select>
+                            <small id="from_emailError" class="text-danger"></small>
+                        </div>
+
+                        {{-- Student Emails --}}
+                        <div class="mb-3">
+                            <label for="to_emails" class="form-label fw-bold"><i class="bi bi-envelope me-2"></i> To Email <span class="text-danger">*</span></label>
+                            <select id="to_emails" name="to_emails[]" class="form-control" multiple="multiple" required>
+                                @foreach($students as $student)
+                                    <option value="{{ $student->student_email }}">{{ $student->student_email }}</option>
+                                @endforeach
+                            </select>
+                            <small id="to_emailsError" class="text-danger"></small>
+                        </div>
 
                         {{-- Content --}}
-                            <div class="mb-3">
-                                <label for="content" class="form-label fw-bold"><i class="bi bi-card-text me-1"></i>Content <span class="text-danger">*</span></label>
-                                <textarea name="content" id="content" class="form-control" rows="8"></textarea>
-
-                                <small id="contentError" class="text-danger"></small>
-                            </div>
+                        <div class="mb-3">
+                            <label for="content" class="form-label fw-bold"><i class="bi bi-card-text me-1"></i>Content <span class="text-danger">*</span></label>
+                            <textarea name="content" id="content" class="form-control" rows="8"></textarea>
+                            <small id="contentError" class="text-danger"></small>
+                        </div>
 
                         {{-- Publish At --}}
                         <div class="form-floating mb-3">
@@ -112,10 +119,8 @@
         $('#announcementForm').on('submit', function (e) {
             e.preventDefault();
 
-            // Clear error messages
-            $('#titleError, #contentError, #publish_atError,#to_emailError').text('');
+            $('#titleError, #contentError, #publish_atError, #to_emailsError, #from_emailError').text('');
 
-            // Get content from TinyMCE safely
             let content = '';
             if (typeof tinymce !== 'undefined' && tinymce.get('content')) {
                 content = tinymce.get('content').getContent();
@@ -125,11 +130,13 @@
                 title: $('#title').val(),
                 content: content,
                 publish_at: $('#publish_at').val(),
-                is_active: $('#is_active').is(':checked') ? 1 : 0
+                is_active: $('#is_active').is(':checked') ? 1 : 0,
+                to_emails: $('#to_emails').val(),
+                from_email: $('#from_email').val()
             };
 
             $.ajax({
-                url: '{{ url("announcements.store") }}',
+                url: '{{ route("announcements.store") }}',
                 method: 'POST',
                 data: formData,
                 success: function (response) {
@@ -151,7 +158,8 @@
                     if (errors) {
                         if (errors.title) $('#titleError').text(errors.title[0]);
                         if (errors.content) $('#contentError').text(errors.content[0]);
-                        if (errors.to_email) $('#to_emailError').text(errors.to_email[0]);
+                        if (errors.to_emails) $('#to_emailsError').text(errors.to_emails[0]);
+                        if (errors.from_email) $('#from_emailError').text(errors.from_email[0]);
                         if (errors.publish_at) $('#publish_atError').text(errors.publish_at[0]);
                     } else {
                         Swal.fire({
@@ -165,16 +173,4 @@
         });
     });
 </script>
-
-@push('scripts')
-<script src="https://cdn.ckeditor.com/ckeditor5/35.1.0/classic/ckeditor.js"></script>
-<script>
-    ClassicEditor
-        .create(document.querySelector('#content'))
-        .catch(error => {
-            console.error(error);
-        });
-</script>
-@endpush
-
 @endsection
