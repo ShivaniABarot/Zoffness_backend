@@ -27,6 +27,12 @@ class User extends Authenticatable implements CanResetPasswordContract
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+// app/Models/User.php
+
+public function getFilamentName(): string
+{
+    return $this->username ?? $this->name ?? 'Admin';
+}
 
 
     // Removed automatic password hashing to prevent double hashing

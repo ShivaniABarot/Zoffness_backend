@@ -198,6 +198,7 @@ return [
         Laravel\Socialite\SocialiteServiceProvider::class,
         jdavidbakr\MailTracker\MailTrackerServiceProvider::class,
 
+        App\Providers\AdminPanelProvider::class,
 
 
     ],
