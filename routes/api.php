@@ -15,7 +15,7 @@ use App\Http\Controllers\SessionController;
 use App\Http\Controllers\Satact_packagesController;
 use App\Http\Controllers\ExecutivePackageController;
 use App\Http\Controllers\CollageEssaysPackageController;
-
+use App\Http\Controllers\UsersController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -30,7 +30,8 @@ use App\Http\Controllers\CollageEssaysPackageController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::post('/login', [LoginController::class, 'login']);
+
+Route::post('/logins', [LoginController::class, 'login_api']);
 Route::post('/enroll', [EnrollController::class, 'new_enroll']);
 Route::post('/new_sat_act', [SATACTCourseController::class, 'new_sat_act']);
 Route::post('/register', [AuthController::class, 'register']);
@@ -47,3 +48,5 @@ Route::get('/get_sessions', [SessionController::class, 'get_sessions']);
 Route::get('/get_sat_act_packages', [Satact_packagesController::class, 'get_sat_act_packages']);
 Route::get('/get_ExecutivePackage', [ExecutivePackageController::class, 'get_ExecutivePackage']);
 Route::get('/get_CollageEssaysPackage', [CollageEssaysPackageController::class, 'get_CollageEssaysPackage']);
+// GET PROFILE DETAILS API 
+Route::middleware('auth:sanctum')->get('/user/profile', [UsersController::class, 'showProfile']);

@@ -123,4 +123,16 @@ class UsersController extends Controller
         ]);
     }
     
+
+    // show user details API 01-07-25
+
+    public function showProfile(Request $request)
+    {
+        $user = $request->user(); // gets the logged-in user
+
+        return response()->json([
+            'username' => $user->username,
+            'email' => $user->email,
+        ]);
+    }
 }

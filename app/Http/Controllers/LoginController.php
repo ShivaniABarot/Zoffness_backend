@@ -75,4 +75,62 @@ class LoginController extends Controller
     {
         return view('auth.forget_password');
     }
+
+
+    public function login_api(Request $request)
+    {
+        // dd(564658458);
+        try {
+            // Validate input
+            $request->validate([
+                'email' => 'required|email',
+                'password' => 'required|string',
+            ]);
+
+            $user = User::where('email', $request->email)->first();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Email not found.'
+                ], 404);
+            }
+
+            if (!Hash::check($request->password, $user->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Incorrect password.'
+                ], 401);
+            }
+
+            // Revoke previous tokens if needed
+            $user->tokens()->delete();
+
+            // Create a new token
+            $token = $user->createToken('api_token')->plainTextToken;
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Login successful.',
+                'token' => $token,
+                'user' => [
+                    'username' => $user->username,
+                    'email' => $user->email,
+                ],
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
 }

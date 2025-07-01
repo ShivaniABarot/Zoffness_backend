@@ -50,6 +50,7 @@ Route::get('/', function () {
 // Login routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
+
 // Register routes
 Route::post('/register', [RegisterController::class, 'register']);
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
@@ -75,6 +76,8 @@ Route::get('/dashboard', [DashboardController::class, 'dashboard'])
     Route::get('/calendar/events', [DashboardController::class, 'getEvents'])->name('calendar.events');
     Route::get('/calendar/bookings', [DashboardController::class, 'getBookingsByTypeAndDate'])->name('calendar.bookings');// profile routes
 Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile')->middleware('auth');
+
+
 
 
 
