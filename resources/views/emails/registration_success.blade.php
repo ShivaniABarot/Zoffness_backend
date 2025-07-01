@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Welcome to Zoffness Academy</title>
+    <title>Welcome to Zoffness College Prep</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -35,13 +35,13 @@
 </head>
 <body>
     <div class="email-container">
-        <h1>Welcome to Zoffness Academy</h1>
+        <h1>Welcome to Zoffness College Prep</h1>
         <p>Dear {{ $username }},</p>
-        <p>Thank you for registering with Zoffness Academy! Your account has been successfully created.</p>
+        <p>Thank you for registering with Zoffness College Prep! Your account has been successfully created.</p>
         <p>You can now log in to access our services and resources. If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
-        <p>Best Regards,<br>The Zoffness Academy Team</p>
+        <p>Best Regards,<br>The Zoffness College Prep Team</p>
         <div class="footer">
-            <p>&copy; {{ date('Y') }} Zoffness Academy. All rights reserved.</p>
+            <p>&copy; {{ date('Y') }} Zoffness College Prep. All rights reserved.</p>
             <p>This is an automated email, please do not reply to this message.</p>
         </div>
     </div>
