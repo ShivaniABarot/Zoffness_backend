@@ -133,6 +133,75 @@ class UsersController extends Controller
         return response()->json([
             'username' => $user->username,
             'email' => $user->email,
+            'role'=>$user->role,
         ]);
     }
+
+
+    public function store_api(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'username' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|in:admin,tutor,parent',
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+    
+        $user = User::create([
+            'username' => $request->username,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
+        ]);
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'User created successfully!',
+            'user' => $user  // Optional: include created user data
+        ], 201);
+    }
+    
+
+    public function update_api(Request $request, $id)
+{
+    $validator = Validator::make($request->all(), [
+        'username' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users,email,' . $id,
+        'password' => 'nullable|string|min:8|confirmed',
+        'role' => 'required|in:admin,tutor,parent',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'success' => false,
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+    $user = User::findOrFail($id);
+    $user->username = $request->username;
+    $user->email = $request->email;
+    $user->role = $request->role;
+
+    if ($request->filled('password')) {
+        $user->password = Hash::make($request->password);
+    }
+
+    $user->save();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'User updated successfully!',
+        'user' => $user  // Optional: include updated user data
+    ]);
+}
+
+    
 }

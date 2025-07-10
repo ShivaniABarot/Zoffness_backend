@@ -50,3 +50,6 @@ Route::get('/get_ExecutivePackage', [ExecutivePackageController::class, 'get_Exe
 Route::get('/get_CollageEssaysPackage', [CollageEssaysPackageController::class, 'get_CollageEssaysPackage']);
 // GET PROFILE DETAILS API 
 Route::middleware('auth:sanctum')->get('/user/profile', [UsersController::class, 'showProfile']);
+Route::post('/users', [UsersController::class, 'store_api']);
+Route::put('/users/{id}', [UsersController::class, 'update_api']);
+Route::patch('/users/{id}', [UsersController::class, 'update_api']);
