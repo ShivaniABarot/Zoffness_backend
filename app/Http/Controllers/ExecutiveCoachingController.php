@@ -27,40 +27,43 @@ class ExecutiveCoachingController extends Controller
             'parent_email' => 'required|email|max:255',
             'student_first_name' => 'required|string|max:255',
             'student_last_name' => 'required|string|max:255',
-            'student_email' => 'required|email|max:255',
+            'student_email' => 'required|email|max:255|unique:students,student_email',
             'school' => 'required|string|max:255',
             'package_type' => 'required|string|max:100',
             'subtotal' => 'required|numeric|min:0',
             'bank_name' => 'nullable|string|max:255',
             'account_number' => 'nullable|string|max:255'
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
                 'errors' => $validator->errors()
             ], 422);
         }
-    
+
         try {
-            DB::transaction(function () use ($request, &$coaching) {
+            $coaching = DB::transaction(function () use ($request) {
                 $parentName = $request->parent_first_name . ' ' . $request->parent_last_name;
                 $studentName = $request->student_first_name . ' ' . $request->student_last_name;
-    
-                // Create or update student
-                $student = Student::updateOrCreate(
-                    ['student_email' => $request->student_email],
-                    [
-                        'parent_name' => $parentName,
-                        'parent_phone' => $request->parent_phone,
-                        'parent_email' => $request->parent_email,
-                        'student_name' => $studentName,
-                        'school' => $request->school,
-                        'bank_name' => $request->bank_name,
-                        'account_number' => $request->account_number
-                    ]
-                );
-    
+
+                // Create student
+                $student = Student::create([
+                    'student_email' => $request->student_email,
+                    'parent_name' => $parentName,
+                    'parent_phone' => $request->parent_phone,
+                    'parent_email' => $request->parent_email,
+                    'student_name' => $studentName,
+                    'school' => $request->school,
+                    'bank_name' => $request->bank_name,
+                    'account_number' => $request->account_number
+                ]);
+
+                \Log::info('Student created', [
+                    'email' => $request->student_email,
+                    'id' => $student->id
+                ]);
+
                 // Create executive coaching entry
                 $coaching = ExecutiveCoaching::create([
                     'parent_first_name' => $request->parent_first_name,
@@ -75,13 +78,15 @@ class ExecutiveCoachingController extends Controller
                     'subtotal' => $request->subtotal,
                     'student_id' => $student->id
                 ]);
+
+                return $coaching;
             });
-    
+
             $studentName = $request->student_first_name . ' ' . $request->student_last_name;
             $parentName = $request->parent_first_name . ' ' . $request->parent_last_name;
-    
-            // Send email to parent
-            Mail::to($request->parent_email)->send(
+
+            // Queue emails to parent and student
+            Mail::to($request->parent_email)->queue(
                 new ExecutiveCoachingConfirmation(
                     $studentName,
                     $request->school,
@@ -91,9 +96,8 @@ class ExecutiveCoachingController extends Controller
                     'parent'
                 )
             );
-    
-            // Send email to student
-            Mail::to($request->student_email)->send(
+
+            Mail::to($request->student_email)->queue(
                 new ExecutiveCoachingConfirmation(
                     $studentName,
                     $request->school,
@@ -103,13 +107,18 @@ class ExecutiveCoachingController extends Controller
                     'student'
                 )
             );
-    
+
             return response()->json([
                 'status' => 'success',
                 'data' => $coaching
             ], 201);
-    
+
         } catch (\Exception $e) {
+            \Log::error('Failed to create executive coaching or student', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to process request: ' . $e->getMessage()

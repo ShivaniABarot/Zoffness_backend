@@ -41,7 +41,7 @@ Route::get('/practice_tests/{id}', [PraticeTestController::class, 'show']);
 Route::put('/practice_tests/{id}', [PraticeTestController::class, 'update']);
 Route::delete('/practice_tests/{id}', [PraticeTestController::class, 'destroy']);
 Route::post('/executive_coaching', [ExecutiveCoachingController::class, 'store']);
-Route::post('/college_admission', [CollegeAdmissionController::class, 'collage_addmission']);
+Route::post('/college_admission', [CollegeAdmissionController::class, 'college_admission']);
 Route::post('/college_essays', [CollegeEssaysController::class, 'college_essays']);
 Route::get('/get_packages', [PackageController::class, 'get_packages']);
 Route::get('/get_sessions', [SessionController::class, 'get_sessions']);

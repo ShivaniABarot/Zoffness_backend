@@ -31,7 +31,7 @@ class SATACTCourseController extends Controller
         'student_lastname' => 'required|string',
         'student_email' => 'required|email',
         'school' => 'required|string',
-        // 'courses' => 'array|min:1',
+        // 'courses' => 'required|array|min:1',
         // 'courses.*.name' => 'string',
         // 'courses.*.price' => 'required|numeric',
         'package_name' => 'required|string',
@@ -52,23 +52,21 @@ class SATACTCourseController extends Controller
     $studentName = $request->student_firstname . ' ' . $request->student_lastname;
 
     try {
-        DB::transaction(function () use ($request, $parentName, $studentName, $totalAmount, &$SAT_ACT_Course, &$student) {
-            // Save or update student
-            $student = Student::updateOrCreate(
-                ['student_email' => $request->student_email],
-                [
-                    'parent_name' => $parentName,
-                    'parent_phone' => $request->parent_phone,
-                    'parent_email' => $request->parent_email,
-                    'student_name' => $studentName,
-                    'school' => $request->school,
-                    'bank_name' => $request->bank_name,
-                    'account_number' => $request->account_number
-                ]
-            );
+        $SAT_ACT_Course = DB::transaction(function () use ($request, $parentName, $studentName, $totalAmount) {
+            // Save student
+            $student = Student::create([
+                'student_email' => $request->student_email,
+                'parent_name' => $parentName,
+                'parent_phone' => $request->parent_phone,
+                'parent_email' => $request->parent_email,
+                'student_name' => $studentName,
+                'school' => $request->school,
+                'bank_name' => $request->bank_name,
+                'account_number' => $request->account_number
+            ]);
 
             // Save SAT/ACT enrollment
-            $SAT_ACT_Course = SAT_ACT_Course::create([
+            return SAT_ACT_Course::create([
                 'parent_firstname' => $request->parent_firstname,
                 'parent_lastname' => $request->parent_lastname,
                 'parent_phone' => $request->parent_phone,
@@ -78,14 +76,14 @@ class SATACTCourseController extends Controller
                 'student_email' => $request->student_email,
                 'school' => $request->school,
                 'amount' => $totalAmount,
-                // 'courses' => $request->courses, // Should be casted to JSON
+                'courses' => $request->courses,
                 'package_name' => $request->package_name,
-                'student_id' => $student->id // if you want to relate
+                'student_id' => $student->id
             ]);
         });
 
         // Send emails
-        Mail::to($request->parent_email)->send(
+        Mail::to($request->parent_email)->queue(
             new SatActCourseConfirmation(
                 $studentName,
                 $request->school,
@@ -96,9 +94,8 @@ class SATACTCourseController extends Controller
                 'parent'
             )
         );
-        
 
-        Mail::to($request->student_email)->send(
+        Mail::to($request->student_email)->queue(
             new SatActCourseConfirmation(
                 $studentName,
                 $request->school,
@@ -124,94 +121,4 @@ class SATACTCourseController extends Controller
         ], 500);
     }
 }
-
-    // public function new_sat_act(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'parent_firstname' => 'required|string',
-    //         'parent_lastname' => 'required|string',
-    //         'parent_phone' => 'required|string',
-    //         'parent_email' => 'required|email',
-    //         'student_firstname' => 'required|string',
-    //         'student_lastname' => 'required|string',
-    //         'student_email' => 'required|email',
-    //         'school' => 'required|string',
-    //         'courses' => 'array|min:1',
-    //         'courses.*.name' => 'string',
-    //         'courses.*.price' => 'required|numeric',
-    //         'package_name' => 'required|string',
-    //         'payment_status' => 'required|string|in:Success,Failed,Pending'
-    //     ]);
-    
-    //     if ($validator->fails()) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'errors' => $validator->errors()
-    //         ], 422);
-    //     }
-    
-    //     // Calculate total amount
-    //     $totalAmount = collect($request->courses)->sum('price');
-    
-    //     // Save the enrollment
-    //     $SAT_ACT_Course = SAT_ACT_Course::create([
-    //         'parent_firstname' => $request->parent_firstname,
-    //         'parent_lastname' => $request->parent_lastname,
-    //         'parent_phone' => $request->parent_phone,
-    //         'parent_email' => $request->parent_email,
-    //         'student_firstname' => $request->student_firstname,
-    //         'student_lastname' => $request->student_lastname,
-    //         'student_email' => $request->student_email,
-    //         'school' => $request->school,
-    //         'amount' => $totalAmount,
-    //         'courses' => $request->courses, // JSON stored
-    //         'package_name' => $request->package_name,
-    //     ]);
-    
-    //     // Prepare data for email
-    //     $courses = $request->courses;
-    //     $school = $request->school;
-    //     $packageName = $request->package_name;
-    //     $paymentStatus = $request->payment_status;
-    
-    //     $studentName = $request->student_firstname . ' ' . $request->student_lastname;
-    //     $parentName = $request->parent_firstname . ' ' . $request->parent_lastname;
-        
-    //     // Send to parent
-    //     Mail::to($request->parent_email)->send(
-    //         new SatActCourseConfirmation(
-    //             $studentName,
-    //             $courses,
-    //             $school,
-    //             $packageName,
-    //             $totalAmount,
-    //             $paymentStatus,
-    //             $parentName,
-    //             'parent'
-    //         )
-    //     );
-        
-    //     // Send to student
-    //     Mail::to($request->student_email)->send(
-    //         new SatActCourseConfirmation(
-    //             $studentName,
-    //             $courses,
-    //             $school,
-    //             $packageName,
-    //             $totalAmount,
-    //             $paymentStatus,
-    //             $studentName,
-    //             'student'
-    //         )
-    //     );
-        
-    
-    //     return response()->json([
-    //         'success' => true,
-    //         'message' => 'Register created successfully',
-    //         'data' => $SAT_ACT_Course,
-    //         'payment_status' => $request->payment_status
-    //     ], 201);
-    // }
-
 }

@@ -20,76 +20,97 @@ class CollegeEssaysController extends Controller
     public function college_essays(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'parent_first_name' => 'required|string',
-            'parent_last_name' => 'required|string',
-            'parent_phone' => 'required|string',
-            'parent_email' => 'required|email',
-            'student_first_name' => 'required|string',
-            'student_last_name' => 'required|string',
-            'student_email' => 'required|email',
-            'sessions' => 'nullable|numeric',
-            'packages' => 'nullable|string',
-            'school' => 'nullable|string',
+            'parent_first_name' => 'required|string|max:255',
+            'parent_last_name' => 'required|string|max:255',
+            'parent_phone' => 'required|string|max:255',
+            'parent_email' => 'required|email|max:255',
+            'student_first_name' => 'required|string|max:255',
+            'student_last_name' => 'required|string|max:255',
+            'student_email' => 'required|email|max:255|unique:students,student_email',
+            'sessions' => 'nullable|numeric|min:0',
+            'packages' => 'nullable|string|max:255',
+            'school' => 'nullable|string|max:255',
             'bank_name' => 'nullable|string|max:255',
             'account_number' => 'nullable|string|max:255',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
                 'errors' => $validator->errors()
             ], 422);
         }
-    
+
+        $validatedData = $validator->validated();
+
         try {
-            DB::transaction(function () use ($request, &$essay) {
-                $parentName = $request->parent_first_name . ' ' . $request->parent_last_name;
-                $studentName = $request->student_first_name . ' ' . $request->student_last_name;
-    
-                // Create or update student
-                $student = Student::updateOrCreate(
-                    ['student_email' => $request->student_email],
-                    [
-                        'parent_name' => $parentName,
-                        'parent_phone' => $request->parent_phone,
-                        'parent_email' => $request->parent_email,
-                        'student_name' => $studentName,
-                        'school' => $request->school ?? '',
-                        'bank_name' => $request->bank_name ?? null,
-                        'account_number' => $request->account_number ?? null,
-                    ]
-                );
-    
-                // Add student_id to the data
-                $data = $request->all();
-                $data['student_id'] = $student->id;
-    
+            $essay = DB::transaction(function () use ($validatedData) {
+                $parentName = $validatedData['parent_first_name'] . ' ' . $validatedData['parent_last_name'];
+                $studentName = $validatedData['student_first_name'] . ' ' . $validatedData['student_last_name'];
+
+                // Create student
+                $student = Student::create([
+                    'student_email' => $validatedData['student_email'],
+                    'parent_name' => $parentName,
+                    'parent_phone' => $validatedData['parent_phone'],
+                    'parent_email' => $validatedData['parent_email'],
+                    'student_name' => $studentName,
+                    'school' => $validatedData['school'] ?? null,
+                    'bank_name' => $validatedData['bank_name'] ?? null,
+                    'account_number' => $validatedData['account_number'] ?? null,
+                ]);
+
+                \Log::info('Student created', [
+                    'email' => $validatedData['student_email'],
+                    'id' => $student->id
+                ]);
+
                 // Create essay record
-                $essay = CollegeEssays::create($data);
+                $essay = CollegeEssays::create([
+                    'parent_first_name' => $validatedData['parent_first_name'],
+                    'parent_last_name' => $validatedData['parent_last_name'],
+                    'parent_phone' => $validatedData['parent_phone'],
+                    'parent_email' => $validatedData['parent_email'],
+                    'student_first_name' => $validatedData['student_first_name'],
+                    'student_last_name' => $validatedData['student_last_name'],
+                    'student_email' => $validatedData['student_email'],
+                    'sessions' => $validatedData['sessions'] ?? null,
+                    'packages' => $validatedData['packages'] ?? null,
+                    'school' => $validatedData['school'] ?? null,
+                    'bank_name' => $validatedData['bank_name'] ?? null,
+                    'account_number' => $validatedData['account_number'] ?? null,
+                    'student_id' => $student->id
+                ]);
+
+                return $essay;
             });
-    
-            $studentName = $request->student_first_name . ' ' . $request->student_last_name;
-            $parentName = $request->parent_first_name . ' ' . $request->parent_last_name;
-            $sessions = $request->sessions;
-            $packages = $request->packages;
-    
-            // Email to parent
-            Mail::to($request->parent_email)->send(
+
+            $studentName = $validatedData['student_first_name'] . ' ' . $validatedData['student_last_name'];
+            $parentName = $validatedData['parent_first_name'] . ' ' . $validatedData['parent_last_name'];
+            $sessions = $validatedData['sessions'] ?? null;
+            $packages = $validatedData['packages'] ?? null;
+
+            // Queue emails to parent and student
+            Mail::to($validatedData['parent_email'])->queue(
                 new CollegeEssayConfirmation($studentName, $sessions, $packages, $parentName, 'parent')
             );
-    
-            // Email to student
-            Mail::to($request->student_email)->send(
+
+            Mail::to($validatedData['student_email'])->queue(
                 new CollegeEssayConfirmation($studentName, $sessions, $packages, $studentName, 'student')
             );
-    
+
             return response()->json([
                 'status' => true,
-                'message' => 'College Essay form submitted successfully.',
+                'message' => 'College essay form submitted successfully.',
                 'data' => $essay
             ], 201);
-    
+
         } catch (\Exception $e) {
+            \Log::error('Failed to create college essay or student', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'status' => false,
                 'message' => 'Failed to save form: ' . $e->getMessage()
