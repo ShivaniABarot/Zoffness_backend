@@ -15,81 +15,81 @@ use Illuminate\Support\Facades\Log;
 class StudentController extends Controller
 {
     public function index()
-{
-    // Use a UNION query to fetch student names, parent names, parent email, and school from all tables
-    $studentsFromTables = DB::table('sat_act_course_reg')
-        ->select(
-            'student_email',
-            DB::raw("CONCAT(student_firstname, ' ', student_lastname) as student_name"),
-            DB::raw("CONCAT(parent_firstname, ' ', parent_lastname) as parent_name"),
-            'parent_email',
-            'school',
-            'created_at'
-        )
-        ->union(DB::table('practice_tests')
+    {
+        // Use a UNION query to fetch student names, parent names, parent email, and school from all tables
+        $studentsFromTables = DB::table('sat_act_course_reg')
             ->select(
                 'student_email',
-                DB::raw("CONCAT(COALESCE(student_first_name, ''), ' ', COALESCE(student_last_name, '')) as student_name"),
-                DB::raw("CONCAT(COALESCE(parent_first_name, ''), ' ', COALESCE(parent_last_name, '')) as parent_name"),
-                'parent_email',
-                'school',
-                'created_at' // Removed 'total' to match column count
-            ))
-        ->union(DB::table('college_admissions')
-            ->select(
-                'student_email',
-                DB::raw("CONCAT(COALESCE(student_first_name, ''), ' ', COALESCE(student_last_name, '')) as student_name"),
-                DB::raw("CONCAT(COALESCE(parent_first_name, ''), ' ', COALESCE(parent_last_name, '')) as parent_name"),
+                DB::raw("CONCAT(student_firstname, ' ', student_lastname) as student_name"),
+                DB::raw("CONCAT(parent_firstname, ' ', parent_lastname) as parent_name"),
                 'parent_email',
                 'school',
                 'created_at'
-            ))
-        ->union(DB::table('college_essays')
-            ->select(
-                'student_email',
-                DB::raw("CONCAT(COALESCE(student_first_name, ''), ' ', COALESCE(student_last_name, '')) as student_name"),
-                DB::raw("CONCAT(COALESCE(parent_first_name, ''), ' ', COALESCE(parent_last_name, '')) as parent_name"),
-                'parent_email',
-                DB::raw("'' as school"), // Ensure 'school' is handled consistently
-                'created_at'
-            ))
-        ->union(DB::table('enrollments')
-            ->select(
-                'student_email',
-                DB::raw("CONCAT(COALESCE(student_first_name, ''), ' ', COALESCE(student_last_name, '')) as student_name"),
-                DB::raw("CONCAT(COALESCE(parent_first_name, ''), ' ', COALESCE(parent_last_name, '')) as parent_name"),
-                'parent_email',
-                'school',
-                'created_at'
-            ))
-        ->union(DB::table('executive_function_coaching')
-            ->select(
-                'student_email',
-                DB::raw("CONCAT(COALESCE(student_first_name, ''), ' ', COALESCE(student_last_name, '')) as student_name"),
-                DB::raw("CONCAT(COALESCE(parent_first_name, ''), ' ', COALESCE(parent_last_name, '')) as parent_name"),
-                'parent_email',
-                'school',
-                'created_at'
-            ));
+            )
+            ->union(DB::table('practice_tests')
+                ->select(
+                    'student_email',
+                    DB::raw("CONCAT(COALESCE(student_first_name, ''), ' ', COALESCE(student_last_name, '')) as student_name"),
+                    DB::raw("CONCAT(COALESCE(parent_first_name, ''), ' ', COALESCE(parent_last_name, '')) as parent_name"),
+                    'parent_email',
+                    'school',
+                    'created_at' // Removed 'total' to match column count
+                ))
+            ->union(DB::table('college_admissions')
+                ->select(
+                    'student_email',
+                    DB::raw("CONCAT(COALESCE(student_first_name, ''), ' ', COALESCE(student_last_name, '')) as student_name"),
+                    DB::raw("CONCAT(COALESCE(parent_first_name, ''), ' ', COALESCE(parent_last_name, '')) as parent_name"),
+                    'parent_email',
+                    'school',
+                    'created_at'
+                ))
+            ->union(DB::table('college_essays')
+                ->select(
+                    'student_email',
+                    DB::raw("CONCAT(COALESCE(student_first_name, ''), ' ', COALESCE(student_last_name, '')) as student_name"),
+                    DB::raw("CONCAT(COALESCE(parent_first_name, ''), ' ', COALESCE(parent_last_name, '')) as parent_name"),
+                    'parent_email',
+                    DB::raw("'' as school"), // Ensure 'school' is handled consistently
+                    'created_at'
+                ))
+            ->union(DB::table('enrollments')
+                ->select(
+                    'student_email',
+                    DB::raw("CONCAT(COALESCE(student_first_name, ''), ' ', COALESCE(student_last_name, '')) as student_name"),
+                    DB::raw("CONCAT(COALESCE(parent_first_name, ''), ' ', COALESCE(parent_last_name, '')) as parent_name"),
+                    'parent_email',
+                    'school',
+                    'created_at'
+                ))
+            ->union(DB::table('executive_function_coaching')
+                ->select(
+                    'student_email',
+                    DB::raw("CONCAT(COALESCE(student_first_name, ''), ' ', COALESCE(student_last_name, '')) as student_name"),
+                    DB::raw("CONCAT(COALESCE(parent_first_name, ''), ' ', COALESCE(parent_last_name, '')) as parent_name"),
+                    'parent_email',
+                    'school',
+                    'created_at'
+                ));
 
-    // Deduplicate by student_email, sort by created_at to resolve conflicts, and join with students table for id
-    $students = DB::table(DB::raw("({$studentsFromTables->toSql()}) as combined_students"))
-        ->mergeBindings($studentsFromTables)
-        ->select(
-            'combined_students.student_email',
-            'combined_students.student_name',
-            'combined_students.parent_name',
-            'combined_students.parent_email',
-            'combined_students.school',
-            'students.id'
-        )
-        ->distinct('combined_students.student_email')
-        ->leftJoin('students', 'combined_students.student_email', '=', 'students.student_email')
-        ->orderBy('combined_students.created_at', 'desc') // Ensure most recent record is used for duplicates
-        ->get();
+        // Deduplicate by student_email, sort by created_at to resolve conflicts, and join with students table for id
+        $students = DB::table(DB::raw("({$studentsFromTables->toSql()}) as combined_students"))
+            ->mergeBindings($studentsFromTables)
+            ->select(
+                'combined_students.student_email',
+                'combined_students.student_name',
+                'combined_students.parent_name',
+                'combined_students.parent_email',
+                'combined_students.school',
+                'students.id'
+            )
+            ->distinct('combined_students.student_email')
+            ->leftJoin('students', 'combined_students.student_email', '=', 'students.student_email')
+            ->orderBy('combined_students.created_at', 'desc') // Ensure most recent record is used for duplicates
+            ->get();
 
-    return view('students.index', compact('students'));
-}
+        return view('students.index', compact('students'));
+    }
 
     public function create()
     {
@@ -137,15 +137,15 @@ class StudentController extends Controller
     }
 
     public function show($id)
-{
-    $student = Student::findOrFail($id);
+    {
+        $student = Student::findOrFail($id);
 
-    return response()->json([
-        'success' => true,
-        // 'message' => 'Student details fetched successfully',
-        'data' => $student
-    ], 200);
-}
+        return response()->json([
+            'success' => true,
+            // 'message' => 'Student details fetched successfully',
+            'data' => $student
+        ], 200);
+    }
 
 
     public function edit($id)
@@ -166,7 +166,7 @@ class StudentController extends Controller
             'bank_name' => 'nullable|string|max:255',
             'account_number' => 'nullable|string|max:20',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
@@ -174,16 +174,16 @@ class StudentController extends Controller
                 'errors' => $validator->errors(),
             ], 422);
         }
-    
+
         $student = Student::find($id);
-    
+
         if (!$student) {
             return response()->json([
                 'success' => false,
                 'message' => 'Student not found.',
             ], 404);
         }
-    
+
         $student->update([
             'parent_name' => $request->parent_name,
             'parent_phone' => $request->parent_phone,
@@ -194,7 +194,7 @@ class StudentController extends Controller
             'bank_name' => $request->bank_name,
             'account_number' => $request->account_number,
         ]);
-    
+
         return response()->json([
             'success' => true,
             'message' => 'Student profile updated successfully.',
@@ -205,22 +205,22 @@ class StudentController extends Controller
     public function destroy($id)
     {
         $student = Student::find($id);
-    
+
         if (!$student) {
             return response()->json([
                 'success' => false,
                 'message' => 'Student not found.',
             ], 404);
         }
-    
+
         $student->delete();
-    
+
         return response()->json([
             'success' => true,
             'message' => 'Student deleted successfully.',
         ]);
     }
-    
+
 
     // GET EXAMS BY STUDENT ID
 
@@ -234,11 +234,11 @@ class StudentController extends Controller
                 'message' => 'Student not found'
             ], 404);
         }
-    
+
         try {
             $exams = [];
             DB::enableQueryLog();
-    
+
             // SAT/ACT Courses
             $satActCourses = SAT_ACT_Course::where('student_id', $studentId)
                 ->select(
@@ -257,7 +257,7 @@ class StudentController extends Controller
             ]);
             $exams = array_merge($exams, $satActCourses);
             DB::flushQueryLog();
-    
+
             // Practice Tests
             $practiceTests = PraticeTest::where('student_id', $studentId)
                 ->with('packages')
@@ -280,7 +280,7 @@ class StudentController extends Controller
             ]);
             $exams = array_merge($exams, $practiceTests);
             DB::flushQueryLog();
-    
+
             // College Admissions
             $collegeAdmissions = CollegeAdmission::where('student_id', $studentId)
                 ->select(
@@ -299,7 +299,7 @@ class StudentController extends Controller
             ]);
             $exams = array_merge($exams, $collegeAdmissions);
             DB::flushQueryLog();
-    
+
             // College Essays
             $collegeEssays = CollegeEssays::where('student_id', $studentId)
                 ->select(
@@ -318,7 +318,7 @@ class StudentController extends Controller
             ]);
             $exams = array_merge($exams, $collegeEssays);
             DB::flushQueryLog();
-    
+
             // Executive Coaching
             $executiveCoaching = ExecutiveCoaching::where('student_id', $studentId)
                 ->select(
@@ -337,17 +337,17 @@ class StudentController extends Controller
             ]);
             $exams = array_merge($exams, $executiveCoaching);
             DB::flushQueryLog();
-    
+
             // Sort all exams by created_at (newest first)
             usort($exams, function ($a, $b) {
                 return strtotime($b['created_at']) - strtotime($a['created_at']);
             });
-    
+
             Log::info('Exams retrieved for student', [
                 'student_id' => $studentId,
                 'exam_count' => count($exams)
             ]);
-    
+
             return response()->json([
                 'status' => true,
                 'message' => 'Exams retrieved successfully',
@@ -360,19 +360,20 @@ class StudentController extends Controller
                     'exams' => $exams
                 ]
             ], 200);
-    
+
         } catch (\Exception $e) {
             Log::error('Failed to retrieve exams for student', [
                 'student_id' => $studentId,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-    
+
             return response()->json([
                 'status' => false,
                 'message' => 'Failed to retrieve exams: ' . $e->getMessage()
             ], 500);
         }
     }
-    
+
+
 }
