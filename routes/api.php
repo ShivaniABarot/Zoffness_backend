@@ -15,6 +15,7 @@ use App\Http\Controllers\SessionController;
 use App\Http\Controllers\Satact_packagesController;
 use App\Http\Controllers\ExecutivePackageController;
 use App\Http\Controllers\CollageEssaysPackageController;
+use App\Http\Controllers\StudentController; 
 use App\Http\Controllers\UsersController;
 /*
 |--------------------------------------------------------------------------
@@ -48,6 +49,7 @@ Route::get('/get_sessions', [SessionController::class, 'get_sessions']);
 Route::get('/get_sat_act_packages', [Satact_packagesController::class, 'get_sat_act_packages']);
 Route::get('/get_ExecutivePackage', [ExecutivePackageController::class, 'get_ExecutivePackage']);
 Route::get('/get_CollageEssaysPackage', [CollageEssaysPackageController::class, 'get_CollageEssaysPackage']);
+Route::get('/students/{studentId}/exams', [StudentController::class, 'getExamsByStudentId']);
 // GET PROFILE DETAILS API 
 Route::middleware('auth:sanctum')->get('/user/profile', [UsersController::class, 'showProfile']);
 Route::post('/users', [UsersController::class, 'store_api']);

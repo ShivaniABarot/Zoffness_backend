@@ -18,6 +18,7 @@ class CollegeEssays extends Model
         'student_email',
         // 'school',
         'sessions',
-        'packages'
+        'packages',
+        'student_id'
     ];
 }

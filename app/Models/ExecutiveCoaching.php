@@ -18,6 +18,7 @@ class ExecutiveCoaching extends Model
         'student_email',
         'school',
         'package_type',
-        'subtotal'
+        'subtotal',
+        'student_id'
     ];
 }

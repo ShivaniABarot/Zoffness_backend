@@ -21,7 +21,8 @@ class PraticeTest extends Model
         'school',
         'subtotal',
         'test_type',
-        'date'
+        'date',
+        'student_id'
     ];
 
     public function packages()

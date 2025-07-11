@@ -6,7 +6,12 @@ use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
-
+use App\Models\SAT_ACT_Course;
+use App\Models\PraticeTest;
+use App\Models\CollegeAdmission;
+use App\Models\CollegeEssays;
+use App\Models\ExecutiveCoaching;
+use Illuminate\Support\Facades\Log;
 class StudentController extends Controller
 {
     public function index()
@@ -205,4 +210,158 @@ class StudentController extends Controller
 
         return redirect()->route('students.index')->with('success', 'Student deleted successfully.');
     }
+
+    // GET EXAMS BY STUDENT ID
+
+    public function getExamsByStudentId(Request $request, $studentId)
+    {
+        // Validate student ID
+        $student = Student::find($studentId);
+        if (!$student) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Student not found'
+            ], 404);
+        }
+    
+        try {
+            $exams = [];
+            DB::enableQueryLog();
+    
+            // SAT/ACT Courses
+            $satActCourses = SAT_ACT_Course::where('student_id', $studentId)
+                ->select(
+                    DB::raw("'SAT/ACT Course' as exam_type"),
+                    'package_name as package',
+                    'amount as total',
+                    'payment_status as status',
+                    'created_at',
+                    DB::raw('NULL as exam_date')
+                )
+                ->get()
+                ->toArray();
+            Log::info('SAT/ACT Courses retrieved', [
+                'count' => count($satActCourses),
+                'query' => DB::getQueryLog()
+            ]);
+            $exams = array_merge($exams, $satActCourses);
+            DB::flushQueryLog();
+    
+            // Practice Tests
+            $practiceTests = PraticeTest::where('student_id', $studentId)
+                ->with('packages')
+                ->get()
+                ->map(function ($test) {
+                    $packageNames = $test->packages->pluck('name')->implode(', ');
+                    return [
+                        'exam_type' => 'Practice Test',
+                        'package' => $packageNames ?: $test->test_type,
+                        'total' => $test->subtotal,
+                        'status' => $test->status ?? 'booked',
+                        'created_at' => $test->created_at,
+                        'exam_date' => $test->date
+                    ];
+                })
+                ->toArray();
+            Log::info('Practice Tests retrieved', [
+                'count' => count($practiceTests),
+                'query' => DB::getQueryLog()
+            ]);
+            $exams = array_merge($exams, $practiceTests);
+            DB::flushQueryLog();
+    
+            // College Admissions
+            $collegeAdmissions = CollegeAdmission::where('student_id', $studentId)
+                ->select(
+                    DB::raw("'College Admission' as exam_type"),
+                    'packages as package',
+                    'subtotal as total',
+                    'status',
+                    'created_at',
+                    DB::raw('NULL as exam_date')
+                )
+                ->get()
+                ->toArray();
+            Log::info('College Admissions retrieved', [
+                'count' => count($collegeAdmissions),
+                'query' => DB::getQueryLog()
+            ]);
+            $exams = array_merge($exams, $collegeAdmissions);
+            DB::flushQueryLog();
+    
+            // College Essays
+            $collegeEssays = CollegeEssays::where('student_id', $studentId)
+                ->select(
+                    DB::raw("'College Essay' as exam_type"),
+                    'packages as package',
+                    DB::raw('NULL as total'),
+                    'status',
+                    'created_at',
+                    DB::raw('NULL as exam_date')
+                )
+                ->get()
+                ->toArray();
+            Log::info('College Essays retrieved', [
+                'count' => count($collegeEssays),
+                'query' => DB::getQueryLog()
+            ]);
+            $exams = array_merge($exams, $collegeEssays);
+            DB::flushQueryLog();
+    
+            // Executive Coaching
+            $executiveCoaching = ExecutiveCoaching::where('student_id', $studentId)
+                ->select(
+                    DB::raw("'Executive Coaching' as exam_type"),
+                    'package_type as package',
+                    'subtotal as total',
+                    'status',
+                    'created_at',
+                    DB::raw('NULL as exam_date')
+                )
+                ->get()
+                ->toArray();
+            Log::info('Executive Coaching retrieved', [
+                'count' => count($executiveCoaching),
+                'query' => DB::getQueryLog()
+            ]);
+            $exams = array_merge($exams, $executiveCoaching);
+            DB::flushQueryLog();
+    
+            // Sort all exams by created_at (newest first)
+            usort($exams, function ($a, $b) {
+                return strtotime($b['created_at']) - strtotime($a['created_at']);
+            });
+    
+            Log::info('Exams retrieved for student', [
+                'student_id' => $studentId,
+                'exam_count' => count($exams)
+            ]);
+    
+            return response()->json([
+                'status' => true,
+                'message' => 'Exams retrieved successfully',
+                'data' => [
+                    'student' => [
+                        'id' => $student->id,
+                        'name' => $student->student_name,
+                        'email' => $student->student_email
+                    ],
+                    'exams' => $exams
+                ]
+            ], 200);
+    
+        } catch (\Exception $e) {
+            Log::error('Failed to retrieve exams for student', [
+                'student_id' => $studentId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+    
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to retrieve exams: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    
 }
