@@ -137,30 +137,16 @@ class StudentController extends Controller
     }
 
     public function show($id)
-    {
-        $student = Student::with([
-            'collegeAdmissions' => function ($query) {
-                $query->select('id', 'student_email', 'packages', 'created_at', 'status', 'subtotal');
-            },
-            'collegeEssays' => function ($query) {
-                $query->select('id', 'student_email', 'packages', 'created_at', 'status', 'sessions');
-            },
-            'enrollments' => function ($query): void {
-                $query->select('id', 'student_email', 'packages', 'created_at', 'status', 'total_amount');
-            },
-            'satActCourseRegistrations' => function ($query) {
-                $query->select('id', 'student_email', 'package_name', 'created_at', 'status', 'amount');
-            },
-            'practiceTests' => function ($query) {
-                $query->select('id', 'student_email', 'test_type', 'date', 'created_at', 'status', 'subtotal');
-            },
-            'executiveFunctionCoaching' => function ($query) {
-                $query->select('id', 'student_email', 'package_type', 'created_at', 'status', 'subtotal');
-            }
-        ])->findOrFail($id);
-    
-        return view('students.view', compact('student'));
-    }
+{
+    $student = Student::findOrFail($id);
+
+    return response()->json([
+        'success' => true,
+        // 'message' => 'Student details fetched successfully',
+        'data' => $student
+    ], 200);
+}
+
 
     public function edit($id)
     {

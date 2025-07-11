@@ -60,3 +60,4 @@ Route::post('/students', [StudentController::class, 'store']);
 Route::get('/students/{id}', [StudentController::class, 'edit']);
 Route::put('/students/{id}', [StudentController::class, 'update']);
 Route::delete('/students/{id}', [StudentController::class, 'destroy']);
+Route::get('/parent/{id}', [StudentController::class, 'show']);
