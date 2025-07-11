@@ -180,36 +180,61 @@ class StudentController extends Controller
             'bank_name' => 'nullable|string|max:255',
             'account_number' => 'nullable|string|max:20',
         ]);
-
+    
         if ($validator->fails()) {
-            return redirect()->route('students.edit', $id)
-                ->withErrors($validator)
-                ->withInput();
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
         }
-
-        $student = Student::findOrFail($id);
-
-        $student->parent_name = $request->parent_name;
-        $student->parent_phone = $request->parent_phone;
-        $student->parent_email = $request->parent_email;
-        $student->student_name = $request->student_name;
-        $student->student_email = $request->student_email;
-        $student->school = $request->school;
-        $student->bank_name = $request->bank_name;
-        $student->account_number = $request->account_number;
-
-        $student->save();
-
-        return redirect()->route('students.index')->with('success', 'Student profile updated successfully.');
+    
+        $student = Student::find($id);
+    
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Student not found.',
+            ], 404);
+        }
+    
+        $student->update([
+            'parent_name' => $request->parent_name,
+            'parent_phone' => $request->parent_phone,
+            'parent_email' => $request->parent_email,
+            'student_name' => $request->student_name,
+            'student_email' => $request->student_email,
+            'school' => $request->school,
+            'bank_name' => $request->bank_name,
+            'account_number' => $request->account_number,
+        ]);
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'Student profile updated successfully.',
+            'student' => $student,
+        ]);
     }
 
     public function destroy($id)
     {
-        $student = Student::findOrFail($id);
+        $student = Student::find($id);
+    
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Student not found.',
+            ], 404);
+        }
+    
         $student->delete();
-
-        return redirect()->route('students.index')->with('success', 'Student deleted successfully.');
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'Student deleted successfully.',
+        ]);
     }
+    
 
     // GET EXAMS BY STUDENT ID
 
