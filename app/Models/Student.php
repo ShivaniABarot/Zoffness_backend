@@ -19,6 +19,7 @@ class Student extends Model
         'bank_name',
         'account_number',
     ];
+    
 
     public function collegeAdmissions()
     {

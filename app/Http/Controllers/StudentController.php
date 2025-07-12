@@ -12,6 +12,7 @@ use App\Models\CollegeAdmission;
 use App\Models\CollegeEssays;
 use App\Models\ExecutiveCoaching;
 use Illuminate\Support\Facades\Log;
+
 class StudentController extends Controller
 {
     public function index()
@@ -98,29 +99,37 @@ class StudentController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'parent_name' => 'required|string|max:255',
-            'parent_phone' => 'required|string|max:15',
-            'parent_email' => 'required|email|unique:students,parent_email',
-            'student_name' => 'required|string|max:255',
-            'student_email' => 'nullable|email|unique:students,student_email',
-            'school' => 'nullable|string|max:255',
-            'bank_name' => 'nullable|string|max:255',
-            'account_number' => 'nullable|string|max:20',
+        // Manually validate to catch and debug failures
+        $validator = Validator::make($request->all(), [
+            'parent_name'     => 'required|string|max:255',
+            'parent_phone'    => 'required|string|max:15',
+            'parent_email'    => 'required|email|unique:students,parent_email',
+            'student_name'    => 'required|string|max:255',
+            'student_email'   => 'nullable|email|unique:students,student_email',
+            'school'          => 'nullable|string|max:255',
+            'bank_name'       => 'nullable|string|max:255',
+            'account_number'  => 'nullable|string|max:20',
         ]);
-
+    
+        // Check if validation fails
+        if ($validator->fails()) {
+            // Show validation errors instead of redirecting
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+    
+        // If validation passes, get validated data
+        $validated = $validator->validated();
+    
+        // Debug output
+        // dd(777, $validated);
+    
         try {
-            $student = Student::create([
-                'parent_name' => $request->parent_name,
-                'parent_phone' => $request->parent_phone,
-                'parent_email' => $request->parent_email,
-                'student_name' => $request->student_name,
-                'student_email' => $request->student_email,
-                'school' => $request->school,
-                'bank_name' => $request->bank_name,
-                'account_number' => $request->account_number,
-            ]);
-
+            $student = Student::create($validated);
+    
             return response()->json([
                 'success' => true,
                 'message' => 'Student profile created successfully.',
@@ -128,6 +137,7 @@ class StudentController extends Controller
             ]);
         } catch (\Exception $e) {
             \Log::error('Student Store Error: ' . $e->getMessage());
+    
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while creating the student profile.',
