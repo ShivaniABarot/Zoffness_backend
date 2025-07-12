@@ -18,8 +18,15 @@ class Student extends Model
         'school',
         'bank_name',
         'account_number',
+        'user_id'
     ];
     
+// Student.php
+
+public function user()
+{
+    return $this->belongsTo(User::class);
+}
 
     public function collegeAdmissions()
     {

@@ -99,52 +99,77 @@ class StudentController extends Controller
 
     public function store(Request $request)
     {
-        // Manually validate to catch and debug failures
+        // Get the logged-in user's ID
+        $userId = auth()->id();
+    
+        // Validate the incoming student array
         $validator = Validator::make($request->all(), [
-            'parent_name'     => 'required|string|max:255',
-            'parent_phone'    => 'required|string|max:15',
-            'parent_email'    => 'required|email|unique:students,parent_email',
-            'student_name'    => 'required|string|max:255',
-            'student_email'   => 'nullable|email|unique:students,student_email',
-            'school'          => 'nullable|string|max:255',
-            'bank_name'       => 'nullable|string|max:255',
-            'account_number'  => 'nullable|string|max:20',
+            'students' => 'required|array|min:1',
+            'students.*.parent_name'     => 'required|string|max:255',
+            'students.*.parent_phone'    => 'required|string|max:15',
+            'students.*.parent_email'    => 'required|email',
+            'students.*.student_name'    => 'required|string|max:255',
+            'students.*.student_email'   => 'nullable|email',
+            'students.*.school'          => 'nullable|string|max:255',
+            'students.*.bank_name'       => 'nullable|string|max:255',
+            'students.*.account_number'  => 'nullable|string|max:20',
         ]);
     
-        // Check if validation fails
+        // Handle validation errors
         if ($validator->fails()) {
-            // Show validation errors instead of redirecting
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed.',
                 'errors' => $validator->errors(),
             ], 422);
         }
-    
-        // If validation passes, get validated data
-        $validated = $validator->validated();
-    
-        // Debug output
-        // dd(777, $validated);
+        
+        $validatedData = $validator->validated();
+        $createdStudents = [];
     
         try {
-            $student = Student::create($validated);
+            foreach ($validatedData['students'] as $studentData) {
+                // Attach the logged-in user's ID
+                $studentData['user_id'] = $userId;
+    
+                // Create the student record
+                $createdStudents[] = Student::create($studentData);
+            }
     
             return response()->json([
                 'success' => true,
-                'message' => 'Student profile created successfully.',
-                'student' => $student,
+                'message' => count($createdStudents) . ' students created successfully.',
+                'students' => $createdStudents,
             ]);
         } catch (\Exception $e) {
             \Log::error('Student Store Error: ' . $e->getMessage());
     
             return response()->json([
                 'success' => false,
-                'message' => 'An error occurred while creating the student profile.',
+                'message' => 'An error occurred while creating student profiles.',
                 'error' => $e->getMessage(),
             ], 500);
         }
     }
+
+    // Fetch students by user_id
+    public function getStudentsByUserId($userId)
+    {
+        $students = Student::where('user_id', $userId)->get();
+
+        if ($students->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No students found for this user.',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'students' => $students,
+        ]);
+    }
+    
 
     public function show($id)
     {
@@ -169,9 +194,9 @@ class StudentController extends Controller
         $validator = Validator::make($request->all(), [
             'parent_name' => 'required|string|max:255',
             'parent_phone' => 'required|string|max:15',
-            'parent_email' => 'required|email|unique:students,parent_email,' . $id,
+            'parent_email' => 'required|email',
             'student_name' => 'required|string|max:255',
-            'student_email' => 'nullable|email|unique:students,student_email,' . $id,
+            'student_email' => 'nullable|email',
             'school' => 'nullable|string|max:255',
             'bank_name' => 'nullable|string|max:255',
             'account_number' => 'nullable|string|max:20',

@@ -32,7 +32,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/logins', [LoginController::class, 'login_api']);
+Route::post('/login', [LoginController::class, 'login_api']);
 Route::post('/enroll', [EnrollController::class, 'new_enroll']);
 Route::post('/new_sat_act', [SATACTCourseController::class, 'new_sat_act']);
 Route::post('/register', [AuthController::class, 'register']);
@@ -56,8 +56,9 @@ Route::post('/users', [UsersController::class, 'store_api']);
 Route::put('/users/{id}', [UsersController::class, 'update_api']);
 Route::patch('/users/{id}', [UsersController::class, 'update_api']);
 // Stduent routes
-Route::post('/students', [StudentController::class, 'store']);
+Route::middleware('auth:sanctum')->post('/students', [StudentController::class, 'store']);
 Route::get('/students/{id}', [StudentController::class, 'edit']);
 Route::put('/students/{id}', [StudentController::class, 'update']);
 Route::delete('/students/{id}', [StudentController::class, 'destroy']);
 Route::get('/parent/{id}', [StudentController::class, 'show']);
+Route::get('/parent/user/{userId}', [StudentController::class, 'getStudentsByUserId']);
