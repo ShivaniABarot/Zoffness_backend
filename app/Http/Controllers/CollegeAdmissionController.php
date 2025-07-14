@@ -37,7 +37,8 @@ class CollegeAdmissionController extends Controller
             'fifteen_session_package' => 'nullable|numeric|min:0',
             'twenty_session_package' => 'nullable|numeric|min:0',
             'bank_name' => 'nullable|string|max:255',
-            'account_number' => 'nullable|string|max:255'
+            'account_number' => 'nullable|string|max:255',
+            'exam_date' => 'required|date',
         ]);
 
         if ($validator->fails()) {
@@ -63,7 +64,8 @@ class CollegeAdmissionController extends Controller
                     'student_name' => $studentName,
                     'school' => $validatedData['school'] ?? null,
                     'bank_name' => $validatedData['bank_name'] ?? null,
-                    'account_number' => $validatedData['account_number'] ?? null
+                    'account_number' => $validatedData['account_number'] ?? null,
+                    'exam_date' => $validatedData['exam_date'] ?? null
                 ]);
 
                 \Log::info('Student created', [
@@ -90,6 +92,7 @@ class CollegeAdmissionController extends Controller
                     'twenty_session_package' => $validatedData['twenty_session_package'] ?? null,
                     'bank_name' => $validatedData['bank_name'] ?? null,
                     'account_number' => $validatedData['account_number'] ?? null,
+                    'exam_date' => $validatedData['exam_date'] ?? null,
                     'student_id' => $student->id
                 ]);
 

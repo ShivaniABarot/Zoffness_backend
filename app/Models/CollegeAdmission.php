@@ -30,7 +30,8 @@ class CollegeAdmission extends Model
         'fifteen_session_package',
         'twenty_session_package',
         'packages',
-        'student_id'
+        'student_id',
+        'exam_date'
     ];
 
 }
