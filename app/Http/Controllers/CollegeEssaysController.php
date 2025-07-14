@@ -32,6 +32,7 @@ class CollegeEssaysController extends Controller
             'school' => 'nullable|string|max:255',
             'bank_name' => 'nullable|string|max:255',
             'account_number' => 'nullable|string|max:255',
+            'exam_date' => 'required|date',
         ]);
 
         if ($validator->fails()) {
@@ -58,6 +59,7 @@ class CollegeEssaysController extends Controller
                     'school' => $validatedData['school'] ?? null,
                     'bank_name' => $validatedData['bank_name'] ?? null,
                     'account_number' => $validatedData['account_number'] ?? null,
+                    'exam_date' => $validatedData['exam_date'] ?? null,
                 ]);
 
                 \Log::info('Student created', [
@@ -79,6 +81,7 @@ class CollegeEssaysController extends Controller
                     'school' => $validatedData['school'] ?? null,
                     'bank_name' => $validatedData['bank_name'] ?? null,
                     'account_number' => $validatedData['account_number'] ?? null,
+                    'exam_date' => $validatedData['exam_date'] ?? null,
                     'student_id' => $student->id
                 ]);
 
