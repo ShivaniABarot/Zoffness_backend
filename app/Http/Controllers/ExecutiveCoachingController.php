@@ -32,7 +32,8 @@ class ExecutiveCoachingController extends Controller
             'package_type' => 'required|string|max:100',
             'subtotal' => 'required|numeric|min:0',
             'bank_name' => 'nullable|string|max:255',
-            'account_number' => 'nullable|string|max:255'
+            'account_number' => 'nullable|string|max:255',
+            'exam_date' => 'required|date',
         ]);
 
         if ($validator->fails()) {
@@ -56,7 +57,8 @@ class ExecutiveCoachingController extends Controller
                     'student_name' => $studentName,
                     'school' => $request->school,
                     'bank_name' => $request->bank_name,
-                    'account_number' => $request->account_number
+                    'account_number' => $request->account_number,
+                    'exam_date' => $request->exam_date
                 ]);
 
                 \Log::info('Student created', [
@@ -76,6 +78,7 @@ class ExecutiveCoachingController extends Controller
                     'school' => $request->school,
                     'package_type' => $request->package_type,
                     'subtotal' => $request->subtotal,
+                    'exam_date' => $request->exam_date,
                     'student_id' => $student->id
                 ]);
 
@@ -171,7 +174,8 @@ class ExecutiveCoachingController extends Controller
             'student_email' => 'sometimes|email|max:255',
             'school' => 'sometimes|string|max:255',
             'package_type' => 'sometimes|string|max:100',
-            'subtotal' => 'sometimes|numeric|min:0'
+            'subtotal' => 'sometimes|numeric|min:0',
+            'exam_date' => 'required|date',
         ]);
 
         if ($validator->fails()) {

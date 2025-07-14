@@ -19,6 +19,7 @@ class ExecutiveCoaching extends Model
         'school',
         'package_type',
         'subtotal',
+        'exam_date',
         'student_id'
     ];
 }
