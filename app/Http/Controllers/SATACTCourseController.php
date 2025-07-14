@@ -37,7 +37,8 @@ class SATACTCourseController extends Controller
         'package_name' => 'required|string',
         'payment_status' => 'required|string|in:Success,Failed,Pending',
         'bank_name' => 'nullable|string|max:255',
-        'account_number' => 'nullable|string|max:255'
+        'account_number' => 'nullable|string|max:255',
+        'exam_date' => 'required|date',
     ]);
 
     if ($validator->fails()) {
@@ -62,7 +63,8 @@ class SATACTCourseController extends Controller
                 'student_name' => $studentName,
                 'school' => $request->school,
                 'bank_name' => $request->bank_name,
-                'account_number' => $request->account_number
+                'account_number' => $request->account_number,
+                'exam_date' => $request->exam_date
             ]);
 
             // Save SAT/ACT enrollment
@@ -78,6 +80,7 @@ class SATACTCourseController extends Controller
                 'amount' => $totalAmount,
                 'courses' => $request->courses,
                 'package_name' => $request->package_name,
+                'exam_date' => $request->exam_date,
                 'student_id' => $student->id
             ]);
         });
