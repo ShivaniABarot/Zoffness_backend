@@ -23,6 +23,7 @@
                         <tr>
                             <th>#</th>
                             <th>Title</th>
+                            <th>Date</th>
                             <th>Type</th>
                             <th>Price Per Slot</th>
                             <th>Max Capacity</th>
@@ -34,6 +35,7 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $session->title }}</td>
+                                <td>{{ $session->date }}</td>
                                 <td>
                                     <span class="badge bg-label-{{ $session->session_type == 'regular' ? 'primary' : 'info' }}">
                                         {{ ucfirst($session->session_type) }}

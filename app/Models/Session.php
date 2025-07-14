@@ -13,12 +13,13 @@ class Session extends Model
     protected $table = 'sessions';
 
     // Define the fillable fields for mass assignment
-    protected $fillable = [
-        'title',
-        'session_type',
-        'price_per_slot',
-        'max_capacity',
-    ];
+        protected $fillable = [
+            'title',
+            'session_type',
+            'price_per_slot',
+            'max_capacity',
+            'date',
+        ];
 
     /**
      * Get the tutor that owns the session.

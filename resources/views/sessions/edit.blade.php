@@ -23,6 +23,13 @@
                             <small id="titleError" class="text-danger"></small>
                         </div>
 
+
+                        <div class="form-floating mb-3">
+    <input type="date" id="date" name="date" class="form-control" placeholder="Session Date" required>
+    <label for="date"><i class="bi bi-calendar-event me-2"></i>Session Date</label>
+    <small id="dateError" class="text-danger"></small>
+</div>
+
                         {{-- Session Type --}}
                         <div class="form-floating mb-3">
                             <select id="session_type" name="session_type" class="form-select" required>

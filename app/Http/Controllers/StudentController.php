@@ -305,7 +305,7 @@ class StudentController extends Controller
                         'total' => $test->subtotal,
                         'status' => $test->status ?? 'booked',
                         'created_at' => $test->created_at,
-                        'exam_date' => $test->date
+                        'exam_date' => $test->exam_date
                     ];
                 })
                 ->toArray();
@@ -322,9 +322,8 @@ class StudentController extends Controller
                     DB::raw("'College Admission' as exam_type"),
                     'packages as package',
                     'subtotal as total',
-                    'status',
+                    'status','exam_date',
                     'created_at',
-                    DB::raw('NULL as exam_date')
                 )
                 ->get()
                 ->toArray();
@@ -341,9 +340,8 @@ class StudentController extends Controller
                     DB::raw("'College Essay' as exam_type"),
                     'packages as package',
                     DB::raw('NULL as total'),
-                    'status',
-                    'created_at',
-                    DB::raw('NULL as exam_date')
+                    'status','exam_date',
+                    'created_at',   
                 )
                 ->get()
                 ->toArray();

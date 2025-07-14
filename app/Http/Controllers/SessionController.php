@@ -30,18 +30,20 @@ class SessionController extends Controller
             'session_type' => 'required|in:study,exam,regular,extended_exam',
             'price_per_slot' => 'required|numeric',
             'max_capacity' => 'required|integer|min:1',
+            'date' => 'required|date',
         ]);
-
+    
         Session::create([
             'title' => $request->title,
             'session_type' => $request->session_type,
             'price_per_slot' => $request->price_per_slot,
             'max_capacity' => $request->max_capacity,
+            'date' => $request->date,
         ]);
-
+    
         return redirect()->route('sessions')->with('success', 'Session created successfully.');
     }
-
+    
     // edit and update 
     public function edit($id)
     {
@@ -57,27 +59,29 @@ class SessionController extends Controller
             'session_type' => 'required|in:study,exam,regular,extended_exam',
             'price_per_slot' => 'required|numeric',
             'max_capacity' => 'required|integer|min:1',
+            'date' => 'required|date',
         ]);
-
+    
         if ($validator->fails()) {
             return redirect()->route('sessions.edit', $id)
                              ->withErrors($validator)
                              ->withInput();
         }
-
+    
         $session = Session::findOrFail($id);
         $session->title = $request->title;
         $session->session_type = $request->session_type;
         $session->price_per_slot = $request->price_per_slot;
         $session->max_capacity = $request->max_capacity;
+        $session->date = $request->date;
         $session->save();
+    
         return response()->json([
             'success' => true,
             'message' => 'Session updated successfully.'
         ]);
-        
-        // return redirect()->route('sessions')->with('success', 'Session updated successfully.');
     }
+    
 
     public function show($id)
     {

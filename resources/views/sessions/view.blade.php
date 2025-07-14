@@ -21,6 +21,15 @@
                         </div>
                     </div>
 
+                    {{-- Session Date --}}
+                    <div class="mb-4 d-flex align-items-center">
+                        <i class="bi bi-calendar-event text-primary me-2 fs-5"></i>
+                        <div>
+                            <strong>Session Date:</strong>
+                            <div class="text-muted">{{ \Carbon\Carbon::parse($session->date)->format('F j, Y \a\t g:i A') }}</div>
+                        </div>
+                    </div>
+
                     {{-- Session Type --}}
                     <div class="mb-4 d-flex align-items-center">
                         <i class="bi bi-ui-checks text-primary me-2 fs-5"></i>
