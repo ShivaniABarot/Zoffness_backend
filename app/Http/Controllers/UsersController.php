@@ -128,13 +128,15 @@ class UsersController extends Controller
 
     public function showProfile(Request $request)
     {
-        // dd(4545);
         $user = $request->user(); 
+        // dd(4545 , $user );
 
         return response()->json([
             'username' => $user->username,
             'email' => $user->email,
+            'phone_no' => $user->phone_no,
             'role'=>$user->role,
+            'created_at'=>$user->created_at,
         ]);
     }
 

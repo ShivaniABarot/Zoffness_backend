@@ -12,15 +12,15 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $isAjax = $request->ajax() || $request->wantsJson();
-
+    
         $rules = [
             'username' => [
                 'required',
                 'string',
-               
                 'unique:users,username',
             ],
             'email' => 'required|email|unique:users,email',
+            'phone_no' => 'required ',
             'password' => [
                 'required',
                 'string',
@@ -28,16 +28,17 @@ class AuthController extends Controller
                 'confirmed',
             ],
         ];
-
+    
         try {
             $validated = $request->validate($rules);
-
+    
             $user = User::create([
                 'username' => trim($validated['username']),
                 'email' => $validated['email'],
+                'phone_no' => $validated['phone_no'],
                 'password' => bcrypt($validated['password']), // Hash the password
             ]);
-
+    
             try {
                 $this->sendRegistrationEmail($user);
                 $message = 'Account created successfully. Check your email for confirmation.';
@@ -45,12 +46,12 @@ class AuthController extends Controller
                 \Log::error('Email failed: ' . $emailEx->getMessage());
                 $message = 'Account created successfully. (Email will be sent shortly)';
             }
-
+    
             return response()->json([
                 'success' => true,
                 'message' => $message
             ], 201); // 201 Created
-
+    
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -64,6 +65,7 @@ class AuthController extends Controller
             ], 500); // 500 Internal Server Error
         }
     }
+    
 
     protected function sendRegistrationEmail(User $user)
     {
