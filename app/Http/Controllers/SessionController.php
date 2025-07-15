@@ -6,14 +6,12 @@ use Illuminate\Http\Request;
 use App\Models\Session;
 use Illuminate\Support\Facades\Validator;
 
-
-
 class SessionController extends Controller
 {
     // list 
     public function index()
     {
-        $sessions = Session::all();  // You can use pagination if needed
+        $sessions = Session::all();  
         return view('sessions.index', compact('sessions'));
     }
 
