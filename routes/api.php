@@ -17,6 +17,7 @@ use App\Http\Controllers\ExecutivePackageController;
 use App\Http\Controllers\CollageEssaysPackageController;
 use App\Http\Controllers\StudentController; 
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\TutorController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -62,3 +63,11 @@ Route::put('/students/{id}', [StudentController::class, 'update']);
 Route::delete('/students/{id}', [StudentController::class, 'destroy']);
 Route::get('/parent/{id}', [StudentController::class, 'show']);
 Route::get('/parent/user/{userId}', [StudentController::class, 'getStudentsByUserId']);
+// Tutor routes
+Route::prefix('tutors')->group(function () {
+    Route::get('/', [TutorController::class, 'index_api']);        // List all tutors
+    Route::get('{id}', [TutorController::class, 'show_api']);      // Get single tutor
+    Route::post('/', [TutorController::class, 'store_api']);       // Create tutor
+    Route::put('{id}', [TutorController::class, 'update_api']);    // Update tutor
+    Route::delete('{id}', [TutorController::class, 'destroy_api']); // Delete tutor
+});
