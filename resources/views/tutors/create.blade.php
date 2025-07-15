@@ -44,6 +44,16 @@
                             <small id="bioError" class="text-danger"></small>
                         </div>
 
+                        {{-- Status --}}
+                        <div class="form-floating mb-3">
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="active" selected>Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                            <label for="status"><i class="bi bi-toggle-on me-2"></i>Status</label>
+                            <small id="statusError" class="text-danger"></small>
+                        </div>
+
                         {{-- Profile Image (optional, currently hidden) --}}
                         <!--
                         <div class="mb-3">
@@ -84,7 +94,7 @@
     $(document).ready(function () {
         $('#createTutorForm').on('submit', function (e) {
             e.preventDefault();
-            $('#nameError, #designationError, #emailError, #bioError, #imageError').text('');
+            $('#nameError, #designationError, #emailError, #bioError, #imageError, #statusError').text('');
             var formData = new FormData(this);
 
             $.ajax({
@@ -115,6 +125,7 @@
                         if (errors.email) $('#emailError').text(errors.email[0]);
                         if (errors.bio) $('#bioError').text(errors.bio[0]);
                         if (errors.image) $('#imageError').text(errors.image[0]);
+                        if (errors.status) $('#statusError').text(errors.status[0]);
                     } else {
                         Swal.fire({
                             title: 'Error!',

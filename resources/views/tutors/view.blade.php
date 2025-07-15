@@ -47,6 +47,21 @@
                         </div>
                     </div>
 
+                    {{-- Status --}}
+                    <div class="mb-4 d-flex align-items-center">
+                        <i class="bi bi-toggle-on text-primary me-2 fs-5"></i>
+                        <div>
+                            <strong>Status:</strong>
+                            <div>
+                                @if($tutor->status === 'active')
+                                    <span class="badge bg-success">Active</span>
+                                @else
+                                    <span class="badge bg-danger">Inactive</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
                     {{-- Profile Image (if exists) --}}
                     @if ($tutor->image)
                     <div class="mb-4 d-flex align-items-center">

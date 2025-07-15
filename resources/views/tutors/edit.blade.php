@@ -45,6 +45,16 @@
                             <small id="bioError" class="text-danger"></small>
                         </div>
 
+                        {{-- Status --}}
+                        <div class="form-floating mb-3">
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="active" {{ old('status', $tutor->status) === 'active' ? 'selected' : '' }}>Active</option>
+                                <option value="inactive" {{ old('status', $tutor->status) === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                            </select>
+                            <label for="status"><i class="bi bi-toggle-on me-2"></i>Status</label>
+                            <small id="statusError" class="text-danger"></small>
+                        </div>
+
                         {{-- Image upload (optional) --}}
                         <!--
                         <div class="mb-3">
@@ -89,8 +99,7 @@
         $('#editTutorForm').on('submit', function (e) {
             e.preventDefault();
 
-            // Clear previous errors
-            $('#nameError, #emailError, #designationError, #bioError').text('');
+            $('#nameError, #emailError, #designationError, #bioError, #statusError').text('');
 
             let formData = new FormData(this);
             formData.append('_method', 'PUT');
@@ -120,6 +129,7 @@
                         if (errors.email) $('#emailError').text(errors.email[0]);
                         if (errors.designation) $('#designationError').text(errors.designation[0]);
                         if (errors.bio) $('#bioError').text(errors.bio[0]);
+                        if (errors.status) $('#statusError').text(errors.status[0]);
                     } else {
                         Swal.fire({
                             title: 'Error!',

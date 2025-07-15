@@ -17,9 +17,12 @@ class TutorController extends Controller
 
     public function index()
     {
-        $tutors = Tutor::all();  // You can add pagination if needed
+        // Fetch only active tutors, optionally with pagination
+        $tutors = Tutor::where('status', 'active')->orderBy('name')->get();
+
         return view('tutors.index', compact('tutors'));
     }
+
 
     // Display tutor profile form
     public function create()
@@ -36,16 +39,17 @@ class TutorController extends Controller
             'designation' => 'required|string|max:255',
             'bio' => 'required|string',
             'email' => 'required|email|unique:tutors,email',
-            'image' => 'image|mimes:jpeg,png,jpg',
+            'status' => 'required|in:active,inactive',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
-    
+
         try {
             if ($request->hasFile('image')) {
                 $validated['image'] = $request->file('image')->store('tutors', 'public');
             }
-    
+
             $tutor = Tutor::create($validated);
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Tutor profile created successfully.',
@@ -53,6 +57,7 @@ class TutorController extends Controller
             ]);
         } catch (\Exception $e) {
             Log::error('Tutor Store Error: ' . $e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while creating the tutor profile.',
@@ -60,7 +65,30 @@ class TutorController extends Controller
             ], 500);
         }
     }
-    
+
+
+    public function toggleStatus(Request $request, $id)
+{
+    $tutor = Tutor::find($id);
+
+    if (!$tutor) {
+        return response()->json(['success' => false, 'message' => 'Tutor not found.'], 404);
+    }
+
+    $status = $request->input('status');
+    if (!in_array($status, ['active', 'inactive'])) {
+        return response()->json(['success' => false, 'message' => 'Invalid status.'], 422);
+    }
+
+    $tutor->status = $status;
+    $tutor->save();
+
+    return response()->json([
+        'success' => true,
+        'message' => "Tutor status changed to {$status} successfully."
+    ]);
+}
+
 
     // Show tutor profile
     public function show(Tutor $tutor)
@@ -89,9 +117,10 @@ class TutorController extends Controller
             'designation' => 'required|string|max:255',
             'bio' => 'required|string',
             'email' => 'required|email|unique:tutors,email,' . $tutor->id,
-            'image' => 'nullable|image|mimes:jpeg,png,jpg',
+            'status' => 'required|in:active,inactive',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
-    
+
         try {
             if ($request->hasFile('image')) {
                 if ($tutor->image) {
@@ -99,12 +128,13 @@ class TutorController extends Controller
                 }
                 $validated['image'] = $request->file('image')->store('tutors', 'public');
             }
-    
+
             $tutor->update($validated);
-    
+
             return redirect()->route('tutors')->with('success', 'Tutor profile updated successfully.');
         } catch (\Exception $e) {
             Log::error('Tutor Update Error: ' . $e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while updating the tutor profile.',
@@ -112,7 +142,7 @@ class TutorController extends Controller
             ], 500);
         }
     }
-    
+
 
     public function destroy($id)
     {
@@ -140,11 +170,11 @@ class TutorController extends Controller
 
 
     // HERE IS MY API CODE
-    
+
     // List all tutors
     public function index_api()
     {
-        $tutors = Tutor::all();
+        $tutors = Tutor::where('status', 'active')->orderBy('name')->get();
         return response()->json([
             'success' => true,
             'data' => $tutors
@@ -177,6 +207,7 @@ class TutorController extends Controller
             'designation' => 'required|string|max:255',
             'bio' => 'required|string',
             'email' => 'required|email|unique:tutors,email',
+            'status' => 'required|in:active,inactive', // ✅ Include status
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
@@ -203,6 +234,7 @@ class TutorController extends Controller
         }
     }
 
+
     // Update an existing tutor
     public function update_api(Request $request, $id)
     {
@@ -220,6 +252,7 @@ class TutorController extends Controller
             'designation' => 'required|string|max:255',
             'bio' => 'required|string',
             'email' => 'required|email|unique:tutors,email,' . $tutor->id,
+            'status' => 'required|in:active,inactive', // ✅ Include status
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
@@ -248,6 +281,7 @@ class TutorController extends Controller
             ], 500);
         }
     }
+
 
     // Delete a tutor
     public function destroy_api($id)

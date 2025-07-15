@@ -89,6 +89,7 @@ Route::get('tutors/{tutor}', [TutorController::class, 'show'])->name('tutors.sho
 Route::get('tutors/{tutor}/edit', [TutorController::class, 'edit'])->name('tutors.edit');  // Show edit form for tutor profile
 Route::post('tutors/{tutor}', [TutorController::class, 'update'])->name('tutors.update');  // Update tutor profile
 Route::delete('/tutors/{id}', [TutorController::class, 'destroy'])->name('tutors.delete');
+Route::post('/tutors/status/{id}', [TutorController::class, 'toggleStatus'])->name('tutors.toggleStatus');
 
 
 // // User Modules Routes
