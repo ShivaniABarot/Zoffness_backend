@@ -193,11 +193,14 @@ class UsersController extends Controller
         // dd(4545 , $user );
 
         return response()->json([
-            'name' => $user->firstname . ' ' . $user->lastname,
+            'firstname' => $user->firstname,
+            'lastname' => $user->lastname,
             'email' => $user->email,
             'phone_no' => $user->phone_no,
-            'role' => $user->role,
+            // 'role' => $user->role,
             'created_at' => $user->created_at,
+            'updated_at' => $user->updated_at,
+            'id'=>$user->id,
         ]);
     }
 
