@@ -99,23 +99,18 @@ class StudentController extends Controller
 
     public function store(Request $request)
     {
-        // Get the logged-in user's ID
         $userId = auth()->id();
     
-        // Validate the incoming student array
         $validator = Validator::make($request->all(), [
             'students' => 'required|array|min:1',
-            'students.*.parent_name'     => 'required|string|max:255',
-            'students.*.parent_phone'    => 'required|string|max:15',
-            'students.*.parent_email'    => 'required|email',
             'students.*.student_name'    => 'required|string|max:255',
-            'students.*.student_email'   => 'nullable|email',
+            'students.*.student_email'   => 'nullable|email|unique:students,student_email',
             'students.*.school'          => 'nullable|string|max:255',
             'students.*.bank_name'       => 'nullable|string|max:255',
             'students.*.account_number'  => 'nullable|string|max:20',
+            'students.*.password'        => 'required|string|min:6|confirmed',
         ]);
     
-        // Handle validation errors
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
@@ -123,16 +118,16 @@ class StudentController extends Controller
                 'errors' => $validator->errors(),
             ], 422);
         }
-        
+    
         $validatedData = $validator->validated();
         $createdStudents = [];
     
         try {
             foreach ($validatedData['students'] as $studentData) {
-                // Attach the logged-in user's ID
                 $studentData['user_id'] = $userId;
+                $studentData['password'] = bcrypt($studentData['password']);
+                unset($studentData['password_confirmation']);
     
-                // Create the student record
                 $createdStudents[] = Student::create($studentData);
             }
     
@@ -151,7 +146,7 @@ class StudentController extends Controller
             ], 500);
         }
     }
-
+    
     // Fetch students by user_id
     public function getStudentsByUserId($userId)
     {
@@ -192,16 +187,14 @@ class StudentController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'parent_name' => 'required|string|max:255',
-            'parent_phone' => 'required|string|max:15',
-            'parent_email' => 'required|email',
-            'student_name' => 'required|string|max:255',
-            'student_email' => 'nullable|email',
-            'school' => 'nullable|string|max:255',
-            'bank_name' => 'nullable|string|max:255',
-            'account_number' => 'nullable|string|max:20',
+            'student_name'     => 'required|string|max:255',
+            'student_email'    => 'nullable|email|unique:students,student_email,' . $id,
+            'school'           => 'nullable|string|max:255',
+            'bank_name'        => 'nullable|string|max:255',
+            'account_number'   => 'nullable|string|max:20',
+            'password'         => 'nullable|string|min:6|confirmed',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
@@ -209,33 +202,44 @@ class StudentController extends Controller
                 'errors' => $validator->errors(),
             ], 422);
         }
-
+    
         $student = Student::find($id);
-
+    
         if (!$student) {
             return response()->json([
                 'success' => false,
                 'message' => 'Student not found.',
             ], 404);
         }
-
-        $student->update([
-            'parent_name' => $request->parent_name,
-            'parent_phone' => $request->parent_phone,
-            'parent_email' => $request->parent_email,
-            'student_name' => $request->student_name,
-            'student_email' => $request->student_email,
-            'school' => $request->school,
-            'bank_name' => $request->bank_name,
-            'account_number' => $request->account_number,
+    
+        $updateData = $request->only([
+            'student_name',
+            'student_email',
+            'school',
+            'bank_name',
+            'account_number'
         ]);
+    
+        if ($request->filled('password')) {
+            $updateData['password'] = bcrypt($request->password);
+        }
+    
+        $student->update($updateData);
+    
+       return response()->json([
+    'success' => true,
+    'message' => 'Student profile updated successfully.',
+    'student' => [
+        'student_name'    => $student->student_name,
+        'student_email'   => $student->student_email,
+        'school'          => $student->school,
+        'bank_name'       => $student->bank_name,
+        'account_number'  => $student->account_number,
+    ],
+]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Student profile updated successfully.',
-            'student' => $student,
-        ]);
     }
+    
 
     public function destroy($id)
     {
