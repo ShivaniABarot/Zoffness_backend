@@ -13,11 +13,11 @@ class User extends Authenticatable implements CanResetPasswordContract
     use HasApiTokens, Notifiable, CanResetPassword;
 
     protected $fillable = [
-        'id',
-        'username',
+        'firstname',
+        'lastname',
+        'phone_no',
         'email',
         'password',
-        'phone_no'
     ];
 
     protected $hidden = [
@@ -28,13 +28,10 @@ class User extends Authenticatable implements CanResetPasswordContract
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-// app/Models/User.php
 
-public function getFilamentName(): string
-{
-    return $this->username ?? $this->name ?? 'Admin';
-}
+    public function getFilamentName(): string
+    {
+        return $this->firstname . ' ' . $this->lastname;
+    }
 
-
-    // Removed automatic password hashing to prevent double hashing
 }

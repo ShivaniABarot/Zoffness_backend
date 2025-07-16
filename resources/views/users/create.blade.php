@@ -8,20 +8,26 @@
         <div class="col-md-8">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-primary text-white text-center rounded-top">
-                <h4 class="mb-0 text-white">
-    <i class="bi bi-person-plus-fill me-2"></i>Create New User
-</h4>
+                    <h4 class="mb-0 text-white">
+                        <i class="bi bi-person-plus-fill me-2"></i>Create New User
+                    </h4>
                 </div>
                 <div class="card-body p-4">
                     <form id="createUserForm" enctype="multipart/form-data">
                         @csrf
 
-                     
-                        {{-- Name --}}
+                        {{-- First Name --}}
                         <div class="form-floating mb-3">
-                            <input type="text" id="username" name="username" class="form-control" placeholder="Name" required>
-                            <label for="username"><i class="bi bi-person-fill me-2"></i>Name</label>
-                            <small id="nameError" class="text-danger"></small>
+                            <input type="text" id="firstname" name="firstname" class="form-control" placeholder="First Name" required>
+                            <label for="firstname"><i class="bi bi-person-fill me-2"></i>First Name</label>
+                            <small id="firstnameError" class="text-danger"></small>
+                        </div>
+
+                        {{-- Last Name --}}
+                        <div class="form-floating mb-3">
+                            <input type="text" id="lastname" name="lastname" class="form-control" placeholder="Last Name" required>
+                            <label for="lastname"><i class="bi bi-person-fill me-2"></i>Last Name</label>
+                            <small id="lastnameError" class="text-danger"></small>
                         </div>
 
                         {{-- Email --}}
@@ -32,6 +38,13 @@
                                 <i class="bi bi-question-circle ms-1" data-bs-toggle="tooltip" title="We'll never share your email."></i>
                             </label>
                             <small id="emailError" class="text-danger"></small>
+                        </div>
+
+                        {{-- Phone Number --}}
+                        <div class="form-floating mb-3">
+                            <input type="text" id="phone_no" name="phone_no" class="form-control" placeholder="Phone Number" required>
+                            <label for="phone_no"><i class="bi bi-telephone-fill me-2"></i>Phone Number</label>
+                            <small id="phoneNoError" class="text-danger"></small>
                         </div>
 
                         {{-- Password --}}
@@ -47,24 +60,6 @@
                             <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" placeholder="Confirm Password" required>
                             <label for="password_confirmation"><i class="bi bi-lock-fill me-2"></i>Confirm Password</label>
                             <small id="passwordConfirmationError" class="text-danger"></small>
-                        </div>
-
-                        {{-- Role --}}
-                        <div class="form-floating mb-4">
-                            <select id="role" name="role" class="form-select" required>
-                                <option value="" disabled selected>Select Role</option>
-                                <option value="admin">Admin</option>
-                                <option value="tutor">Tutor</option>
-                                <option value="parent">Parent</option>
-                            </select>
-                            <label for="role"><i class="bi bi-person-badge-fill me-2"></i>Role</label>
-                            <small id="roleError" class="text-danger"></small>
-                        </div>
-
-                        {{-- Role-Specific Fields --}}
-                        <div class="form-floating mb-3 role-dependent role-tutor" style="display: none;">
-                            <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject Expertise">
-                            <label for="subject"><i class="bi bi-journal-code me-2"></i>Subject Expertise</label>
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">
@@ -89,26 +84,16 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
 <script>
-    // CSRF setup
     $.ajaxSetup({
         headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
     });
 
-    // Tooltip init
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
     tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     });
 
     $(document).ready(function () {
-        // Avatar preview
-        $('#avatarInput').on('change', function () {
-            const [file] = this.files;
-            if (file) {
-                $('#avatarPreview').attr('src', URL.createObjectURL(file)).show();
-            }
-        });
-
         // Password strength check
         $('#password').on('input', function () {
             const length = $(this).val().length;
@@ -117,13 +102,6 @@
             else if (length < 10) strength = 'Medium';
             else strength = 'Strong';
             $('#passwordStrength').text(`Password strength: ${strength}`);
-        });
-
-        // Role based fields
-        $('#role').on('change', function () {
-            $('.role-dependent').hide();
-            const selected = $(this).val();
-            $(`.role-${selected}`).show();
         });
 
         // Email validation
@@ -135,7 +113,7 @@
         // Form submission
         $('#createUserForm').on('submit', function (e) {
             e.preventDefault();
-            $('#nameError, #emailError, #passwordError, #passwordConfirmationError, #roleError').text('');
+            $('#firstnameError, #lastnameError, #phoneNoError, #emailError, #passwordError, #passwordConfirmationError').text('');
             const formData = new FormData(this);
 
             $.ajax({
@@ -161,11 +139,12 @@
                 error: function (xhr) {
                     const errors = xhr.responseJSON.errors;
                     if (errors) {
-                        if (errors.username) $('#nameError').text(errors.username[0]);
+                        if (errors.firstname) $('#firstnameError').text(errors.firstname[0]);
+                        if (errors.lastname) $('#lastnameError').text(errors.lastname[0]);
+                        if (errors.phone_no) $('#phoneNoError').text(errors.phone_no[0]);
                         if (errors.email) $('#emailError').text(errors.email[0]);
                         if (errors.password) $('#passwordError').text(errors.password[0]);
                         if (errors.password_confirmation) $('#passwordConfirmationError').text(errors.password_confirmation[0]);
-                        if (errors.role) $('#roleError').text(errors.role[0]);
                     } else {
                         Swal.fire({
                             title: 'Error!',

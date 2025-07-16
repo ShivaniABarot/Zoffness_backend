@@ -76,7 +76,10 @@
         <!-- Card View -->
         <div class="users-grid" id="cardView">
             @forelse ($users as $index => $user)
-                <div class="user-card" data-role="{{ $user->role }}" data-search="{{ strtolower($user->username . ' ' . $user->email . ' ' . $user->role) }}">
+            <div class="user-card" 
+     data-role="{{ $user->role }}" 
+     data-search="{{ strtolower($user->first_name . ' ' . $user->last_name . ' ' . $user->email . ' ' . $user->role) }}">
+
                     <div class="card-header">
                         <div class="user-avatar">
                             <i class="bx bx-user"></i>
@@ -109,8 +112,8 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <h3 class="user-name">{{ $user->username }}</h3>
-                        <p class="user-email">{{ $user->email }}</p>
+                    <h3 class="user-name">{{ $user->firstname }} {{ $user->lastname }}</h3>
+                    <p class="user-email">{{ $user->email }}</p>
                         <div class="user-role">
                             <span class="role-badge {{ $user->role }}">
                                 <i class="bx {{ $user->role == 'admin' ? 'bx-crown' : ($user->role == 'tutor' ? 'bx-chalkboard' : 'bx-user-circle') }}"></i>

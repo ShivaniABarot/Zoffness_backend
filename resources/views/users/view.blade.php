@@ -11,11 +11,12 @@
                     </h4>
                 </div>
                 <div class="card-body px-4 py-4">
+
                     <div class="mb-4 d-flex align-items-center">
                         <i class="bi bi-person-fill text-primary me-2 fs-5"></i>
                         <div>
-                            <strong>Username:</strong>
-                            <div class="text-muted">{{ $user->username }}</div>
+                            <strong>Full Name:</strong>
+                            <div class="text-muted">{{ $user->firstname }} {{ $user->lastname }}</div>
                         </div>
                     </div>
 
@@ -27,24 +28,21 @@
                         </div>
                     </div>
 
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-person-badge-fill text-primary me-2 fs-5"></i>
+                    <div class="mb-4 d-flex align-items-center">
+                        <i class="bi bi-telephone-fill text-primary me-2 fs-5"></i>
                         <div>
-                            <strong>Role:</strong>
-                            <div class="text-muted">{{ ucfirst($user->role) }}</div>
+                            <strong>Phone Number:</strong>
+                            <div class="text-muted">{{ $user->phone_no }}</div>
                         </div>
                     </div>
 
                     <div class="mt-4 text-center">
-                <a href="{{ route('users') }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left-circle"></i> Back to Users
-                </a>
-            </div>
+                        <a href="{{ route('users') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left-circle"></i> Back to Users
+                        </a>
+                    </div>
                 </div>
-             
             </div>
-
-            
         </div>
     </div>
 </div>

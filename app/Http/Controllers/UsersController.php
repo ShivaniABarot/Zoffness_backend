@@ -22,47 +22,76 @@ class UsersController extends Controller
     }
 
     // Store a newly created user (create)
+    // public function store(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'username' => 'required|string|max:255',
+    //         'email' => 'required|string|email|max:255|unique:users',
+    //         'password' => 'required|string|min:8|confirmed',
+    //         'role' => 'required|in:admin,tutor,parent',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         // If it's an AJAX request, return JSON errors
+    //         if ($request->ajax()) {
+    //             return response()->json([
+    //                 'errors' => $validator->errors()
+    //             ], 422);
+    //         }
+
+    //         return redirect()->route('users.create')
+    //                          ->withErrors($validator)
+    //                          ->withInput();
+    //     }
+
+    //     User::create([
+    //         'username' => $request->username,
+    //         'email' => $request->email,
+    //         'password' => Hash::make($request->password),
+    //         'role' => $request->role,
+    //     ]);
+
+    //     // If it's an AJAX request, return success JSON
+    //     if ($request->ajax()) {
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'User created successfully!'
+    //         ]);
+    //     }
+
+    //     return redirect()->route('users')->with('success', 'User created successfully.');
+    // }
+
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'username' => 'required|string|max:255',
+            'firstname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
+            'phone_no' => 'required|string|max:20',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:admin,tutor,parent',
         ]);
-    
+
         if ($validator->fails()) {
-            // If it's an AJAX request, return JSON errors
-            if ($request->ajax()) {
-                return response()->json([
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-    
             return redirect()->route('users.create')
-                             ->withErrors($validator)
-                             ->withInput();
+                ->withErrors($validator)
+                ->withInput();
         }
-    
+
         User::create([
-            'username' => $request->username,
+            'firstname' => $request->firstname,
+            'lastname' => $request->lastname,
             'email' => $request->email,
+            'phone_no' => $request->phone_no,
             'password' => Hash::make($request->password),
-            'role' => $request->role,
         ]);
-    
-        // If it's an AJAX request, return success JSON
-        if ($request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'User created successfully!'
-            ]);
-        }
-    
+
         return redirect()->route('users')->with('success', 'User created successfully.');
     }
-    
-    
+
+
+
     // Show the form for editing the specified user (update)
     public function edit($id)
     {
@@ -71,27 +100,59 @@ class UsersController extends Controller
     }
 
     // Update the specified user (update)
+    // public function update(Request $request, $id)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'username' => 'required|string',
+    //         // 'name' => 'required|string|max:255',
+    //         'email' => 'required|string|email|unique:users,email,' . $id,
+    //         'password' => 'nullable|string|min:8|confirmed',
+    //         'role' => 'required|in:admin,tutor,parent',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return redirect()->route('users.edit', $id)
+    //                          ->withErrors($validator)
+    //                          ->withInput();
+    //     }
+
+    //     $user = User::findOrFail($id);
+    //     // $user->name = $request->name;
+    //     $user->username = $request->username;
+    //     $user->email = $request->email;
+    //     $user->role = $request->role;
+
+    //     if ($request->filled('password')) {
+    //         $user->password = Hash::make($request->password);
+    //     }
+
+    //     $user->save();
+
+    //     return redirect()->route('users')->with('success', 'User updated successfully.');
+    // }
+
+
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'username' => 'required|string',
-            // 'name' => 'required|string|max:255',
-            'email' => 'required|string|email|unique:users,email,' . $id,
+            'firstname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
+            'phone_no' => 'required|string|max:20',
             'password' => 'nullable|string|min:8|confirmed',
-            'role' => 'required|in:admin,tutor,parent',
         ]);
 
         if ($validator->fails()) {
             return redirect()->route('users.edit', $id)
-                             ->withErrors($validator)
-                             ->withInput();
+                ->withErrors($validator)
+                ->withInput();
         }
 
         $user = User::findOrFail($id);
-        // $user->name = $request->name;
-        $user->username = $request->username;
+        $user->firstname = $request->firstname;
+        $user->lastname = $request->lastname;
         $user->email = $request->email;
-        $user->role = $request->role;
+        $user->phone_no = $request->phone_no;
 
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
@@ -108,35 +169,35 @@ class UsersController extends Controller
         $user = User::findOrFail($id);  // This will automatically throw a 404 error if the user is not found.
         return view('users.view', compact('user'));
     }
-    
-    
+
+
     // Remove the specified user (delete)
     public function destroy($id)
     {
         $user = User::findOrFail($id);
-    
+
         $user->delete();
-    
+
         return response()->json([
             'success' => true,
             'message' => 'User deleted successfully.'
         ]);
     }
-    
+
 
     // show user details API 01-07-25
 
     public function showProfile(Request $request)
     {
-        $user = $request->user(); 
+        $user = $request->user();
         // dd(4545 , $user );
 
         return response()->json([
-            'username' => $user->username,
+            'name' => $user->firstname . ' ' . $user->lastname,
             'email' => $user->email,
             'phone_no' => $user->phone_no,
-            'role'=>$user->role,
-            'created_at'=>$user->created_at,
+            'role' => $user->role,
+            'created_at' => $user->created_at,
         ]);
     }
 
@@ -144,67 +205,138 @@ class UsersController extends Controller
     public function store_api(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'username' => 'required|string|max:255',
+            'firstname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
+            'phone_no' => 'required|string|max:20',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:admin,tutor,parent',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'errors' => $validator->errors()
             ], 422);
         }
-    
+
         $user = User::create([
-            'username' => $request->username,
+            'firstname' => $request->firstname,
+            'lastname' => $request->lastname,
             'email' => $request->email,
+            'phone_no' => $request->phone_no,
             'password' => Hash::make($request->password),
-            'role' => $request->role,
         ]);
-    
+
         return response()->json([
             'success' => true,
             'message' => 'User created successfully!',
-            'user' => $user  // Optional: include created user data
+            'user' => $user
         ], 201);
     }
-    
+
 
     public function update_api(Request $request, $id)
-{
-    $validator = Validator::make($request->all(), [
-        'username' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users,email,' . $id,
-        'password' => 'nullable|string|min:8|confirmed',
-        'role' => 'required|in:admin,tutor,parent',
-    ]);
+    {
+        $validator = Validator::make($request->all(), [
+            'firstname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
+            'phone_no' => 'required|string|max:20',
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
 
-    if ($validator->fails()) {
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $user = User::findOrFail($id);
+        $user->firstname = $request->firstname;
+        $user->lastname = $request->lastname;
+        $user->email = $request->email;
+        $user->phone_no = $request->phone_no;
+
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->save();
+
         return response()->json([
-            'success' => false,
-            'errors' => $validator->errors()
-        ], 422);
+            'success' => true,
+            'message' => 'User updated successfully!',
+            'user' => $user
+        ]);
     }
 
-    $user = User::findOrFail($id);
-    $user->username = $request->username;
-    $user->email = $request->email;
-    $user->role = $request->role;
 
-    if ($request->filled('password')) {
-        $user->password = Hash::make($request->password);
-    }
 
-    $user->save();
+    // public function store_api(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'username' => 'required|string|max:255',
+    //         'email' => 'required|string|email|max:255|unique:users',
+    //         'password' => 'required|string|min:8|confirmed',
+    //         'role' => 'required|in:admin,tutor,parent',
+    //     ]);
 
-    return response()->json([
-        'success' => true,
-        'message' => 'User updated successfully!',
-        'user' => $user  // Optional: include updated user data
-    ]);
-}
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'errors' => $validator->errors()
+    //         ], 422);
+    //     }
 
-    
+    //     $user = User::create([
+    //         'username' => $request->username,
+    //         'email' => $request->email,
+    //         'password' => Hash::make($request->password),
+    //         'role' => $request->role,
+    //     ]);
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'User created successfully!',
+    //         'user' => $user  // Optional: include created user data
+    //     ], 201);
+    // }
+
+
+    // public function update_api(Request $request, $id)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'username' => 'required|string|max:255',
+    //         'email' => 'required|string|email|max:255|unique:users,email,' . $id,
+    //         'password' => 'nullable|string|min:8|confirmed',
+    //         'role' => 'required|in:admin,tutor,parent',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'errors' => $validator->errors()
+    //         ], 422);
+    //     }
+
+    //     $user = User::findOrFail($id);
+    //     $user->username = $request->username;
+    //     $user->email = $request->email;
+    //     $user->role = $request->role;
+
+    //     if ($request->filled('password')) {
+    //         $user->password = Hash::make($request->password);
+    //     }
+
+    //     $user->save();
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'User updated successfully!',
+    //         'user' => $user  // Optional: include updated user data
+    //     ]);
+    // }
+
+
 }

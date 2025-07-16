@@ -15,12 +15,17 @@
                 <div class="card-body p-4">
                     <form id="editUserForm">
                         @csrf
-                        <!-- <input type="hidden" name="_method" value="PUT"> -->
 
-                        {{-- Username --}}
+                        {{-- First Name --}}
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="username" name="username" value="{{ $user->username }}" placeholder="Name" required>
-                            <label for="username"><i class="bi bi-person-fill me-2"></i>Name</label>
+                            <input type="text" class="form-control" id="firstname" name="firstname" value="{{ $user->firstname }}" placeholder="First Name" required>
+                            <label for="firstname"><i class="bi bi-person-fill me-2"></i>First Name</label>
+                        </div>
+
+                        {{-- Last Name --}}
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="lastname" name="lastname" value="{{ $user->lastname }}" placeholder="Last Name" required>
+                            <label for="lastname"><i class="bi bi-person-fill me-2"></i>Last Name</label>
                         </div>
 
                         {{-- Email --}}
@@ -30,6 +35,12 @@
                                 <i class="bi bi-envelope-fill me-2"></i>Email
                                 <i class="bi bi-question-circle ms-1" data-bs-toggle="tooltip" title="We'll never share your email."></i>
                             </label>
+                        </div>
+
+                        {{-- Phone Number --}}
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="phone_no" name="phone_no" value="{{ $user->phone_no }}" placeholder="Phone Number" required>
+                            <label for="phone_no"><i class="bi bi-telephone-fill me-2"></i>Phone Number</label>
                         </div>
 
                         {{-- Password --}}
@@ -43,17 +54,6 @@
                         <div class="form-floating mb-3">
                             <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" placeholder="Confirm Password">
                             <label for="password_confirmation"><i class="bi bi-lock-fill me-2"></i>Confirm Password</label>
-                        </div>
-
-                        {{-- Role --}}
-                        <div class="form-floating mb-4">
-                            <select class="form-select" id="role" name="role" required>
-                                <option value="" disabled>Select Role</option>
-                                <option value="admin" {{ $user->role == 'admin' ? 'selected' : '' }}>Admin</option>
-                                <option value="tutor" {{ $user->role == 'tutor' ? 'selected' : '' }}>Tutor</option>
-                                <option value="parent" {{ $user->role == 'parent' ? 'selected' : '' }}>Parent</option>
-                            </select>
-                            <label for="role"><i class="bi bi-person-badge-fill me-2"></i>Role</label>
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">
@@ -79,7 +79,7 @@
 
 <script>
     $(function () {
-        // Tooltip init
+        // Tooltip
         const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         tooltipTriggerList.map(el => new bootstrap.Tooltip(el));
 
@@ -100,7 +100,6 @@
 
             const formData = $(this).serializeArray();
             formData.push({ name: '_token', value: $('meta[name="csrf-token"]').attr('content') });
-            // formData.push({ name: '_method', value: 'PUT' });
 
             $.ajax({
                 url: '{{ route('users.update', $user->id) }}',
