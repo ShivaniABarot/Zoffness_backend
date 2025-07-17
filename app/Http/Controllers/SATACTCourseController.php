@@ -8,12 +8,10 @@ use Illuminate\Http\Request;
 use App\Mail\SatActCourseConfirmation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-
 use Illuminate\Support\Facades\Validator;
 
 class SATACTCourseController extends Controller
 {
-
     public function sat_act_course()
     {
         $sat_act_course = SAT_ACT_Course::with('packages')->get();
@@ -23,17 +21,14 @@ class SATACTCourseController extends Controller
     public function new_sat_act(Request $request)
 {
     $validator = Validator::make($request->all(), [
-        'parent_firstname' => 'required|string',
-        'parent_lastname' => 'required|string',
-        'parent_phone' => 'required|string',
-        'parent_email' => 'required|email',
+        'parent_firstname' => 'nullable|string',
+        'parent_lastname' => 'nullable|string',
+        'parent_phone' => 'nullable|string',
+        'parent_email' => 'nullable|email',
         'student_firstname' => 'required|string',
         'student_lastname' => 'required|string',
         'student_email' => 'required|email',
         'school' => 'required|string',
-        // 'courses' => 'required|array|min:1',
-        // 'courses.*.name' => 'string',
-        // 'courses.*.price' => 'required|numeric',
         'package_name' => 'required|string',
         'payment_status' => 'required|string|in:Success,Failed,Pending',
         'bank_name' => 'nullable|string|max:255',
@@ -49,8 +44,8 @@ class SATACTCourseController extends Controller
     }
 
     $totalAmount = collect($request->courses)->sum('price');
-    $parentName = $request->parent_firstname . ' ' . $request->parent_lastname;
-    $studentName = $request->student_firstname . ' ' . $request->student_lastname;
+    $parentName = trim($request->parent_firstname . ' ' . $request->parent_lastname);
+    $studentName = trim($request->student_firstname . ' ' . $request->student_lastname);
 
     try {
         $SAT_ACT_Course = DB::transaction(function () use ($request, $parentName, $studentName, $totalAmount) {
@@ -85,30 +80,50 @@ class SATACTCourseController extends Controller
             ]);
         });
 
-        // Send emails
-        Mail::to($request->parent_email)->queue(
-            new SatActCourseConfirmation(
-                $studentName,
-                $request->school,
-                $request->package_name,
-                $totalAmount,
-                $request->payment_status,
-                $parentName,
-                'parent'
-            )
-        );
+        // Send email to parent
+        if (!empty($request->parent_email)) {
+            Mail::to($request->parent_email)->queue(
+                new SatActCourseConfirmation(
+                    $studentName,
+                    $request->school,
+                    $request->package_name,
+                    $totalAmount,
+                    $request->payment_status,
+                    $parentName,
+                    'parent'
+                )
+            );
+        }
 
-        Mail::to($request->student_email)->queue(
-            new SatActCourseConfirmation(
-                $studentName,
-                $request->school,
-                $request->package_name,
-                $totalAmount,
-                $request->payment_status,
-                $studentName,
-                'student'
-            )
-        );
+        // Send email to student
+        if (!empty($request->student_email)) {
+            Mail::to($request->student_email)->queue(
+                new SatActCourseConfirmation(
+                    $studentName,
+                    $request->school,
+                    $request->package_name,
+                    $totalAmount,
+                    $request->payment_status,
+                    $studentName,
+                    'student'
+                )
+            );
+        }
+
+        // Send email to logged-in user (admin)
+        if (auth()->check() && !empty(auth()->user()->email)) {
+            Mail::to(auth()->user()->email)->queue(
+                new SatActCourseConfirmation(
+                    $studentName,
+                    $request->school,
+                    $request->package_name,
+                    $totalAmount,
+                    $request->payment_status,
+                    auth()->user()->name ?? 'Admin',
+                    'admin'
+                )
+            );
+        }
 
         return response()->json([
             'success' => true,
@@ -124,4 +139,5 @@ class SATACTCourseController extends Controller
         ], 500);
     }
 }
+
 }
