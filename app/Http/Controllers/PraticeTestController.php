@@ -22,10 +22,10 @@ class PraticeTestController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'parent_first_name' => 'required|string|max:255',
-            'parent_last_name' => 'required|string|max:255',
-            'parent_phone' => 'required|string|max:20',
-            'parent_email' => 'required|email|max:255',
+            'parent_first_name' => 'nullable|string|max:255',
+            'parent_last_name' => 'nullable|string|max:255',
+            'parent_phone' => 'nullable|string|max:20',
+            'parent_email' => 'nullable|email|max:255',
             'student_first_name' => 'required|string|max:255',
             'student_last_name' => 'required|string|max:255',
             'student_email' => 'required|email|max:255|unique:students,student_email',
@@ -36,15 +36,15 @@ class PraticeTestController extends Controller
             'bank_name' => 'nullable|string|max:255',
             'account_number' => 'nullable|string|max:255'
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-
+    
         $subtotal = Package::whereIn('id', $request->test_type)->sum('price');
-        $parentName = $request->parent_first_name . ' ' . $request->parent_last_name;
-        $studentName = $request->student_first_name . ' ' . $request->student_last_name;
-
+        $parentName = trim($request->parent_first_name . ' ' . $request->parent_last_name);
+        $studentName = trim($request->student_first_name . ' ' . $request->student_last_name);
+    
         try {
             $test = DB::transaction(function () use ($request, $subtotal, $parentName, $studentName) {
                 // Create student (force create, not update)
@@ -58,12 +58,12 @@ class PraticeTestController extends Controller
                     'bank_name' => $request->bank_name,
                     'account_number' => $request->account_number
                 ]);
-
+    
                 \Log::info('Student created', [
                     'email' => $request->student_email,
                     'id' => $student->id
                 ]);
-
+    
                 // Create practice test
                 $test = PraticeTest::create([
                     'parent_first_name' => $request->parent_first_name,
@@ -78,41 +78,65 @@ class PraticeTestController extends Controller
                     'subtotal' => $subtotal,
                     'student_id' => $student->id
                 ]);
-
+    
                 // Sync selected packages
                 $test->packages()->sync($request->test_type);
-
+    
                 return $test;
             });
-
+    
             // Get test type names for email
             $testTypeNames = Package::whereIn('id', $request->test_type)->pluck('name')->toArray();
             $testTypeList = implode(', ', $testTypeNames);
-
-            // Queue emails to parent and student
-            Mail::to($request->parent_email)->queue(
-                new PracticeTestBooked($studentName, $testTypeList, $request->date, $subtotal, $parentName, 'parent')
-            );
-            Mail::to($request->student_email)->queue(
-                new PracticeTestBooked($studentName, $testTypeList, $request->date, $subtotal, $studentName, 'student')
-            );
-
+    
+            // Send email to parent
+            if (!empty($request->parent_email)) {
+                Mail::to($request->parent_email)->queue(
+                    new PracticeTestBooked(
+                        $studentName,
+                        $testTypeList,
+                        $request->date,
+                        $subtotal,
+                        $parentName,
+                        'parent'
+                    )
+                );
+            }
+    
+            // Send email to student
+            if (!empty($request->student_email)) {
+                Mail::to($request->student_email)->queue(
+                    new PracticeTestBooked(
+                        $studentName,
+                        $testTypeList,
+                        $request->date,
+                        $subtotal,
+                        $studentName,
+                        'student'
+                    )
+                );
+            }
+    
             return response()->json([
                 'message' => 'Practice test and student data created successfully.',
                 'data' => $test->load('packages')
             ], 201);
-
+    
         } catch (\Exception $e) {
             \Log::error('Failed to create practice test or student', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-
+    
             return response()->json([
                 'message' => 'Failed to create practice test or student: ' . $e->getMessage()
             ], 500);
         }
     }
+    
+
+
+
 
     public function show($id)
     {
