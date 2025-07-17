@@ -21,10 +21,10 @@ class ExecutiveCoachingController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'parent_first_name' => 'required|string|max:255',
-            'parent_last_name' => 'required|string|max:255',
-            'parent_phone' => 'required|string|max:20',
-            'parent_email' => 'required|email|max:255',
+            'parent_first_name' => 'nullable|string|max:255',
+            'parent_last_name' => 'nullable|string|max:255',
+            'parent_phone' => 'nullable|string|max:20',
+            'parent_email' => 'nullable|email|max:255',
             'student_first_name' => 'required|string|max:255',
             'student_last_name' => 'required|string|max:255',
             'student_email' => 'required|email|max:255|unique:students,student_email',
