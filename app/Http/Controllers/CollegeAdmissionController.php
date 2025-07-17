@@ -27,7 +27,7 @@ class CollegeAdmissionController extends Controller
             'parent_email' => 'nullable|email|max:255',
             'student_first_name' => 'required|string|max:255',
             'student_last_name' => 'required|string|max:255',
-            'student_email' => 'required|email|max:255|unique:students,student_email',
+            'student_email' => 'required|email|max:255',
             'packages' => 'nullable|string|max:255',
             'school' => 'nullable|string|max:255',
             'subtotal' => 'nullable|numeric|min:0',
