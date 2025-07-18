@@ -30,12 +30,12 @@
                             <small id="priceError" class="text-danger"></small>
                         </div>
 
-                        {{-- Number of Sessions --}}
+                        <!-- {{-- Number of Sessions --}}
                         <div class="form-floating mb-3">
                             <input type="number" id="number_of_sessions" name="number_of_sessions" class="form-control" placeholder="Number of Sessions" required>
                             <label for="number_of_sessions"><i class="bi bi-123 me-2"></i>Number of Sessions</label>
                             <small id="numberOfSessionsError" class="text-danger"></small>
-                        </div>
+                        </div> -->
 
                         {{-- Description --}}
                         <div class="form-floating mb-3">

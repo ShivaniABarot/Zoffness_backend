@@ -16,7 +16,7 @@
                 <div class="card-body p-4">
                     <form id="editPackageForm">
                         @csrf
-                        @method('PUT')
+                        @method('POST')
 
                         {{-- Hidden ID --}}
                         <input type="hidden" id="package_id" value="{{ $package->id }}">
@@ -37,13 +37,13 @@
                             <small id="priceError" class="text-danger"></small>
                         </div>
 
-                        {{-- Number of Sessions --}}
+                        <!-- {{-- Number of Sessions --}}
                         <div class="form-floating mb-3">
                             <input type="number" name="number_of_sessions" id="number_of_sessions" class="form-control" placeholder="Number of Sessions"
                                 value="{{ old('number_of_sessions', $package->number_of_sessions) }}" required>
                             <label for="number_of_sessions"><i class="bi bi-123 me-2"></i>Number of Sessions</label>
                             <small id="numberOfSessionsError" class="text-danger"></small>
-                        </div>
+                        </div> -->
 
                         {{-- Description --}}
                         <div class="form-floating mb-3">
@@ -90,7 +90,7 @@
             let packageId = $('#package_id').val();
 
             $.ajax({
-                url: '/packages/' + packageId,
+                url: '/package/' + packageId + '/update',
                 method: 'POST',
                 data: $(this).serialize(),
                 success: function (response) {

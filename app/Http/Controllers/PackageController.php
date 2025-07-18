@@ -27,14 +27,14 @@ class PackageController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
-            'number_of_sessions' => 'required|integer|min:1',
+            // 'number_of_sessions' => 'required|integer|min:1',
             'description' => 'nullable|string', // Allow HTML content
         ]);
 
         Package::create([
             'name' => $request->name,
             'price' => $request->price,
-            'number_of_sessions' => $request->number_of_sessions,
+            // 'number_of_sessions' => $request->number_of_sessions,
             'description' => $request->description, // Save HTML content
         ]);
 
@@ -52,8 +52,8 @@ class PackageController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
-            'number_of_sessions' => 'required|integer|min:1',
-            'description' => 'nullable|string', // Allow HTML content
+            // 'number_of_sessions' => 'required|integer|min:1',
+            'description' => 'nullable|string', 
         ]);
 
         if ($validator->fails()) {
@@ -65,7 +65,7 @@ class PackageController extends Controller
         $package = Package::findOrFail($id);
         $package->name = $request->name;
         $package->price = $request->price;
-        $package->number_of_sessions = $request->number_of_sessions;
+        // $package->number_of_sessions = $request->number_of_sessions;
         $package->description = $request->description;
         $package->save();
 
