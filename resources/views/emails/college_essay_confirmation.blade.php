@@ -89,7 +89,7 @@
 
         <div class="details">
             <p><strong>Student Name:</strong> {{ $studentName }}</p>
-            <p><strong>Number of Sessions:</strong> {{ $sessions ?? 'N/A' }}</p>
+            <p><strong>Amount:</strong> {{ $sessions ?? 'N/A' }}</p>
             <p><strong>Package Chosen:</strong> {{ $packages ?? 'N/A' }}</p>
         </div>
 
