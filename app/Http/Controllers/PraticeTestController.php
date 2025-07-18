@@ -32,7 +32,7 @@ class PraticeTestController extends Controller
             'school' => 'nullable|string|max:255',
             'test_type' => 'required|array',
             'test_type.*' => 'exists:packages,id',
-            'date' => 'required|date',
+            'date' => 'required|date_format:Y-m-d H:i',
             'bank_name' => 'nullable|string|max:255',
             'account_number' => 'nullable|string|max:255'
         ]);
