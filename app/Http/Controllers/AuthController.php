@@ -14,29 +14,22 @@ class AuthController extends Controller
         $isAjax = $request->ajax() || $request->wantsJson();
     
         $rules = [
-            'username' => [
-                'required',
-                'string',
-                'unique:users,username',
-            ],
-            'email' => 'required|email|unique:users,email',
-            'phone_no' => 'required ',
-            'password' => [
-                'required',
-                'string',
-                'min:8',
-                'confirmed',
-            ],
+            'firstname' => 'required|string',
+            'lastname' => 'required|string',
+            'email' => 'required|email',
+            'phone_no' => 'required|string',
+            'password' => 'required|string|confirmed',
         ];
     
         try {
             $validated = $request->validate($rules);
     
             $user = User::create([
-                'username' => trim($validated['username']),
+                'firstname' => trim($validated['firstname']),
+                'lastname' => trim($validated['lastname']),
                 'email' => $validated['email'],
                 'phone_no' => $validated['phone_no'],
-                'password' => bcrypt($validated['password']), // Hash the password
+                'password' => bcrypt($validated['password']),
             ]);
     
             try {
@@ -50,21 +43,23 @@ class AuthController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => $message
-            ], 201); // 201 Created
+            ], 201);
     
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error.',
                 'errors' => $e->errors()
-            ], 422); // 422 Unprocessable Entity
+            ], 422);
+    
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Registration failed: ' . $e->getMessage()
-            ], 500); // 500 Internal Server Error
+            ], 500);
         }
     }
+    
     
 
     protected function sendRegistrationEmail(User $user)

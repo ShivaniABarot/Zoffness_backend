@@ -79,43 +79,40 @@ class LoginController extends Controller
 
     public function login_api(Request $request)
     {
-        // dd(564658458);
         try {
-            // Validate input
             $request->validate([
                 'email' => 'required|email',
                 'password' => 'required|string',
             ]);
-
+    
             $user = User::where('email', $request->email)->first();
-
+    
             if (!$user) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Email not found.'
                 ], 404);
             }
-
+    
             if (!Hash::check($request->password, $user->password)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Incorrect password.'
                 ], 401);
             }
-
-            // Revoke previous tokens if needed
-            $user->tokens()->delete();
-
-            // Create a new token
+    
+            $user->tokens()->delete(); // revoke previous tokens
             $token = $user->createToken('api_token')->plainTextToken;
-
+    
             return response()->json([
                 'success' => true,
                 'message' => 'Login successful.',
                 'token' => $token,
                 'user' => [
                     'id' => $user->id,
-                    'username' => $user->username,
+                    'firstname' => $user->firstname,
+                    'lastname' => $user->lastname,
+                    'phone_no' => $user->phone_no,
                     'email' => $user->email,
                 ],
             ]);
@@ -133,5 +130,5 @@ class LoginController extends Controller
             ], 500);
         }
     }
-
+    
 }
