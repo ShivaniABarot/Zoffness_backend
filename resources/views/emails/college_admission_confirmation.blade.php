@@ -90,8 +90,8 @@
         <div class="details">
             <p><strong>Student Name:</strong> {{ $studentName }}</p>
             <p><strong>School:</strong> {{ $school ?? 'N/A' }}</p>
-            <p><strong>Total Amount:</strong> ${{ number_format($subtotal ?? 0, 2) }}</p>
-        </div>
+            <p><strong>Total Amount:</strong> ${{ number_format((float) $subtotal, 2) }}</p>
+            </div>
 
         <p>We are excited to support your child on their journey toward college success. If you have any questions, please don’t hesitate to reach out.</p>
 

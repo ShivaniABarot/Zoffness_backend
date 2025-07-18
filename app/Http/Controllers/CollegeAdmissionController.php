@@ -102,16 +102,19 @@ class CollegeAdmissionController extends Controller
             $studentName = $validatedData['student_first_name'] . ' ' . $validatedData['student_last_name'];
             $parentName = $validatedData['parent_first_name'] . ' ' . $validatedData['parent_last_name'];
             $school = $validatedData['school'] ?? '';
-            $subtotal = $validatedData['subtotal'] ?? 0;
+            $subtotal = isset($validatedData['subtotal']) ? (float) $validatedData['subtotal'] : 0.00;
 
-            // Queue emails to parent and student
-            Mail::to($validatedData['parent_email'])->queue(
+
+
+            // Temporarily use send() instead of queue() for testing
+            Mail::to($validatedData['parent_email'])->send(
                 new CollegeAdmissionConfirmation($studentName, $school, $subtotal, $parentName, 'parent')
             );
 
-            Mail::to($validatedData['student_email'])->queue(
+            Mail::to($validatedData['student_email'])->send(
                 new CollegeAdmissionConfirmation($studentName, $school, $subtotal, $studentName, 'student')
             );
+
 
             return response()->json([
                 'success' => true,
@@ -131,5 +134,5 @@ class CollegeAdmissionController extends Controller
             ], 500);
         }
     }
-        
+
 }

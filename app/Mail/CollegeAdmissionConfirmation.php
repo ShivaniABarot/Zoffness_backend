@@ -5,8 +5,9 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Contracts\Queue\ShouldQueue; // Add this line
 
-class CollegeAdmissionConfirmation extends Mailable
+class CollegeAdmissionConfirmation extends Mailable implements ShouldQueue // Implement ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -20,7 +21,7 @@ class CollegeAdmissionConfirmation extends Mailable
     {
         $this->studentName = $studentName;
         $this->school = $school;
-        $this->subtotal = $subtotal;
+        $this->subtotal = (float) $subtotal; // Ensure it's casted to float
         $this->recipientName = $recipientName;
         $this->recipientType = $recipientType;
     }
