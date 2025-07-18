@@ -46,6 +46,8 @@ Route::post('/executive_coaching', [ExecutiveCoachingController::class, 'store']
 Route::post('/college_admission', [CollegeAdmissionController::class, 'college_admission']);
 Route::post('/college_essays', [CollegeEssaysController::class, 'college_essays']);
 Route::get('/get_packages', [PackageController::class, 'get_packages']);
+Route::get('/get_dates', [PackageController::class,'get_dates']);
+
 Route::get('/get_sessions', [SessionController::class, 'get_sessions']);
 Route::get('/get_sat_act_packages', [Satact_packagesController::class, 'get_sat_act_packages']);
 Route::get('/get_ExecutivePackage', [ExecutivePackageController::class, 'get_ExecutivePackage']);

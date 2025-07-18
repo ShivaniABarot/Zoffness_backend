@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Package;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Response;
 
 class PackageController extends Controller
 {
@@ -104,5 +105,26 @@ class PackageController extends Controller
     ], 200);
 }
 
+// GET DATES API ADDED BY SHIVANI 18/7
+public function get_dates(Request $request)
+{
+    $startDate = Carbon::now();
+    $endDate = Carbon::now()->addMonths(3);
+
+    $saturdays = [];
+
+    // Set to the next Saturday from today
+    $current = $startDate->copy()->next(Carbon::SATURDAY)->setTime(9, 0, 0);
+
+    while ($current->lte($endDate)) {
+        $saturdays[] = $current->toDateTimeString(); // Format: YYYY-MM-DD HH:MM:SS
+        $current->addWeek(); // Move to next Saturday 9AM
+    }
+
+    return response()->json([
+        'success' => true,
+        'saturdays' => $saturdays
+    ]);
+}
 
 }
