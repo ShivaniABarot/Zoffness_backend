@@ -17,7 +17,7 @@ class AuthController extends Controller
             'firstname' => 'required|string',
             'lastname' => 'required|string',
             'email' => 'required|email',
-            'phone_no' => 'required|string',
+            'phone_no' => 'nullable|numeric', // Changed to nullable
             'password' => 'required|string|confirmed',
         ];
     
@@ -28,7 +28,7 @@ class AuthController extends Controller
                 'firstname' => trim($validated['firstname']),
                 'lastname' => trim($validated['lastname']),
                 'email' => $validated['email'],
-                'phone_no' => $validated['phone_no'],
+                'phone_no' => $validated['phone_no'] ?? null, // Handle null value
                 'password' => bcrypt($validated['password']),
             ]);
     
@@ -60,8 +60,6 @@ class AuthController extends Controller
         }
     }
     
-    
-
     protected function sendRegistrationEmail(User $user)
     {
         Mail::to($user->email)->send(new RegistrationSuccessMail($user));
