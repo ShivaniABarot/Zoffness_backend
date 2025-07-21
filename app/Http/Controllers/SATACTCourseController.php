@@ -34,24 +34,22 @@ class SATACTCourseController extends Controller
             'bank_name' => 'nullable|string|max:255',
             'account_number' => 'nullable|string|max:255',
             'exam_date' => 'required|date',
-            'amount' => 'required|numeric', // Ensure amount is a single numeric value
+            'amount' => 'required|numeric',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'errors' => $validator->errors()
             ], 422);
         }
-
-        // Ensure amount is a single numeric value
+    
         $totalAmount = is_array($request->amount) ? collect($request->amount)->sum() : (float) $request->amount;
         $parentName = trim($request->parent_firstname . ' ' . $request->parent_lastname);
         $studentName = trim($request->student_firstname . ' ' . $request->student_lastname);
-
+    
         try {
             $SAT_ACT_Course = DB::transaction(function () use ($request, $parentName, $studentName, $totalAmount) {
-                // Save student
                 $student = Student::create([
                     'student_email' => $request->student_email,
                     'parent_name' => $parentName,
@@ -64,8 +62,7 @@ class SATACTCourseController extends Controller
                     'exam_date' => $request->exam_date,
                     'amount' => $totalAmount
                 ]);
-
-                // Save SAT/ACT enrollment
+    
                 return SAT_ACT_Course::create([
                     'parent_firstname' => $request->parent_firstname,
                     'parent_lastname' => $request->parent_lastname,
@@ -75,13 +72,13 @@ class SATACTCourseController extends Controller
                     'student_lastname' => $request->student_lastname,
                     'student_email' => $request->student_email,
                     'school' => $request->school,
-                    'amount' => $totalAmount, // Use calculated totalAmount
+                    'amount' => $totalAmount,
                     'package_name' => $request->package_name,
                     'exam_date' => $request->exam_date,
                     'student_id' => $student->id
                 ]);
             });
-
+    
             // Send email to parent
             if (!empty($request->parent_email)) {
                 Mail::to($request->parent_email)->queue(
@@ -96,7 +93,7 @@ class SATACTCourseController extends Controller
                     )
                 );
             }
-
+    
             // Send email to student
             if (!empty($request->student_email)) {
                 Mail::to($request->student_email)->queue(
@@ -111,29 +108,28 @@ class SATACTCourseController extends Controller
                     )
                 );
             }
-
-            // Send email to logged-in user (admin)
-            if (auth()->check() && !empty(auth()->user()->email)) {
-                Mail::to(auth()->user()->email)->queue(
-                    new SatActCourseConfirmation(
-                        $studentName,
-                        $request->school,
-                        $request->package_name,
-                        $totalAmount,
-                        $request->payment_status,
-                        auth()->user()->name ?? 'Admin',
-                        'admin'
-                    )
-                );
-            }
-
+    
+            // Send email to internal admins
+            $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com','dev@bugletech.com'];
+            Mail::to($adminEmails)->queue(
+                new SatActCourseConfirmation(
+                    $studentName,
+                    $request->school,
+                    $request->package_name,
+                    $totalAmount,
+                    $request->payment_status,
+                    'Admin Team',
+                    'admin'
+                )
+            );
+    
             return response()->json([
                 'success' => true,
                 'message' => 'SAT/ACT registration and student data created successfully',
                 'data' => $SAT_ACT_Course,
                 'payment_status' => $request->payment_status
             ], 201);
-
+    
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -141,4 +137,5 @@ class SATACTCourseController extends Controller
             ], 500);
         }
     }
+    
 }

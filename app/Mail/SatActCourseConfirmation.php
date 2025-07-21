@@ -29,9 +29,19 @@ class SatActCourseConfirmation extends Mailable
         $this->recipientType = $recipientType;
     }
 
+
     public function build()
-    {
-        return $this->subject('SAT/ACT Course Registration Confirmation')
-                    ->view('emails.sat_act_course_confirmation');
-    }
+{
+    return $this->from('web@notifications.zoffnesscollegeprep.com', 'Ben Zoffness')
+                ->replyTo('info@zoffnesscollegeprep.com')
+                ->subject('SAT/ACT Course Registration Confirmation')
+                ->view('emails.sat_act_course_confirmation');
+}
+
+
+    // public function build()
+    // {
+    //     return $this->subject('SAT/ACT Course Registration Confirmation')
+    //                 ->view('emails.sat_act_course_confirmation');
+    // }
 }
