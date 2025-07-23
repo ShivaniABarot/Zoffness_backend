@@ -17,5 +17,6 @@ class Schedule extends Model
         'date',
         'time_slot',
         'primary_interest',
+        'fees',
     ];
 }

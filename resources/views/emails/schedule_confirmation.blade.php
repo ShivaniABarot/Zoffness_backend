@@ -84,6 +84,7 @@
             <p><strong>Date:</strong> {{ $schedule->date }}</p>
             <p><strong>Time Slot:</strong> {{ $schedule->time_slot }}</p>
             <p><strong>Primary Interest:</strong> {{ $schedule->primary_interest }}</p>
+            <p><strong>consultation Fees:</strong> {{ $schedule->fees }}</p>
         </div>
 
         <p>We look forward to speaking with you soon! If you have any questions before the consultation, feel free to reach out.</p>
