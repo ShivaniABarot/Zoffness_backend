@@ -9,7 +9,8 @@ use App\Mail\PracticeTestBooked;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use App\Models\Student;
-
+use Stripe\Stripe;
+use Stripe\PaymentIntent;
 
 class PraticeTestController extends Controller
 {
@@ -32,19 +33,55 @@ class PraticeTestController extends Controller
             'school' => 'nullable|string|max:255',
             'test_type' => 'required|array',
             'test_type.*' => 'exists:packages,id',
-            'date' => 'required|date_format:Y-m-d H:i',
+            'date' => 'nullable|date_format:Y-m-d H:i',
             'bank_name' => 'nullable|string|max:255',
-            'account_number' => 'nullable|string|max:255'
+            'account_number' => 'nullable|string|max:255',
+            'stripe_id' => 'nullable|string',
+            'payment_status' => 'required|string|in:Success,Failed,Pending',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-    
+
         $subtotal = Package::whereIn('id', $request->test_type)->sum('price');
         $parentName = trim($request->parent_first_name . ' ' . $request->parent_last_name);
         $studentName = trim($request->student_first_name . ' ' . $request->student_last_name);
-    
+
+        // Prepare parent details for email
+        $parentDetails = [
+            'name' => $parentName,
+            'phone' => $request->parent_phone,
+            'email' => $request->parent_email,
+        ];
+
+        // Fetch Stripe details if stripe_id is provided
+        Stripe::setApiKey(env('VITE_STRIPE_SECRET_KEY'));
+        $stripeDetails = null;
+        if ($request->stripe_id) {
+            try {
+                $paymentIntent = PaymentIntent::retrieve($request->stripe_id);
+                $stripeDetails = [
+                    'payment_method_type' => $paymentIntent->payment_method_types[0] ?? 'N/A',
+                    'last4' => $paymentIntent->charges->data[0]->payment_method_details->card->last4 ?? 'N/A',
+                    'status' => $paymentIntent->status ?? 'N/A',
+                ];
+            } catch (\Exception $e) {
+                \Log::error('Failed to fetch Stripe details: ' . $e->getMessage());
+                $stripeDetails = [
+                    'payment_method_type' => 'N/A',
+                    'last4' => 'N/A',
+                    'status' => 'N/A',
+                ];
+            }
+        } else {
+            $stripeDetails = [
+                'payment_method_type' => 'N/A',
+                'last4' => 'N/A',
+                'status' => 'N/A',
+            ];
+        }
+
         try {
             $test = DB::transaction(function () use ($request, $subtotal, $parentName, $studentName) {
                 // Create student (force create, not update)
@@ -58,12 +95,12 @@ class PraticeTestController extends Controller
                     'bank_name' => $request->bank_name,
                     'account_number' => $request->account_number
                 ]);
-    
+
                 \Log::info('Student created', [
                     'email' => $request->student_email,
                     'id' => $student->id
                 ]);
-    
+
                 // Create practice test
                 $test = PraticeTest::create([
                     'parent_first_name' => $request->parent_first_name,
@@ -76,19 +113,20 @@ class PraticeTestController extends Controller
                     'school' => $request->school,
                     'date' => $request->date,
                     'subtotal' => $subtotal,
-                    'student_id' => $student->id
+                    'student_id' => $student->id,
+                    'stripe_id' => $request->stripe_id
                 ]);
-    
+
                 // Sync selected packages
                 $test->packages()->sync($request->test_type);
-    
+
                 return $test;
             });
-    
+
             // Get test type names for email
             $testTypeNames = Package::whereIn('id', $request->test_type)->pluck('name')->toArray();
             $testTypeList = implode(', ', $testTypeNames);
-    
+
             // Send email to parent
             if (!empty($request->parent_email)) {
                 Mail::to($request->parent_email)->queue(
@@ -98,11 +136,17 @@ class PraticeTestController extends Controller
                         $request->date,
                         $subtotal,
                         $parentName,
-                        'parent'
+                        'parent',
+                        $request->school,
+                        $parentDetails,
+                        $request->stripe_id,
+                        $request->payment_status,
+                        now()->format('m-d-Y'),
+                        $stripeDetails
                     )
                 );
             }
-    
+
             // Send email to student
             if (!empty($request->student_email)) {
                 Mail::to($request->student_email)->queue(
@@ -112,22 +156,47 @@ class PraticeTestController extends Controller
                         $request->date,
                         $subtotal,
                         $studentName,
-                        'student'
+                        'student',
+                        $request->school,
+                        $parentDetails,
+                        $request->stripe_id,
+                        $request->payment_status,
+                        now()->format('m-d-Y'),
+                        $stripeDetails
                     )
                 );
             }
-    
+
+            // Send email to internal admins
+            $adminEmails = ['dev@bugletech.com'];
+            Mail::to($adminEmails)->queue(
+                new PracticeTestBooked(
+                    $studentName,
+                    $testTypeList,
+                    $request->date,
+                    $subtotal,
+                    'Admin Team',
+                    'admin',
+                    $request->school,
+                    $parentDetails,
+                    $request->stripe_id,
+                    $request->payment_status,
+                    now()->format('m-d-Y'),
+                    $stripeDetails
+                )
+            );
+
             return response()->json([
                 'message' => 'Practice test and student data created successfully.',
                 'data' => $test->load('packages')
             ], 201);
-    
+
         } catch (\Exception $e) {
             \Log::error('Failed to create practice test or student', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-    
+
             return response()->json([
                 'message' => 'Failed to create practice test or student: ' . $e->getMessage()
             ], 500);

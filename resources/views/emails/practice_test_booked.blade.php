@@ -28,6 +28,12 @@
             margin-bottom: 10px;
         }
 
+        h3 {
+            color: #004c97;
+            font-size: 18px;
+            margin: 20px 0 10px;
+        }
+
         p {
             color: #333;
             font-size: 15px;
@@ -40,7 +46,7 @@
             border: 1px solid #e3e9f1;
             padding: 20px;
             border-radius: 6px;
-            margin: 25px 0;
+            margin: 15px 0;
         }
 
         .details p {
@@ -51,19 +57,12 @@
 
         .details p strong {
             display: inline-block;
-            width: 130px;
+            width: 160px;
             color: #004c97;
         }
 
         .signature {
             margin-top: 25px;
-        }
-
-        .footer {
-            margin-top: 40px;
-            font-size: 12px;
-            color: #777;
-            text-align: center;
         }
 
         @media only screen and (max-width: 600px) {
@@ -81,27 +80,73 @@
 </head>
 <body>
     <div class="email-container">
-        <h2>Booking Confirmed!</h2>
+        <!-- Logo -->
+        <div style="text-align: center;">
+            <img src="cid:zoffnesscollegeprep-logo.png" alt="Zoffness College Prep Logo"
+                style="max-width: 180px; margin-bottom: 20px; display: inline-block;">
+        </div>
 
-        <p>Dear {{ $recipientName }},</p>
+        <h2>Practice Test Booking Confirmation</h2>
 
-        <p>Thank you for choosing Zoffness College Prep! We’re excited to support your student’s journey toward academic success. Below are the confirmed details of your practice test booking:</p>
+        <p>
+            @if($recipientType === 'admin')
+                Hello Admin Team,<br><br>
+                A new student has registered for a practice test. Below are the registration details:
+            @else
+                Dear {{ $recipientName }},<br><br>
+                Thank you for registering for the practice test with Zoffness College Prep. Below are your registration details:
+            @endif
+        </p>
 
+        <h3>Personal Information</h3>
         <div class="details">
             <p><strong>Student Name:</strong> {{ $studentName }}</p>
-            <p><strong>Test Type(s):</strong> {{ $testTypes }}</p>
-            <p><strong>Test Date:</strong> {{ $date }}</p>
-            <p><strong>Total Amount:</strong> ${{ number_format($subtotal, 2) }}</p>
+            @if($school)
+                <p><strong>School:</strong> {{ $school }}</p>
+            @endif
+            @if($parentDetails['name'])
+                <p><strong>Parent Name:</strong> {{ $parentDetails['name'] }}</p>
+            @endif
+            @if($parentDetails['phone'])
+                <p><strong>Parent Phone:</strong> {{ $parentDetails['phone'] }}</p>
+            @endif
+            @if($parentDetails['email'])
+                <p><strong>Parent Email:</strong> {{ $parentDetails['email'] }}</p>
+            @endif
         </div>
 
-        <p>If you have any questions, or if you'd like to make adjustments to your appointment, feel free to reach out. We're here to help!</p>
+        <h3>Test Details</h3>
+        <div class="details">
+            <p><strong>Test Type(s):</strong> {{ $testTypes }}</p>
+            <p><strong>Test Date:</strong> {{ \Carbon\Carbon::parse($date)->format('m-d-Y') }}</p>
+        </div>
+
+        <h3>Payment Information</h3>
+        <div class="details">
+            <p><strong>Total Amount:</strong> ${{ number_format($subtotal, 2) }}</p>
+            <p><strong>Payment Status:</strong> {{ $paymentStatus }}</p>
+            @if($stripeId)
+                <p><strong>Payment ID:</strong> {{ $stripeId }}</p>
+            @endif
+            <p><strong>Payment Date:</strong> {{ $paymentDate }}</p>
+            @if($stripeDetails['payment_method_type'] !== 'N/A')
+                <p><strong>Payment Method:</strong> {{ ucfirst($stripeDetails['payment_method_type']) }} ending in {{ $stripeDetails['last4'] }}</p>
+            @endif
+            @if($stripeDetails['status'] !== 'N/A')
+                <p><strong>Transaction Status:</strong> {{ ucfirst($stripeDetails['status']) }}</p>
+            @endif
+        </div>
+
+        @if($recipientType === 'admin')
+            <!-- Admin-specific message can be added here if needed -->
+        @else
+            <p>We look forward to helping you succeed in your academic journey!</p>
+        @endif
 
         <div class="signature">
-            <p>Warm regards,</p>
-            <p><strong>The Zoffness College Prep Team</strong></p>
+            <p>Best regards,</p>
+            <p><strong>Zoffness College Prep</strong></p>
         </div>
-
-        <!-- Footer removed as requested -->
     </div>
 </body>
 </html>
