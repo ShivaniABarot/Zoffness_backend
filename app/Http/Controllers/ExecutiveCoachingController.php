@@ -34,6 +34,8 @@ class ExecutiveCoachingController extends Controller
             'bank_name' => 'nullable|string|max:255',
             'account_number' => 'nullable|string|max:255',
             'exam_date' => 'required|date',
+            'stripe_id' => 'nullable|string',
+            'payment_status' => 'required|string|in:Success,Failed,Pending',
         ]);
 
         if ($validator->fails()) {
@@ -43,11 +45,46 @@ class ExecutiveCoachingController extends Controller
             ], 422);
         }
 
-        try {
-            $coaching = DB::transaction(function () use ($request) {
-                $parentName = $request->parent_first_name . ' ' . $request->parent_last_name;
-                $studentName = $request->student_first_name . ' ' . $request->student_last_name;
+        // Prepare names and parent details
+        $parentName = trim($request->parent_first_name . ' ' . $request->parent_last_name);
+        $studentName = trim($request->student_first_name . ' ' . $request->student_last_name);
 
+        // Prepare parent details for email
+        $parentDetails = [
+            'name' => $parentName,
+            'phone' => $request->parent_phone,
+            'email' => $request->parent_email,
+        ];
+
+        // Fetch Stripe details if stripe_id is provided
+        Stripe::setApiKey(env('VITE_STRIPE_SECRET_KEY'));
+        $stripeDetails = null;
+        if ($request->stripe_id) {
+            try {
+                $paymentIntent = PaymentIntent::retrieve($request->stripe_id);
+                $stripeDetails = [
+                    'payment_method_type' => $paymentIntent->payment_method_types[0] ?? 'N/A',
+                    'last4' => $paymentIntent->charges->data[0]->payment_method_details->card->last4 ?? 'N/A',
+                    'status' => $paymentIntent->status ?? 'N/A',
+                ];
+            } catch (\Exception $e) {
+                \Log::error('Failed to fetch Stripe details: ' . $e->getMessage());
+                $stripeDetails = [
+                    'payment_method_type' => 'N/A',
+                    'last4' => 'N/A',
+                    'status' => 'N/A',
+                ];
+            }
+        } else {
+            $stripeDetails = [
+                'payment_method_type' => 'N/A',
+                'last4' => 'N/A',
+                'status' => 'N/A',
+            ];
+        }
+
+        try {
+            $coaching = DB::transaction(function () use ($request, $parentName, $studentName) {
                 // Create student
                 $student = Student::create([
                     'student_email' => $request->student_email,
@@ -79,27 +116,34 @@ class ExecutiveCoachingController extends Controller
                     'package_type' => $request->package_type,
                     'subtotal' => $request->subtotal,
                     'exam_date' => $request->exam_date,
-                    'student_id' => $student->id
+                    'student_id' => $student->id,
+                    'stripe_id' => $request->stripe_id
                 ]);
 
                 return $coaching;
             });
 
-            $studentName = $request->student_first_name . ' ' . $request->student_last_name;
-            $parentName = $request->parent_first_name . ' ' . $request->parent_last_name;
+            // Queue emails to parent
+            if (!empty($request->parent_email)) {
+                Mail::to($request->parent_email)->queue(
+                    new ExecutiveCoachingConfirmation(
+                        $studentName,
+                        $request->school,
+                        $request->package_type,
+                        $request->subtotal,
+                        $parentName,
+                        'parent',
+                        $request->exam_date,
+                        $parentDetails,
+                        $request->stripe_id,
+                        $request->payment_status,
+                        now()->format('m-d-Y'),
+                        $stripeDetails
+                    )
+                );
+            }
 
-            // Queue emails to parent and student
-            Mail::to($request->parent_email)->queue(
-                new ExecutiveCoachingConfirmation(
-                    $studentName,
-                    $request->school,
-                    $request->package_type,
-                    $request->subtotal,
-                    $parentName,
-                    'parent'
-                )
-            );
-
+            // Queue emails to student
             Mail::to($request->student_email)->queue(
                 new ExecutiveCoachingConfirmation(
                     $studentName,
@@ -107,7 +151,32 @@ class ExecutiveCoachingController extends Controller
                     $request->package_type,
                     $request->subtotal,
                     $studentName,
-                    'student'
+                    'student',
+                    $request->exam_date,
+                    $parentDetails,
+                    $request->stripe_id,
+                    $request->payment_status,
+                    now()->format('m-d-Y'),
+                    $stripeDetails
+                )
+            );
+
+            // Queue email to internal admins
+            $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com', 'dev@bugletech.com'];
+            Mail::to($adminEmails)->queue(
+                new ExecutiveCoachingConfirmation(
+                    $studentName,
+                    $request->school,
+                    $request->package_type,
+                    $request->subtotal,
+                    'Admin Team',
+                    'admin',
+                    $request->exam_date,
+                    $parentDetails,
+                    $request->stripe_id,
+                    $request->payment_status,
+                    now()->format('m-d-Y'),
+                    $stripeDetails
                 )
             );
 
