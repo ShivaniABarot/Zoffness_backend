@@ -28,6 +28,12 @@
             margin-bottom: 10px;
         }
 
+        h3 {
+            color: #004c97;
+            font-size: 18px;
+            margin: 20px 0 10px;
+        }
+
         p {
             color: #333;
             font-size: 15px;
@@ -40,7 +46,7 @@
             border: 1px solid #e3e9f1;
             padding: 20px;
             border-radius: 6px;
-            margin: 25px 0;
+            margin: 15px 0;
         }
 
         .details p {
@@ -55,26 +61,8 @@
             color: #004c97;
         }
 
-        .details ul {
-            margin-top: 10px;
-            padding-left: 20px;
-        }
-
-        .details ul li {
-            font-weight: 500;
-            color: #444;
-            margin-bottom: 6px;
-        }
-
         .signature {
             margin-top: 25px;
-        }
-
-        .footer {
-            margin-top: 40px;
-            font-size: 12px;
-            color: #777;
-            text-align: center;
         }
 
         @media only screen and (max-width: 600px) {
@@ -92,29 +80,71 @@
 </head>
 <body>
     <div class="email-container">
+        <!-- Logo -->
+        <div style="text-align: center;">
+            <img src="cid:zoffnesscollegeprep-logo.png" alt="Zoffness College Prep Logo"
+                style="max-width: 180px; margin-bottom: 20px; display: inline-block;">
+        </div>
+
         <h2>SAT/ACT Course Registration Confirmation</h2>
 
-        <p>Dear {{ $recipientName }},</p>
+        <p>
+            @if(isset($role) && $role === 'admin')
+                Hello Admin Team,<br><br>
+                A new student has registered for the SAT/ACT course. Below are the registration details:
+            @else
+                Dear {{ $recipientName }},<br><br>
+                Thank you for registering for the SAT/ACT course. Below are your registration details:
+            @endif
+        </p>
 
-        <p>Thank you for registering for the SAT/ACT course. Below are your registration details:</p>
-
+        <h3>Personal Information</h3>
         <div class="details">
             <p><strong>Student Name:</strong> {{ $studentName }}</p>
             <p><strong>School:</strong> {{ $school }}</p>
-            <p><strong>Package:</strong> {{ $packageName }}</p>
-
-            <p><strong>Total Amount:</strong> ${{ number_format($totalAmount, 2) }}</p>
-            <p><strong>Payment Status:</strong> {{ $paymentStatus }}</p>
+            @if($parentDetails['name'])
+                <p><strong>Parent Name:</strong> {{ $parentDetails['name'] }}</p>
+            @endif
+            @if($parentDetails['phone'])
+                <p><strong>Parent Phone:</strong> {{ $parentDetails['phone'] }}</p>
+            @endif
+            @if($parentDetails['email'])
+                <p><strong>Parent Email:</strong> {{ $parentDetails['email'] }}</p>
+            @endif
         </div>
 
-        <p>We look forward to helping you succeed in your SAT/ACT journey!</p>
+        <h3>Package Details</h3>
+        <div class="details">
+            <p><strong>Package:</strong> {{ $packageName }}</p>
+            <p><strong>Exam Date:</strong> {{ \Carbon\Carbon::parse($examDate)->format('m-d-Y') }}</p>
+        </div>
+
+        <h3>Payment Information</h3>
+        <div class="details">
+            <p><strong>Total Amount:</strong> ${{ number_format($totalAmount, 2) }}</p>
+            <p><strong>Payment Status:</strong> {{ $paymentStatus }}</p>
+            @if($stripeId)
+                <p><strong>Payment ID:</strong> {{ $stripeId }}</p>
+            @endif
+            <p><strong>Payment Date:</strong> {{ $paymentDate }}</p>
+            @if($stripeDetails['payment_method_type'] !== 'N/A')
+                <p><strong>Payment Method:</strong> {{ ucfirst($stripeDetails['payment_method_type']) }} ending in {{ $stripeDetails['last4'] }}</p>
+            @endif
+            @if($stripeDetails['status'] !== 'N/A')
+                <p><strong>Transaction Status:</strong> {{ ucfirst($stripeDetails['status']) }}</p>
+            @endif
+        </div>
+
+        @if(isset($role) && $role === 'admin')
+            <!-- <p>Please follow up as needed via the admin panel or CRM system.</p> -->
+        @else
+            <p>We look forward to helping you succeed in your academic journey!</p>
+        @endif
 
         <div class="signature">
             <p>Best regards,</p>
             <p><strong>Zoffness College Prep</strong></p>
         </div>
-
-        <!-- Footer removed as requested -->
     </div>
 </body>
 </html>
