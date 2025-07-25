@@ -30,7 +30,7 @@ class CollegeAdmissionController extends Controller
             'parent_email' => 'nullable|email|max:255',
             'student_first_name' => 'required|string|max:255',
             'student_last_name' => 'required|string|max:255',
-            'student_email' => 'required|email|max:255',
+            'student_email' => 'required',
             'packages' => 'nullable|string|max:255',
             'school' => 'nullable|string|max:255',
             'subtotal' => 'nullable|numeric|min:0',
@@ -56,21 +56,25 @@ class CollegeAdmissionController extends Controller
         $validatedData = $validator->validated();
 
         // Prepare names and parent details
-        $parentName = trim($validatedData['parent_first_name'] . ' ' . $validatedData['parent_last_name']);
+        $parentName = trim(($validatedData['parent_first_name'] ?? '') . ' ' . ($validatedData['parent_last_name'] ?? ''));
         $studentName = trim($validatedData['student_first_name'] . ' ' . $validatedData['student_last_name']);
         $subtotal = isset($validatedData['subtotal']) ? (float) $validatedData['subtotal'] : 0.00;
 
         // Prepare parent details for email
         $parentDetails = [
             'name' => $parentName,
-            'phone' => $validatedData['parent_phone'],
-            'email' => $validatedData['parent_email'],
+            'phone' => $validatedData['parent_phone'] ?? null,
+            'email' => $validatedData['parent_email'] ?? null,
         ];
 
         // Fetch Stripe details if stripe_id is provided
         Stripe::setApiKey(env('VITE_STRIPE_SECRET_KEY'));
-        $stripeDetails = null;
-        if ($validatedData['stripe_id']) {
+        $stripeDetails = [
+            'payment_method_type' => 'N/A',
+            'last4' => 'N/A',
+            'status' => 'N/A',
+        ];
+        if (!empty($validatedData['stripe_id'])) {
             try {
                 $paymentIntent = PaymentIntent::retrieve($validatedData['stripe_id']);
                 $stripeDetails = [
@@ -80,18 +84,7 @@ class CollegeAdmissionController extends Controller
                 ];
             } catch (\Exception $e) {
                 \Log::error('Failed to fetch Stripe details: ' . $e->getMessage());
-                $stripeDetails = [
-                    'payment_method_type' => 'N/A',
-                    'last4' => 'N/A',
-                    'status' => 'N/A',
-                ];
             }
-        } else {
-            $stripeDetails = [
-                'payment_method_type' => 'N/A',
-                'last4' => 'N/A',
-                'status' => 'N/A',
-            ];
         }
 
         try {
@@ -99,14 +92,14 @@ class CollegeAdmissionController extends Controller
                 // Create student
                 $student = Student::create([
                     'student_email' => $validatedData['student_email'],
-                    'parent_name' => $parentName,
-                    'parent_phone' => $validatedData['parent_phone'],
-                    'parent_email' => $validatedData['parent_email'],
+                    'parent_name' => $parentName ?: null,
+                    'parent_phone' => $validatedData['parent_phone'] ?? null,
+                    'parent_email' => $validatedData['parent_email'] ?? null,
                     'student_name' => $studentName,
                     'school' => $validatedData['school'] ?? null,
                     'bank_name' => $validatedData['bank_name'] ?? null,
                     'account_number' => $validatedData['account_number'] ?? null,
-                    'exam_date' => $validatedData['exam_date'] ?? null
+                    'exam_date' => $validatedData['exam_date'],
                 ]);
 
                 \Log::info('Student created', [
@@ -116,10 +109,10 @@ class CollegeAdmissionController extends Controller
 
                 // Create college admission record
                 $admission = CollegeAdmission::create([
-                    'parent_first_name' => $validatedData['parent_first_name'],
-                    'parent_last_name' => $validatedData['parent_last_name'],
-                    'parent_phone' => $validatedData['parent_phone'],
-                    'parent_email' => $validatedData['parent_email'],
+                    'parent_first_name' => $validatedData['parent_first_name'] ?? null,
+                    'parent_last_name' => $validatedData['parent_last_name'] ?? null,
+                    'parent_phone' => $validatedData['parent_phone'] ?? null,
+                    'parent_email' => $validatedData['parent_email'] ?? null,
                     'student_first_name' => $validatedData['student_first_name'],
                     'student_last_name' => $validatedData['student_last_name'],
                     'student_email' => $validatedData['student_email'],
@@ -133,9 +126,9 @@ class CollegeAdmissionController extends Controller
                     'twenty_session_package' => $validatedData['twenty_session_package'] ?? null,
                     'bank_name' => $validatedData['bank_name'] ?? null,
                     'account_number' => $validatedData['account_number'] ?? null,
-                    'exam_date' => $validatedData['exam_date'] ?? null,
+                    'exam_date' => $validatedData['exam_date'],
                     'student_id' => $student->id,
-                    'stripe_id' => $validatedData['stripe_id'] ?? null
+                    'stripe_id' => $validatedData['stripe_id'] ?? null,
                 ]);
 
                 return $admission;
@@ -146,14 +139,14 @@ class CollegeAdmissionController extends Controller
                 Mail::to($validatedData['parent_email'])->queue(
                     new CollegeAdmissionConfirmation(
                         $studentName,
-                        $validatedData['school'],
+                        $validatedData['school'] ?? null,
                         $subtotal,
                         $parentName,
                         'parent',
-                        $validatedData['packages'],
+                        $validatedData['packages'] ?? null,
                         $validatedData['exam_date'],
                         $parentDetails,
-                        $validatedData['stripe_id'],
+                        $validatedData['stripe_id'] ?? null,
                         $validatedData['payment_status'],
                         now()->format('m-d-Y'),
                         $stripeDetails
@@ -166,14 +159,14 @@ class CollegeAdmissionController extends Controller
                 Mail::to($validatedData['student_email'])->queue(
                     new CollegeAdmissionConfirmation(
                         $studentName,
-                        $validatedData['school'],
+                        $validatedData['school'] ?? null,
                         $subtotal,
                         $studentName,
                         'student',
-                        $validatedData['packages'],
+                        $validatedData['packages'] ?? null,
                         $validatedData['exam_date'],
                         $parentDetails,
-                        $validatedData['stripe_id'],
+                        $validatedData['stripe_id'] ?? null,
                         $validatedData['payment_status'],
                         now()->format('m-d-Y'),
                         $stripeDetails
@@ -186,14 +179,14 @@ class CollegeAdmissionController extends Controller
             Mail::to($adminEmails)->queue(
                 new CollegeAdmissionConfirmation(
                     $studentName,
-                    $validatedData['school'],
+                    $validatedData['school'] ?? null,
                     $subtotal,
                     'Admin Team',
                     'admin',
-                    $validatedData['packages'],
+                    $validatedData['packages'] ?? null,
                     $validatedData['exam_date'],
                     $parentDetails,
-                    $validatedData['stripe_id'],
+                    $validatedData['stripe_id'] ?? null,
                     $validatedData['payment_status'],
                     now()->format('m-d-Y'),
                     $stripeDetails
