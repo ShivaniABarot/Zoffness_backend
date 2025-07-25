@@ -168,7 +168,9 @@ class PraticeTestController extends Controller
             }
 
             // Send email to internal admins
-            $adminEmails = ['dev@bugletech.com'];
+            // $adminEmails = ['dev@bugletech.com'];
+            $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com','dev@bugletech.com'];
+
             Mail::to($adminEmails)->queue(
                 new PracticeTestBooked(
                     $studentName,
