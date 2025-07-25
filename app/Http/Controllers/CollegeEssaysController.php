@@ -9,6 +9,9 @@ use App\Models\Student;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\CollegeEssayConfirmation;
 use Illuminate\Support\Facades\DB;
+use Stripe\Stripe;
+use Stripe\PaymentIntent;
+
 class CollegeEssaysController extends Controller
 {
     public function index()
@@ -33,6 +36,9 @@ class CollegeEssaysController extends Controller
             'bank_name' => 'nullable|string|max:255',
             'account_number' => 'nullable|string|max:255',
             'exam_date' => 'required|date',
+            'stripe_id' => 'nullable|string',
+            'payment_status' => 'required|string|in:Success,Failed,Pending',
+            'subtotal' => 'nullable|numeric|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -44,11 +50,47 @@ class CollegeEssaysController extends Controller
 
         $validatedData = $validator->validated();
 
-        try {
-            $essay = DB::transaction(function () use ($validatedData) {
-                $parentName = $validatedData['parent_first_name'] . ' ' . $validatedData['parent_last_name'];
-                $studentName = $validatedData['student_first_name'] . ' ' . $validatedData['student_last_name'];
+        // Prepare names and parent details
+        $parentName = trim($validatedData['parent_first_name'] . ' ' . $validatedData['parent_last_name']);
+        $studentName = trim($validatedData['student_first_name'] . ' ' . $validatedData['student_last_name']);
+        $subtotal = isset($validatedData['subtotal']) ? (float) $validatedData['subtotal'] : 0.00;
 
+        // Prepare parent details for email
+        $parentDetails = [
+            'name' => $parentName,
+            'phone' => $validatedData['parent_phone'],
+            'email' => $validatedData['parent_email'],
+        ];
+
+        // Fetch Stripe details if stripe_id is provided
+        Stripe::setApiKey(env('VITE_STRIPE_SECRET_KEY'));
+        $stripeDetails = null;
+        if ($validatedData['stripe_id']) {
+            try {
+                $paymentIntent = PaymentIntent::retrieve($validatedData['stripe_id']);
+                $stripeDetails = [
+                    'payment_method_type' => $paymentIntent->payment_method_types[0] ?? 'N/A',
+                    'last4' => $paymentIntent->charges->data[0]->payment_method_details->card->last4 ?? 'N/A',
+                    'status' => $paymentIntent->status ?? 'N/A',
+                ];
+            } catch (\Exception $e) {
+                \Log::error('Failed to fetch Stripe details: ' . $e->getMessage());
+                $stripeDetails = [
+                    'payment_method_type' => 'N/A',
+                    'last4' => 'N/A',
+                    'status' => 'N/A',
+                ];
+            }
+        } else {
+            $stripeDetails = [
+                'payment_method_type' => 'N/A',
+                'last4' => 'N/A',
+                'status' => 'N/A',
+            ];
+        }
+
+        try {
+            $essay = DB::transaction(function () use ($validatedData, $parentName, $studentName) {
                 // Create student
                 $student = Student::create([
                     'student_email' => $validatedData['student_email'],
@@ -82,24 +124,74 @@ class CollegeEssaysController extends Controller
                     'bank_name' => $validatedData['bank_name'] ?? null,
                     'account_number' => $validatedData['account_number'] ?? null,
                     'exam_date' => $validatedData['exam_date'] ?? null,
-                    'student_id' => $student->id
+                    'student_id' => $student->id,
+                    'stripe_id' => $validatedData['stripe_id'] ?? null,
+                    'subtotal' => $validatedData['subtotal'] ?? null,
                 ]);
 
                 return $essay;
             });
 
-            $studentName = $validatedData['student_first_name'] . ' ' . $validatedData['student_last_name'];
-            $parentName = $validatedData['parent_first_name'] . ' ' . $validatedData['parent_last_name'];
-            $sessions = $validatedData['sessions'] ?? null;
-            $packages = $validatedData['packages'] ?? null;
+            // Queue emails to parent
+            if (!empty($validatedData['parent_email'])) {
+                Mail::to($validatedData['parent_email'])->queue(
+                    new CollegeEssayConfirmation(
+                        $studentName,
+                        $validatedData['school'],
+                        $subtotal,
+                        $parentName,
+                        'parent',
+                        $validatedData['packages'],
+                        $validatedData['exam_date'],
+                        $parentDetails,
+                        $validatedData['stripe_id'],
+                        $validatedData['payment_status'],
+                        now()->format('m-d-Y'),
+                        $stripeDetails,
+                        $validatedData['sessions']
+                    )
+                );
+            }
 
-            // Queue emails to parent and student
-            Mail::to($validatedData['parent_email'])->queue(
-                new CollegeEssayConfirmation($studentName, $sessions, $packages, $parentName, 'parent')
-            );
+            // Queue emails to student
+            if (!empty($validatedData['student_email'])) {
+                Mail::to($validatedData['student_email'])->queue(
+                    new CollegeEssayConfirmation(
+                        $studentName,
+                        $validatedData['school'],
+                        $subtotal,
+                        $studentName,
+                        'student',
+                        $validatedData['packages'],
+                        $validatedData['exam_date'],
+                        $parentDetails,
+                        $validatedData['stripe_id'],
+                        $validatedData['payment_status'],
+                        now()->format('m-d-Y'),
+                        $stripeDetails,
+                        $validatedData['sessions']
+                    )
+                );
+            }
 
-            Mail::to($validatedData['student_email'])->queue(
-                new CollegeEssayConfirmation($studentName, $sessions, $packages, $studentName, 'student')
+            // Queue email to internal admins
+            $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com', 'dev@bugletech.com'];
+            Mail::to($adminEmails)->queue(
+                new CollegeEssayConfirmation(
+                    $studentName,
+                    $validatedData['school'],
+                    $subtotal,
+                    'Admin Team',
+                    'admin',
+                    $validatedData['packages'],
+                    $validatedData['exam_date'],
+                    $parentDetails,
+                    $validatedData['stripe_id'],
+                    $validatedData['payment_status'],
+                    now()->format('m-d-Y'),
+                    $stripeDetails,
+                    $validatedData['sessions']
+                )
             );
 
             return response()->json([
@@ -120,6 +212,4 @@ class CollegeEssaysController extends Controller
             ], 500);
         }
     }
-    
-    
 }
