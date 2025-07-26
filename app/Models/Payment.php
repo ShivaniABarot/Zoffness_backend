@@ -9,38 +9,27 @@ class Payment extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     */
+    protected $table = 'payments';
+
     protected $fillable = [
-        'parent_id',
-        'package_id',
-        'session_id',
-        'payment_method',
-        'amount',
-        'status',
-        'transaction_id',
+        'student_first_name',
+        'student_last_name',
+        'email',
+        'payment_type',
+        'payment_amount',
+        'note',
+        'cardholder_name',
+        'card_number',
+        'card_exp_date',
+        'cvv',
+        'bill_address',
+        'city',
+        'state',
+        'zip_code',
+        'user_id',
     ];
 
-    /**
-     * Relationships.
-     */// Payment.php (Payment Model)
-   // In Payment model (app/Models/Payment.php)
-
-public function student()
-{
-    return $this->belongsTo(Student::class, 'parent_id'); // 'parent_id' is the foreign key referring to the student
-}
-
-    public function package()
-    {
-        return $this->belongsTo(Package::class); 
-        
-    }
-
-    public function session()
-    {
-        return $this->belongsTo(Session::class);
-    }
-
+    protected $casts = [
+        'payment_amount' => 'decimal:2',
+    ];
 }

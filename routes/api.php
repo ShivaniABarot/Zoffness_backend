@@ -20,6 +20,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\TutorController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\PaymentController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -49,6 +50,8 @@ Route::post('/college_admission', [CollegeAdmissionController::class, 'college_a
 Route::post('/college_essays', [CollegeEssaysController::class, 'college_essays']);
 Route::get('/get_packages', [PackageController::class, 'get_packages']);
 Route::get('/get_dates', [PackageController::class,'get_dates']);
+// payment api
+Route::post('/payments', [PaymentController::class, 'store']);
 
 Route::get('/get_sessions', [SessionController::class, 'get_sessions']);
 Route::get('/get_sat_act_packages', [Satact_packagesController::class, 'get_sat_act_packages']);
