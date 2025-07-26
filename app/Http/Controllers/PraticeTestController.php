@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\PraticeTest;
 use App\Models\Package;
+use App\Models\Session;
 use Illuminate\Support\Facades\Validator;
 use App\Mail\PracticeTestBooked;
 use Illuminate\Support\Facades\Mail;
@@ -31,30 +32,31 @@ class PraticeTestController extends Controller
             'student_last_name' => 'required|string|max:255',
             'student_email' => 'required|email|max:255',
             'school' => 'nullable|string|max:255',
-            'test_type' => 'required|array',
-            'test_type.*' => 'exists:packages,id',
-            'date' => 'nullable|date_format:Y-m-d H:i',
+            'test_type' => 'required|exists:sessions,id', // Single select
+            'date' => 'nullable|array', // Array for multiple dates, optional
+            'date.*' => 'date_format:Y-m-d H:i', // Validate each date if provided as array
             'bank_name' => 'nullable|string|max:255',
             'account_number' => 'nullable|string|max:255',
             'stripe_id' => 'nullable|string',
             'payment_status' => 'required|string|in:Success,Failed,Pending',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-
-        $subtotal = Package::whereIn('id', $request->test_type)->sum('price');
+    
+        $subtotal = \DB::table('sessions')->where('id', $request->test_type)->value('price_per_slot');
+        \Log::info('Subtotal fetched', ['subtotal' => $subtotal, 'test_type' => $request->test_type]); // Debug log
         $parentName = trim($request->parent_first_name . ' ' . $request->parent_last_name);
         $studentName = trim($request->student_first_name . ' ' . $request->student_last_name);
-
+    
         // Prepare parent details for email
         $parentDetails = [
             'name' => $parentName,
             'phone' => $request->parent_phone,
             'email' => $request->parent_email,
         ];
-
+    
         // Fetch Stripe details if stripe_id is provided
         Stripe::setApiKey(env('VITE_STRIPE_SECRET_KEY'));
         $stripeDetails = null;
@@ -81,10 +83,10 @@ class PraticeTestController extends Controller
                 'status' => 'N/A',
             ];
         }
-
+    
         try {
             $test = DB::transaction(function () use ($request, $subtotal, $parentName, $studentName) {
-                // Create student (force create, not update)
+                // Create student
                 $student = Student::create([
                     'student_email' => $request->student_email,
                     'parent_name' => $parentName,
@@ -95,12 +97,15 @@ class PraticeTestController extends Controller
                     'bank_name' => $request->bank_name,
                     'account_number' => $request->account_number
                 ]);
-
+    
                 \Log::info('Student created', [
                     'email' => $request->student_email,
                     'id' => $student->id
                 ]);
-
+    
+                // Handle date as array or single value
+                $dates = is_array($request->date) ? $request->date : ($request->date ? [$request->date] : null);
+    
                 // Create practice test
                 $test = PraticeTest::create([
                     'parent_first_name' => $request->parent_first_name,
@@ -111,29 +116,26 @@ class PraticeTestController extends Controller
                     'student_last_name' => $request->student_last_name,
                     'student_email' => $request->student_email,
                     'school' => $request->school,
-                    'date' => $request->date,
+                    'date' => $dates ? json_encode($dates) : null, // Store as JSON if multiple dates
                     'subtotal' => $subtotal,
                     'student_id' => $student->id,
-                    'stripe_id' => $request->stripe_id
+                    'stripe_id' => $request->stripe_id,
+                    'session_id' => $request->test_type // Store single session ID directly
                 ]);
-
-                // Sync selected packages
-                $test->packages()->sync($request->test_type);
-
+    
                 return $test;
             });
-
-            // Get test type names for email
-            $testTypeNames = Package::whereIn('id', $request->test_type)->pluck('name')->toArray();
-            $testTypeList = implode(', ', $testTypeNames);
-
+    
+            // Get test type name for email
+            $testTypeName = DB::table('sessions')->where('id', $request->test_type)->value('title');
+    
             // Send email to parent
             if (!empty($request->parent_email)) {
                 Mail::to($request->parent_email)->queue(
                     new PracticeTestBooked(
                         $studentName,
-                        $testTypeList,
-                        $request->date,
+                        $testTypeName,
+                        $request->date, // Pass as is for email rendering
                         $subtotal,
                         $parentName,
                         'parent',
@@ -146,14 +148,14 @@ class PraticeTestController extends Controller
                     )
                 );
             }
-
+    
             // Send email to student
             if (!empty($request->student_email)) {
                 Mail::to($request->student_email)->queue(
                     new PracticeTestBooked(
                         $studentName,
-                        $testTypeList,
-                        $request->date,
+                        $testTypeName,
+                        $request->date, // Pass as is for email rendering
                         $subtotal,
                         $studentName,
                         'student',
@@ -166,16 +168,14 @@ class PraticeTestController extends Controller
                     )
                 );
             }
-
+    
             // Send email to internal admins
-            // $adminEmails = ['dev@bugletech.com'];
-            $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com','dev@bugletech.com'];
-
+            $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com', 'dev@bugletech.com'];
             Mail::to($adminEmails)->queue(
                 new PracticeTestBooked(
                     $studentName,
-                    $testTypeList,
-                    $request->date,
+                    $testTypeName,
+                    $request->date, // Pass as is for email rendering
                     $subtotal,
                     'Admin Team',
                     'admin',
@@ -187,27 +187,23 @@ class PraticeTestController extends Controller
                     $stripeDetails
                 )
             );
-
+    
             return response()->json([
                 'message' => 'Practice test and student data created successfully.',
-                'data' => $test->load('packages')
+                'data' => $test
             ], 201);
-
+    
         } catch (\Exception $e) {
             \Log::error('Failed to create practice test or student', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-
+    
             return response()->json([
                 'message' => 'Failed to create practice test or student: ' . $e->getMessage()
             ], 500);
         }
     }
-    
-
-
-
 
     public function show($id)
     {

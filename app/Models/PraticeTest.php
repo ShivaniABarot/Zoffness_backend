@@ -29,4 +29,6 @@ class PraticeTest extends Model
     {
         return $this->belongsToMany(Package::class, 'package_pratice_test');
     }
+
+    
 }

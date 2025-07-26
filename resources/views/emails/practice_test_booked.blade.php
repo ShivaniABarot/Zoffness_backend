@@ -118,7 +118,17 @@
         <h3>Test Details</h3>
         <div class="details">
             <p><strong>Test Type(s):</strong> {{ $testTypes }}</p>
-            <p><strong>Test Date:</strong> {{ \Carbon\Carbon::parse($date)->format('m-d-Y') }}</p>
+            <p><strong>Test Date(s):</strong>
+                @if(is_array($date))
+                    @foreach($date as $d)
+                        {{ \Carbon\Carbon::parse($d)->format('m-d-Y') }}@if(!$loop->last), @endif
+                    @endforeach
+                @elseif($date)
+                    {{ \Carbon\Carbon::parse($date)->format('m-d-Y') }}
+                @else
+                    N/A
+                @endif
+            </p>
         </div>
 
         <h3>Payment Information</h3>
