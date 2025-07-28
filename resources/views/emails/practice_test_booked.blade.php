@@ -135,21 +135,10 @@
         <div class="details">
             <p><strong>Total Amount:</strong> ${{ number_format($subtotal, 2) }}</p>
             <p><strong>Payment Status:</strong> {{ $paymentStatus }}</p>
-            @if($stripeId)
-                <p><strong>Payment ID:</strong> {{ $stripeId }}</p>
-            @endif
             <p><strong>Payment Date:</strong> {{ $paymentDate }}</p>
-            @if($stripeDetails['payment_method_type'] !== 'N/A')
-                <p><strong>Payment Method:</strong> {{ ucfirst($stripeDetails['payment_method_type']) }} ending in {{ $stripeDetails['last4'] }}</p>
-            @endif
-            @if($stripeDetails['status'] !== 'N/A')
-                <p><strong>Transaction Status:</strong> {{ ucfirst($stripeDetails['status']) }}</p>
-            @endif
         </div>
 
-        @if($recipientType === 'admin')
-            <!-- Admin-specific message can be added here if needed -->
-        @else
+        @if($recipientType !== 'admin')
             <p>We look forward to helping you succeed in your academic journey!</p>
         @endif
 
