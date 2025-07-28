@@ -14,6 +14,8 @@ use Carbon\Carbon;
 use Stripe\Stripe;
 use App\Models\User;
 use App\Mail\PaymentConfirmation;
+use Illuminate\Support\Facades\Auth;
+
 use Illuminate\Support\Facades\DB;
 class PaymentController extends Controller
 {
@@ -36,108 +38,110 @@ class PaymentController extends Controller
         return view('payments.create', compact('packages', 'sessions'));
     }
 
-    public function store(Request $request)
-    {
-
-        Stripe::setApiKey(env('VITE_STRIPE_SECRET_KEY'));
-        
-        $validator = Validator::make($request->all(), [
-            'student_first_name' => 'string',
-            'student_last_name'  => 'string',
-            'email'              => 'email',
-            'payment_type'       => 'string',
-            'payment_amount'     => 'numeric',
-            'note'               => 'nullable|string',
-            'cardholder_name'    => 'string',
-            'card_number'        => 'string',
-            'card_exp_date'      => 'string',
-            'cvv'                => 'string',
-            'bill_address'       => 'string',
-            'city'               => 'string',
-            'state'              => 'string',
-            'zip_code'           => 'string',
-            'user_id'            => 'exists:users,id',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors'  => $validator->errors()
-            ], 422);
-        }
-
-        try {
-            $payment = DB::transaction(function () use ($request) {
-                return Payment::create([
-                    'student_first_name' => $request->student_first_name,
-                    'student_last_name'  => $request->student_last_name,
-                    'email'              => $request->email,
-                    'payment_type'       => $request->payment_type,
-                    'payment_amount'     => $request->payment_amount,
-                    'note'               => $request->note,
-                    'cardholder_name'    => $request->cardholder_name,
-                    'card_number'        => substr($request->card_number, -4),
-                    'card_exp_date'      => encrypt($request->card_exp_date),
-                    'cvv'                => encrypt($request->cvv),
-                    'bill_address'       => $request->bill_address,
-                    'city'               => $request->city,
-                    'state'              => $request->state,
-                    'zip_code'           => $request->zip_code,
-                    'user_id'            => $request->user_id,
-                ]);
-            });
-
-            // Fetch parent details from users table
-            $parent = User::where('id', $request->user_id)->select('firstname', 'lastname', 'email' ,'phone_no')->first();
-
-            // Prepare email data
-            $studentName = $request->student_first_name . ' ' . $request->student_last_name;
-            $billingDetails = [
-                'cardholder'    => $request->cardholder_name,
-                'last4'         => substr($request->card_number, -4),
-                'payment_type'  => $request->payment_type,
-                'amount'        => $request->payment_amount,
-                'payment_date'  => now()->format('m-d-Y'),
-                'address'       => $request->bill_address,
-                'city'          => $request->city,
-                'state'         => $request->state,
-                'zip_code'      => $request->zip_code,
-                'email'         => $request->email,
-                'note'          => $request->note ?? 'No note provided',
-                'parent_name'   => $parent ? ($parent->firstname . ' ' . $parent->lastname) : 'N/A',
-                'parent_email'  => $parent ? $parent->email : 'N/A',
-                'phone_no'  => $parent ? $parent->phone_no : 'N/A',
-            ];
-
-            // Send confirmation to payer
-            Mail::to($request->email)->send(new PaymentConfirmationMail($studentName, $billingDetails));
-
-            // Optionally, send to admin
-            Mail::to(['dev@bugletech.com'])->queue(new PaymentConfirmationMail(
-                $studentName,
-                $billingDetails,
-                true // admin flag
-            ));
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Payment recorded and confirmation email sent.',
-                'data'    => $payment
-            ], 201);
-        } catch (\Exception $e) {
-            \Log::error('Payment storing failed: ' . $e->getMessage(), [
-                'request_data' => $request->all(),
-                'exception' => $e,
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Something went wrong: ' . $e->getMessage()
-            ], 500);
-        }
+public function store(Request $request)
+{
+    // dd(4646);
+    if (!Auth::check()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'User is not authenticated.',
+        ], 401);
     }
 
+    $validator = Validator::make($request->all(), [
+        'student_first_name' => 'nullable|string',
+        'student_last_name'  => 'nullable|string',
+        'email'              => 'nullable|email',
+        'payment_type'       => 'nullable|string',
+        'payment_amount'     => 'nullable|numeric|min:0',
+        'note'               => 'nullable|string',
+        'cardholder_name'    => 'nullable|string',
+        'card_number'        => 'nullable|string',
+        'card_exp_date'      => 'nullable|string',
+        'cvv'                => 'nullable|string',
+        'bill_address'       => 'nullable|string',
+        'city'               => 'nullable|string',
+        'state'              => 'nullable|string',
+        'zip_code'           => 'nullable|string',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation failed',
+            'errors'  => $validator->errors()
+        ], 422);
+    }
+
+    try {
+        $userId = Auth::id();
+        \Log::info('User ID: ' . $userId);
+
+        $payment = DB::transaction(function () use ($request, $userId) {
+            return Payment::create([
+                'student_first_name' => $request->student_first_name,
+                'student_last_name'  => $request->student_last_name,
+                'email'              => $request->email,
+                'payment_type'       => $request->payment_type,
+                'payment_amount'     => $request->payment_amount,
+                'note'               => $request->note,
+                'cardholder_name'    => $request->cardholder_name,
+                'card_number'        => substr($request->card_number, -4), // Store only last 4 digits
+                'card_exp_date'      => encrypt($request->card_exp_date),
+                'cvv'                => encrypt($request->cvv),
+                'bill_address'       => $request->bill_address,
+                'city'               => $request->city,
+                'state'              => $request->state,
+                'zip_code'           => $request->zip_code,
+                'user_id'            => $userId,
+            ]);
+        });
+
+        $parent = User::select('firstname', 'lastname', 'email', 'phone_no')->find($userId);
+
+        $studentName = $request->student_first_name . ' ' . $request->student_last_name;
+        $billingDetails = [
+            'amount'        => $request->payment_amount,
+            'payment_type'  => $request->payment_type,
+            'payment_date'  => now()->format('m-d-Y'),
+            'address'       => $request->bill_address,
+            'city'          => $request->city,
+            'state'         => $request->state,
+            'zip_code'      => $request->zip_code,
+            'email'         => $request->email,
+            'note'          => $request->note ?? 'No note provided',
+            'parent_name'   => $parent ? ($parent->firstname . ' ' . $parent->lastname) : 'N/A',
+            'parent_email'  => $parent ? $parent->email : 'N/A',
+            'phone_no'      => $parent ? $parent->phone_no : 'N/A',
+            'cardholder'    => $request->cardholder_name,
+            'last4'         => substr($request->card_number, -4),
+        ];
+
+        Mail::to($request->email)->send(new PaymentConfirmationMail($studentName, $billingDetails));
+
+        Mail::to(['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com', 'dev@bugletech.com'])->queue(new PaymentConfirmationMail(
+            $studentName,
+            $billingDetails,
+            true
+        ));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Payment recorded and confirmation email sent.',
+            'data'    => $payment
+        ], 201);
+    } catch (\Exception $e) {
+        \Log::error('Payment storing failed: ' . $e->getMessage(), [
+            'request_data' => $request->all(),
+            'exception' => $e,
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Something went wrong: ' . $e->getMessage()
+        ], 500);
+    }
+}
 
     public function edit($id)
     {

@@ -53,9 +53,7 @@
     <h2>Payment Confirmation</h2>
 
     <p>Dear {{ $billingDetails['parent_name'] !== 'N/A' ? $billingDetails['parent_name'] : $studentName }},</p>
-    <p>Thank you for yourconstexpr
-
-System: your payment. Below are your payment details:</p>
+    <p>Thank you for your payment. Below are your payment details:</p>
 
     <div class="info-box">
         <p><strong>Student Name:</strong> {{ $studentName }}</p>
@@ -67,11 +65,12 @@ System: your payment. Below are your payment details:</p>
         @endif
         <p><strong>Amount:</strong> ${{ number_format($billingDetails['amount'], 2) }}</p>
         <p><strong>Payment Type:</strong> {{ $billingDetails['payment_type'] }}</p>
-        <p><strong>Card Ending:</strong> ****{{ $billingDetails['last4'] }}</p>
+        <p><strong>Cardholder:</strong> {{ $billingDetails['cardholder'] }} (****{{ $billingDetails['last4'] }})</p>
         <p><strong>Date:</strong> {{ $billingDetails['payment_date'] }}</p>
         @if (!empty($billingDetails['note']) && $billingDetails['note'] !== 'No note provided')
             <p><strong>Note:</strong> {{ $billingDetails['note'] }}</p>
         @endif
+        <p><strong>Address:</strong> {{ $billingDetails['address'] }}, {{ $billingDetails['city'] }}, {{ $billingDetails['state'] }} {{ $billingDetails['zip_code'] }}</p>
     </div>
 
     <p><strong>Zoffness College Prep</strong></p>
