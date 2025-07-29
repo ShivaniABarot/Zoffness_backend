@@ -74,17 +74,24 @@
 </head>
 <body>
     <div class="email-container">
-        <h2>Consultation Schedule Confirmation</h2>
+        <h2>Consultation {{ $recipientRole === 'admin' ? 'Scheduled' : 'Confirmation' }}</h2>
 
-        <p>Hello {{ $schedule->name }},</p>
+        <p>Hello {{ $name }},</p>
 
-        <p>Thank you for scheduling a consultation with us! Below are your appointment details:</p>
+        @if ($recipientRole === 'user')
+            <p>Thank you for scheduling a consultation with us! Below are your appointment details:</p>
+        @else
+            <p>A new consultation has been scheduled. Details are below:</p>
+        @endif
 
         <div class="details">
-            <p><strong>Date:</strong> {{ $schedule->date }}</p>
-            <p><strong>Time Slot:</strong> {{ $schedule->time_slot }}</p>
-            <p><strong>Primary Interest:</strong> {{ $schedule->primary_interest }}</p>
-            <p><strong>consultation Fees:</strong> {{ $schedule->fees }}</p>
+            <p><strong>Name:</strong> {{ $name }}</p>
+            <p><strong>Email:</strong> {{ $email }}</p>
+            <p><strong>Phone:</strong> {{ $phone }}</p>
+            <p><strong>Date:</strong> {{ $date }}</p>
+            <p><strong>Time Slot:</strong> {{ $timeSlot }}</p>
+            <p><strong>Primary Interest:</strong> {{ $primaryInterest }}</p>
+            <p><strong>Consultation Fees:</strong> ${{ number_format($fees, 2) }}</p>
         </div>
 
         <p>We look forward to speaking with you soon! If you have any questions before the consultation, feel free to reach out.</p>
