@@ -26,6 +26,7 @@ use App\Http\Controllers\ExecutivePackageController;
 use App\Http\Controllers\CollageEssaysPackageController;
 use App\Http\Controllers\SocialLoginController;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\LogController;
 
@@ -187,13 +188,13 @@ Route::delete('bookings/{id}', [BookingController::class, 'destroy'])->name('boo
 // Inquiry->Enroll
 Route::get('/inquiry/enroll', [EnrollController::class, 'index'])->name('enroll.list');
 
-//Inquiry->Pratice test forms
+//Bookings->Pratice test forms
 Route::get('/inquiry/pratice_test', [PraticeTestController::class, 'index'])->name('pratice_test');
 Route::get('/inquiry/college_admission',  [CollegeAdmissionController::class, 'index'])->name('collegeadmission.index');
 Route::get('/inquiry/college_essays', [CollegeEssaysController::class, 'index'])->name('college_essays');
 Route::get('/inquiry/executive_function', [ExecutiveCoachingController::class, 'index'])->name('executive_function');
-
-Route::get('/sat_act_course', [SATACTCourseController::class, 'sat_act_course'])->name('sat_act_course');
+Route::get('/inquiry/schedule_consultation', [ScheduleController::class, 'index'])->name('schedule_consultation');
+Route::get('inquiry/sat_act_course', [SATACTCourseController::class, 'sat_act_course'])->name('sat_act_course');
 
 
 Route::get('login/{provider}', [SocialLoginController::class, 'redirect']);

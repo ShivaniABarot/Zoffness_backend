@@ -10,6 +10,7 @@ class Schedule extends Model
     use HasFactory;
 
     protected $table = 'schedule';
+
     protected $fillable = [
         'name',
         'email',
@@ -18,5 +19,10 @@ class Schedule extends Model
         'time_slot',
         'primary_interest',
         'fees',
+    ];
+
+    protected $casts = [
+        'date' => 'date:Y-m-d',
+        'fees' => 'decimal:2',
     ];
 }

@@ -9,6 +9,17 @@ use App\Mail\ScheduleConfirmation;
 
 class ScheduleController extends Controller
 {
+
+    public function index()
+    {
+        try {
+            $schedules = Schedule::all();
+            return view('inquiry.schedule_consultation', compact('schedules'));
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to retrieve schedules: ' . $e->getMessage());
+        }
+    }
+
     public function schedule(Request $request)
     {
         $request->validate([

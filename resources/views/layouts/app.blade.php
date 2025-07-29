@@ -635,6 +635,11 @@
                     <div>Executive Function</div>
                   </a>
                 </li>
+                <li class="menu-item {{ Request::routeIs('schedule_consultation') ? 'active' : '' }}">
+                  <a href="{{ route('schedule_consultation') }}" class="menu-link">
+                    <div>Schedule Consultation</div>
+                  </a>
+                </li>
               </ul>
             </li>
               <!-- Logs module -->
