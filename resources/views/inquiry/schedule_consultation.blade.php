@@ -2,11 +2,11 @@
 
 @push('styles')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
 @endpush
 
 @section('content')
 <div class="container py-5">
-    <!-- Page Header -->
     <div class="mb-4 text-center">
         <h2 class="fw-bold mb-2" style="color: #566a7f; letter-spacing: -0.5px;">Schedule Consultation</h2>
     </div>
@@ -27,7 +27,7 @@
 
     <div class="card shadow-sm border-0 rounded-4 overflow-hidden" style="background: #fff; transition: all 0.3s ease;">
         <div class="card-body pt-0">
-            <table id="scheduleTable" class="table table-striped table-bordered display responsive nowrap" style="width:100%">
+            <table id="scheduleTable" class="table table-striped table-bordered display responsive nowrap" style="width:100%" aria-describedby="scheduleTable_info">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -44,17 +44,21 @@
                     @forelse ($schedules as $schedule)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
-                            <td class="text-capitalize">{{ $schedule->name }}</td>
+                            <td class="text-capitalize">{{ $schedule->name ?? 'N/A' }}</td>
                             <td>
-                                <a href="tel:{{ $schedule->phone_no }}" class="text-decoration-none text-primary">{{ $schedule->phone_no }}</a>
+                                <a href="{{ $schedule->phone_no ? 'tel:' . $schedule->phone_no : '#' }}" class="text-decoration-none text-primary">
+                                    {{ $schedule->phone_no ?? 'N/A' }}
+                                </a>
                             </td>
                             <td>
-                                <a href="mailto:{{ $schedule->email }}" class="text-decoration-none text-primary">{{ $schedule->email }}</a>
+                                <a href="{{ $schedule->email ? 'mailto:' . $schedule->email : '#' }}" class="text-decoration-none text-primary">
+                                    {{ $schedule->email ?? 'N/A' }}
+                                </a>
                             </td>
-                            <td>{{ $schedule->date->format('Y-m-d') }}</td>
-                            <td>{{ $schedule->time_slot }}</td>
-                            <td class="text-capitalize">{{ $schedule->primary_interest }}</td>
-                            <td>{{ number_format($schedule->fees, 2) }}</td>
+                            <td>{{ $schedule->date && is_object($schedule->date) && method_exists($schedule->date, 'format') ? $schedule->date->format('Y-m-d') : 'N/A' }}</td>
+                            <td>{{ $schedule->time_slot ?? 'N/A' }}</td>
+                            <td class="text-capitalize">{{ $schedule->primary_interest ?? 'N/A' }}</td>
+                            <td>{{ is_numeric($schedule->fees) ? number_format($schedule->fees, 2) : '0.00' }}</td>
                         </tr>
                     @empty
                         <tr>
@@ -73,18 +77,42 @@
 </div>
 
 @push('scripts')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#scheduleTable').DataTable({
-                order: [[0, 'asc']],
-                columnDefs: [
-                    { className: 'fw-semibold', targets: [7] }, // Bold fees column
-                    { className: 'text-center', targets: [6] }  // Center primary interest
-                ],
-                responsive: true
-            });
+            if ($('#scheduleTable').length) {
+                $('#scheduleTable').DataTable({
+                    order: [[0, 'asc']],
+                    columns: [
+                        { data: null, render: function(data, type, row, meta) { return meta.row + 1; } },
+                        { data: 'name' },
+                        { data: 'phone_no' },
+                        { data: 'email' },
+                        { data: 'date' },
+                        { data: 'time_slot' },
+                        { data: 'primary_interest' },
+                        { data: 'fees' }
+                    ],
+                    columnDefs: [
+                        { className: 'fw-semibold', targets: [0] },
+                        { className: 'text-center', targets: [6] },
+                        { orderable: false, targets: [2, 3] } // Disable sorting for Phone and Email columns
+                    ],
+                    responsive: true,
+                    pageLength: 10,
+                    lengthMenu: [10, 25, 50, 100],
+                    dom: 'Bfrtip',
+                    buttons: ['excel', 'pdf']
+                });
+            }
         });
     </script>
 @endpush

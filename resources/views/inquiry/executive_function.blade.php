@@ -1,7 +1,8 @@
 @extends('layouts.app')
 
 @push('styles')
-    <!-- Additional styles specific to this page can be added here -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
 @endpush
 
 @section('content')
@@ -20,10 +21,17 @@
         </div>
     @endif
 
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     <div class="card shadow-sm border-0 rounded-4 overflow-hidden" style="background: #fff; transition: all 0.3s ease;">
         <div class="card-header bg-transparent border-0 pt-4 pb-0">
             <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0" style="color: #566a7f; font-weight: 600;">Coaching Registrations</h5>
+                <!-- <h5 class="mb-0" style="color: #566a7f; font-weight: 600;">Coaching Registrations</h5> -->
                 <div class="card-actions">
                     @can('create', App\Models\ExecutiveCoaching::class)
                         <a href="{{ route('executive_function.create') }}" class="btn btn-primary btn-sm">
@@ -34,7 +42,7 @@
             </div>
         </div>
         <div class="card-body pt-0">
-            <table id="executiveFunctionTable" class="table table-striped table-bordered display responsive nowrap datatable" style="width:100%">
+            <table id="executiveFunctionTable" class="table table-striped table-bordered display responsive nowrap" style="width:100%" aria-describedby="executiveFunctionTable_info">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -51,14 +59,18 @@
                     @forelse($coaching as $coach)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
-                            <td class="text-capitalize">{{ $coach->parent_first_name . ' ' . $coach->parent_last_name }}</td>
+                            <td class="text-capitalize">{{ ($coach->parent_first_name ?? 'N/A') . ' ' . ($coach->parent_last_name ?? '') }}</td>
                             <td>
-                                <a href="tel:{{ $coach->parent_phone }}" class="text-decoration-none text-primary">{{ $coach->parent_phone }}</a>
+                                <a href="tel:{{ $coach->parent_phone ?? '#' }}" class="text-decoration-none text-primary">
+                                    {{ $coach->parent_phone ?? 'N/A' }}
+                                </a>
                             </td>
                             <td>
-                                <a href="mailto:{{ $coach->parent_email }}" class="text-decoration-none text-primary">{{ $coach->parent_email }}</a>
+                                <a href="mailto:{{ $coach->parent_email ?? '#' }}" class="text-decoration-none text-primary">
+                                    {{ $coach->parent_email ?? 'N/A' }}
+                                </a>
                             </td>
-                            <td class="text-capitalize">{{ $coach->student_first_name . ' ' . $coach->student_last_name }}</td>
+                            <td class="text-capitalize">{{ ($coach->student_first_name ?? 'N/A') . ' ' . ($coach->student_last_name ?? '') }}</td>
                             <td>
                                 @if($coach->student_email)
                                     <a href="mailto:{{ $coach->student_email }}" class="text-decoration-none text-primary">{{ $coach->student_email }}</a>
@@ -67,11 +79,18 @@
                                 @endif
                             </td>
                             <td>
-                                <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill" style="font-size: 0.85rem; font-weight: 500;">
-                                    {{ $coach->package_type }}
-                                </span>
-                            </td>
-                            <td class="fw-semibold">${{ number_format($coach->subtotal, 2) }}</td>
+    <span class="text-capitalize" style="font-size: 0.75rem; font-weight: 500;">
+        {!! $coach->package_type 
+            ? implode('<br>', explode(' ', $coach->package_type, 3)) 
+            : 'N/A' 
+        !!}
+    </span>
+</td>
+
+
+
+
+                            <td class="fw-semibold">${{ isset($coach->subtotal) ? number_format($coach->subtotal, 2) : '0.00' }}</td>
                         </tr>
                     @empty
                         <tr>
@@ -90,18 +109,32 @@
 </div>
 
 @push('scripts')
-<script>
-    $(document).ready(function() {
-        // Initialize DataTable with custom options
-        initDataTable('executiveFunctionTable', {
-            // Any custom options specific to this table
-            order: [[0, 'asc']],
-            columnDefs: [
-                { className: 'fw-semibold', targets: [7] }, // Make amount column bold
-                { className: 'text-center', targets: [6] }  // Center the package badges
-            ]
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            if ($('#executiveFunctionTable').length) {
+                $('#executiveFunctionTable').DataTable({
+                    order: [[0, 'asc']],
+                    columnDefs: [
+                        { className: 'fw-semibold', targets: [7] }, // Bold Total Amount column
+                        { className: 'text-center', targets: [6] }  // Center Package column
+                    ],
+                    responsive: true,
+                    pageLength: 10,
+                    lengthMenu: [10, 25, 50, 100],
+                    dom: 'Bfrtip',
+                    buttons: [ 'excel', 'pdf']
+                });
+            }
         });
-    });
-</script>
+    </script>
 @endpush
 @endsection

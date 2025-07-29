@@ -2,11 +2,11 @@
 
 @push('styles')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
 @endpush
 
 @section('content')
 <div class="container py-5">
-    <!-- Page Header -->
     <div class="mb-4 text-center">
         <h2 class="fw-bold mb-2" style="color: #566a7f; letter-spacing: -0.5px;">Online Payments</h2>
     </div>
@@ -27,7 +27,7 @@
 
     <div class="card shadow-sm border-0 rounded-4 overflow-hidden" style="background: #fff; transition: all 0.3s ease;">
         <div class="card-body pt-0">
-            <table id="paymentTable" class="table table-striped table-bordered display responsive nowrap" style="width:100%">
+            <table id="paymentTable" class="table table-striped table-bordered display responsive nowrap" style="width:100%" aria-describedby="paymentTable_info">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -58,11 +58,11 @@
                             <td class="text-capitalize">{{ $payment->student_first_name . ' ' . $payment->student_last_name }}</td>
                             <td class="text-capitalize">{{ $payment->payment_type }}</td>
                             <td>{{ number_format($payment->payment_amount, 2) }}</td>
-                            <td>{{ $payment->created_at->format('m-d-Y') }}</td> <!-- Formatted created_at -->
+                            <td>{{ $payment->created_at->format('Y-m-d') }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center py-5">
+                            <td colspan="8" class="text-center py-5">
                                 <div class="text-muted">
                                     <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" alt="No Data" width="80" class="mb-3 opacity-50">
                                     <p class="mb-0">No payment records found.</p>
@@ -77,17 +77,28 @@
 </div>
 
 @push('scripts')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#paymentTable').DataTable({
                 order: [[0, 'asc']],
                 columnDefs: [
-                    { className: 'fw-semibold', targets: [6] }, // Bold amount column
-                    { className: 'text-center', targets: [5] }  // Center payment type
+                    { className: 'fw-semibold', targets: [6] },
+                    { className: 'text-center', targets: [5] }
                 ],
-                responsive: true
+                responsive: true,
+                pageLength: 10,
+                lengthMenu: [10, 25, 50, 100],
+                dom: 'Bfrtip',
+                // buttons: ['excel', 'pdf']
             });
         });
     </script>
