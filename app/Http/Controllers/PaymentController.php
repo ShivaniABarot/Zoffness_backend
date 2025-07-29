@@ -20,10 +20,15 @@ use Illuminate\Support\Facades\DB;
 class PaymentController extends Controller
 {
     public function index()
-    {
-        $payments = Payment::with('student', 'package', 'session')->get();
-        return view('payments.index', compact('payments'));
+{
+    try {
+        // Eager load the user relationship
+        $payments = Payment::with('user')->get();
+        return view('inquiry.online_payment', compact('payments'));
+    } catch (\Exception $e) {
+        return back()->with('error', 'Failed to retrieve payments: ' . $e->getMessage());
     }
+}
 
     // public function history()
     // {

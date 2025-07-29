@@ -33,6 +33,7 @@ use App\Http\Controllers\LogController;
 
 
 
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -195,6 +196,7 @@ Route::get('/inquiry/college_essays', [CollegeEssaysController::class, 'index'])
 Route::get('/inquiry/executive_function', [ExecutiveCoachingController::class, 'index'])->name('executive_function');
 Route::get('/inquiry/schedule_consultation', [ScheduleController::class, 'index'])->name('schedule_consultation');
 Route::get('inquiry/sat_act_course', [SATACTCourseController::class, 'sat_act_course'])->name('sat_act_course');
+Route::get('inquiry/online_payment', [PaymentController::class, 'index'])->name('online_payment');
 
 
 Route::get('login/{provider}', [SocialLoginController::class, 'redirect']);

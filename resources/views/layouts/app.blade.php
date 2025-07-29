@@ -640,6 +640,11 @@
                     <div>Schedule Consultation</div>
                   </a>
                 </li>
+                <li class="menu-item {{ Request::routeIs('online_payment') ? 'active' : '' }}">
+                  <a href="{{ route('online_payment') }}" class="menu-link">
+                    <div>Online Payment</div>
+                  </a>
+                </li>
               </ul>
             </li>
               <!-- Logs module -->

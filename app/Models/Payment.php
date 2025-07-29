@@ -32,4 +32,10 @@ class Payment extends Model
     protected $casts = [
         'payment_amount' => 'decimal:2',
     ];
+
+    // Define the relationship with the User model
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
