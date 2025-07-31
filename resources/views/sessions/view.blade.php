@@ -48,6 +48,21 @@
                         </div>
                     </div>
 
+                    {{-- Status --}}
+                    <div class="mb-4 d-flex align-items-center">
+                        <i class="bi bi-toggle-on text-primary me-2 fs-5"></i>
+                        <div>
+                            <strong>Status:</strong>
+                            <div>
+                                @if ($session->status == 1)
+                                    <span class="badge bg-success">Active</span>
+                                @else
+                                    <span class="badge bg-danger">Inactive</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
                 <div class="card-footer text-center bg-white border-top-0">
                     <a href="{{ route('sessions') }}" class="btn btn-outline-secondary">

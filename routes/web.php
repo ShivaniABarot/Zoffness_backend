@@ -121,6 +121,7 @@ Route::get('session/{id}/edit', [SessionController::class, 'edit'])->name('sessi
 Route::post('session/{id}/update', [SessionController::class, 'update'])->name('sessions.update');
 Route::get('/session/{id}', [SessionController::class, 'show'])->name('sessions.show');
 Route::delete('session/{id}', [SessionController::class, 'destroy'])->name('sessions.delete');
+Route::post('/sessions/{id}/toggle-status', [SessionController::class, 'toggleStatus'])->name('sessions.toggleStatus');
 
 
 // package satactcourse

@@ -22,12 +22,13 @@
                             <label for="title"><i class="bi bi-card-text me-2"></i>Session Title</label>
                             <small id="titleError" class="text-danger"></small>
                         </div>
-{{-- Date --}}
-<div class="form-floating mb-3">
-    <input type="date" id="date" name="date" class="form-control" placeholder="Session Date" required>
-    <label for="date"><i class="bi bi-calendar-event me-2"></i>Session Date</label>
-    <small id="dateError" class="text-danger"></small>
-</div>
+
+                        {{-- Date --}}
+                        <div class="form-floating mb-3">
+                            <input type="date" id="date" name="date" class="form-control" placeholder="Session Date" required>
+                            <label for="date"><i class="bi bi-calendar-event me-2"></i>Session Date</label>
+                            <small id="dateError" class="text-danger"></small>
+                        </div>
 
                         {{-- Session Type --}}
                         <div class="form-floating mb-3">
@@ -54,6 +55,16 @@
                             <input type="number" id="max_capacity" name="max_capacity" class="form-control" placeholder="Max Capacity" required>
                             <label for="max_capacity"><i class="bi bi-people-fill me-2"></i>Max Capacity</label>
                             <small id="max_capacityError" class="text-danger"></small>
+                        </div>
+
+                        {{-- Status --}}
+                        <div class="form-floating mb-3">
+                            <select id="status" name="status" class="form-select" required>
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
+                            </select>
+                            <label for="status"><i class="bi bi-toggle-on me-2"></i>Status</label>
+                            <small id="statusError" class="text-danger"></small>
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">
@@ -87,7 +98,7 @@
     $(document).ready(function () {
         $('#createSessionForm').on('submit', function (e) {
             e.preventDefault();
-            $('#titleError, #session_typeError, #price_per_slotError, #max_capacityError').text('');
+            $('#titleError, #session_typeError, #price_per_slotError, #max_capacityError, #statusError').text('');
 
             $.ajax({
                 url: '{{ route('sessions.store') }}',
@@ -114,6 +125,7 @@
                         if (errors.session_type) $('#session_typeError').text(errors.session_type[0]);
                         if (errors.price_per_slot) $('#price_per_slotError').text(errors.price_per_slot[0]);
                         if (errors.max_capacity) $('#max_capacityError').text(errors.max_capacity[0]);
+                        if (errors.status) $('#statusError').text(errors.status[0]);
                     } else {
                         Swal.fire({
                             title: 'Error!',

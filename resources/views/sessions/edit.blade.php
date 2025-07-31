@@ -23,12 +23,12 @@
                             <small id="titleError" class="text-danger"></small>
                         </div>
 
-
+                        {{-- Session Date --}}
                         <div class="form-floating mb-3">
-    <input type="date" id="date" name="date" class="form-control" placeholder="Session Date" required>
-    <label for="date"><i class="bi bi-calendar-event me-2"></i>Session Date</label>
-    <small id="dateError" class="text-danger"></small>
-</div>
+                            <input type="date" id="date" name="date" class="form-control" value="{{ $session->date }}" placeholder="Session Date" required>
+                            <label for="date"><i class="bi bi-calendar-event me-2"></i>Session Date</label>
+                            <small id="dateError" class="text-danger"></small>
+                        </div>
 
                         {{-- Session Type --}}
                         <div class="form-floating mb-3">
@@ -54,6 +54,16 @@
                             <input type="number" id="max_capacity" name="max_capacity" class="form-control" value="{{ $session->max_capacity }}" placeholder="Max Capacity" required>
                             <label for="max_capacity"><i class="bi bi-people-fill me-2"></i>Max Capacity</label>
                             <small id="max_capacityError" class="text-danger"></small>
+                        </div>
+
+                        {{-- Status Toggle --}}
+                        <div class="form-floating mb-3">
+                            <select id="status" name="status" class="form-select" required>
+                                <option value="1" {{ $session->status == 1 ? 'selected' : '' }}>Active</option>
+                                <option value="0" {{ $session->status == 0 ? 'selected' : '' }}>Inactive</option>
+                            </select>
+                            <label for="status"><i class="bi bi-toggle-on me-2"></i>Status</label>
+                            <small id="statusError" class="text-danger"></small>
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">
@@ -87,40 +97,52 @@
     $(document).ready(function () {
         $('#editSessionForm').on('submit', function (e) {
             e.preventDefault();
-            $('#titleError, #session_typeError, #price_per_slotError, #max_capacityError').text('');
+            $('#titleError, #session_typeError, #price_per_slotError, #max_capacityError, #statusError').text('');
 
-            $.ajax({
-                url: '{{ route('sessions.update', $session->id) }}',
-                method: 'POST',
-                data: $(this).serialize(),
-                success: function (response) {
-                    if (response.success) {
-                        Swal.fire({
-                            title: 'Updated!',
-                            text: response.message,
-                            icon: 'success',
-                            confirmButtonText: 'Go to List',
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = '{{ route('sessions') }}';
+            Swal.fire({
+                title: 'Confirm Update',
+                text: "Do you want to update this session?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, update it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '{{ route('sessions.update', $session->id) }}',
+                        method: 'POST',
+                        data: $('#editSessionForm').serialize(),
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    title: 'Updated!',
+                                    text: response.message,
+                                    icon: 'success',
+                                    confirmButtonText: 'Go to List',
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.href = '{{ route('sessions') }}';
+                                    }
+                                });
                             }
-                        });
-                    }
-                },
-                error: function (xhr) {
-                    const errors = xhr.responseJSON.errors;
-                    if (errors) {
-                        if (errors.title) $('#titleError').text(errors.title[0]);
-                        if (errors.session_type) $('#session_typeError').text(errors.session_type[0]);
-                        if (errors.price_per_slot) $('#price_per_slotError').text(errors.price_per_slot[0]);
-                        if (errors.max_capacity) $('#max_capacityError').text(errors.max_capacity[0]);
-                    } else {
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'Something went wrong. Please try again.',
-                            icon: 'error'
-                        });
-                    }
+                        },
+                        error: function (xhr) {
+                            const errors = xhr.responseJSON.errors;
+                            if (errors) {
+                                if (errors.title) $('#titleError').text(errors.title[0]);
+                                if (errors.session_type) $('#session_typeError').text(errors.session_type[0]);
+                                if (errors.price_per_slot) $('#price_per_slotError').text(errors.price_per_slot[0]);
+                                if (errors.max_capacity) $('#max_capacityError').text(errors.max_capacity[0]);
+                                if (errors.status) $('#statusError').text(errors.status[0]);
+                            } else {
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: 'Something went wrong. Please try again.',
+                                    icon: 'error'
+                                });
+                            }
+                        }
+                    });
                 }
             });
         });

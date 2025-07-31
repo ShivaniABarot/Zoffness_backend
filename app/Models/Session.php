@@ -19,6 +19,7 @@ class Session extends Model
             'price_per_slot',
             'max_capacity',
             'date',
+            'status',
         ];
 
     /**
