@@ -177,7 +177,7 @@ class CollegeAdmissionController extends Controller
             // Send email to internal admins
             $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com', 'dev@bugletech.com'];
             Mail::to($adminEmails)->queue(
-                new CollegeAdmissionConfirmation(
+                (new CollegeAdmissionConfirmation(
                     $studentName,
                     $validatedData['school'] ?? null,
                     $subtotal,
@@ -190,9 +190,12 @@ class CollegeAdmissionController extends Controller
                     $validatedData['payment_status'],
                     now()->format('m-d-Y'),
                     $stripeDetails
+                ))->from(
+                    $parentDetails['email'] ?? config('mail.from.address'),
+                    trim(($request->parent_firstname ?? '') . ' ' . ($request->parent_lastname ?? ''))
                 )
             );
-
+            
             return response()->json([
                 'success' => true,
                 'message' => 'College admission record created successfully.',

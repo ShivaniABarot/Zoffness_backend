@@ -98,7 +98,7 @@
                 pageLength: 10,
                 lengthMenu: [10, 25, 50, 100],
                 dom: 'Bfrtip',
-                // buttons: ['excel', 'pdf']
+                buttons: ['excel', 'pdf']
             });
         });
     </script>

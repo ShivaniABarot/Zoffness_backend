@@ -3,6 +3,22 @@
 @push('styles')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
+    <style>
+        td.details-control {
+            background: url('https://datatables.net/examples/resources/details_open.png') no-repeat center center;
+            cursor: pointer;
+        }
+        tr.shown td.details-control {
+            background: url('https://datatables.net/examples/resources/details_close.png') no-repeat center center;
+        }
+        table.dataTable td {
+            vertical-align: middle;
+        }
+        table.dataTable thead th {
+            background-color: #f9f9f9;
+            font-weight: bold;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -32,19 +48,23 @@
             <table id="collegeEssaysTable" class="table table-striped table-bordered display responsive nowrap" style="width:100%" aria-describedby="collegeEssaysTable_info">
                 <thead>
                     <tr>
+                        <th></th> <!-- Details control column -->
                         <th>#</th>
                         <th>Parent Name</th>
                         <th>Parent Phone</th>
                         <th>Parent Email</th>
                         <th>Student Name</th>
                         <th>Student Email</th>
-                        <th>Package</th>
-                        <th>Total Sessions</th>
+                        <th>Total</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($collegessays as $essay)
-                        <tr>
+                        <tr
+                            data-created_at ="{{ $essay->created_at }}"
+                            data-package="{{ $essay->packages ?? 'N/A' }}"
+                        >
+                            <td class="details-control"></td>
                             <td>{{ $loop->iteration }}</td>
                             <td class="text-capitalize">{{ ($essay->parent_first_name ?? 'N/A') . ' ' . ($essay->parent_last_name ?? '') }}</td>
                             <td>
@@ -65,16 +85,12 @@
                                     <span class="text-muted">N/A</span>
                                 @endif
                             </td>
-                            <td>
-                                <span class="badge bg-primary-subtle text-primary px-3 py-1 rounded-pill">
-                                    {{ $essay->packages ?? 'N/A' }}
-                                </span>
-                            </td>
+                           
                             <td class="fw-semibold">{{ isset($essay->sessions) ? $essay->sessions : '0' }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="text-center py-5">
+                            <td colspan="9" class="text-center py-5">
                                 <div class="text-muted">
                                     <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" alt="No Data" width="80" class="mb-3 opacity-50">
                                     <p class="mb-0">No college essays records found.</p>
@@ -101,17 +117,77 @@
     <script>
         $(document).ready(function() {
             if ($('#collegeEssaysTable').length) {
-                $('#collegeEssaysTable').DataTable({
-                    order: [[0, 'asc']],
+                function format(data) {
+                    let createdAtHtml = '';
+                    try {
+                        // Parse YYYY-MM-DD HH:MM:SS timestamp
+                        const dateObj = new Date(data.createdAt);
+                        if (isNaN(dateObj.getTime())) {
+                            createdAtHtml = 'Invalid Date';
+                        } else {
+                            createdAtHtml = dateObj.toLocaleString('en-US', {
+                                day: '2-digit',
+                                month: 'long',
+                                weekday: 'long',
+                                // hour: 'numeric',
+                                // minute: '2-digit',
+                                // hour12: true
+                            });
+                        }
+                    } catch {
+                        createdAtHtml = 'Invalid Date';
+                    }
+
+                    return `
+                        <div class="p-3 bg-light border rounded">
+                            <h6>College Essays Details</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Package:</strong></td>
+                                    <td>${data.package}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Date:</strong></td>
+                                    <td>${createdAtHtml}</td>
+                                </tr>
+                            </table>
+                        </div>`;
+                }
+
+                const table = $('#collegeEssaysTable').DataTable({
+                    order: [[1, 'asc']],
                     columnDefs: [
+                        {
+                            className: 'details-control',
+                            orderable: false,
+                            data: null,
+                            defaultContent: '',
+                            targets: 0
+                        },
                         { className: 'fw-semibold', targets: [7] }, // Bold Total Sessions column
-                        { className: 'text-center', targets: [6] }  // Center Package column
+                        { className: 'text-center', targets: [6, 7] } // Center Package and Total Sessions columns
                     ],
                     responsive: true,
-                    pageLength: 10, // Default to 5 rows per page
-                    lengthMenu: [5, 10, 25, 50, 100], // Options for rows per page
+                    pageLength: 10,
+                    lengthMenu: [5, 10, 25, 50, 100],
                     dom: 'Bfrtip',
                     buttons: ['excel', 'pdf']
+                });
+
+                $('#collegeEssaysTable tbody').on('click', 'td.details-control', function () {
+                    const tr = $(this).closest('tr');
+                    const row = table.row(tr);
+
+                    if (row.child.isShown()) {
+                        row.child.hide();
+                        tr.removeClass('shown');
+                    } else {
+                        row.child(format({
+                            package: tr.data('package'),
+                            createdAt: tr.data('created_at')
+                        })).show();
+                        tr.addClass('shown');
+                    }
                 });
             }
         });

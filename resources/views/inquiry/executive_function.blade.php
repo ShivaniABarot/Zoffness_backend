@@ -3,6 +3,22 @@
 @push('styles')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
+    <style>
+        td.details-control {
+            background: url('https://datatables.net/examples/resources/details_open.png') no-repeat center center;
+            cursor: pointer;
+        }
+        tr.shown td.details-control {
+            background: url('https://datatables.net/examples/resources/details_close.png') no-repeat center center;
+        }
+        table.dataTable td {
+            vertical-align: middle;
+        }
+        table.dataTable thead th {
+            background-color: #f9f9f9;
+            font-weight: bold;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -31,7 +47,6 @@
     <div class="card shadow-sm border-0 rounded-4 overflow-hidden" style="background: #fff; transition: all 0.3s ease;">
         <div class="card-header bg-transparent border-0 pt-4 pb-0">
             <div class="d-flex justify-content-between align-items-center">
-                <!-- <h5 class="mb-0" style="color: #566a7f; font-weight: 600;">Coaching Registrations</h5> -->
                 <div class="card-actions">
                     @can('create', App\Models\ExecutiveCoaching::class)
                         <a href="{{ route('executive_function.create') }}" class="btn btn-primary btn-sm">
@@ -45,6 +60,7 @@
             <table id="executiveFunctionTable" class="table table-striped table-bordered display responsive nowrap" style="width:100%" aria-describedby="executiveFunctionTable_info">
                 <thead>
                     <tr>
+                        <th></th> <!-- Details control column -->
                         <th>#</th>
                         <th>Parent Name</th>
                         <th>Parent Phone</th>
@@ -57,7 +73,11 @@
                 </thead>
                 <tbody>
                     @forelse($coaching as $coach)
-                        <tr>
+                        <tr
+                            data-exam_date="{{ $coach->exam_date }}"
+                            data-package="{{ $coach->package_type ?? 'N/A' }}"
+                        >
+                            <td class="details-control"></td>
                             <td>{{ $loop->iteration }}</td>
                             <td class="text-capitalize">{{ ($coach->parent_first_name ?? 'N/A') . ' ' . ($coach->parent_last_name ?? '') }}</td>
                             <td>
@@ -79,22 +99,18 @@
                                 @endif
                             </td>
                             <td>
-    <span class="text-capitalize" style="font-size: 0.75rem; font-weight: 500;">
-        {!! $coach->package_type 
-            ? implode('<br>', explode(' ', $coach->package_type, 3)) 
-            : 'N/A' 
-        !!}
-    </span>
-</td>
-
-
-
-
+                                <span class="text-capitalize" style="font-size: 0.75rem; font-weight: 500;">
+                                    {!! $coach->package_type 
+                                        ? implode('<br>', explode(' ', $coach->package_type, 3)) 
+                                        : 'N/A' 
+                                    !!}
+                                </span>
+                            </td>
                             <td class="fw-semibold">${{ isset($coach->subtotal) ? number_format($coach->subtotal, 2) : '0.00' }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="text-center py-5">
+                            <td colspan="9" class="text-center py-5">
                                 <div class="text-muted">
                                     <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" alt="No Data" width="80" class="mb-3 opacity-50">
                                     <p class="mb-0">No executive function coaching records found.</p>
@@ -121,17 +137,77 @@
     <script>
         $(document).ready(function() {
             if ($('#executiveFunctionTable').length) {
-                $('#executiveFunctionTable').DataTable({
-                    order: [[0, 'asc']],
+                function format(data) {
+                    let examDateHtml = '';
+                    try {
+                        // Parse YYYY-MM-DD HH:MM:SS timestamp
+                        const dateObj = new Date(data.examDate);
+                        if (isNaN(dateObj.getTime())) {
+                            examDateHtml = 'Invalid Date';
+                        } else {
+                            examDateHtml = dateObj.toLocaleString('en-US', {
+                                day: '2-digit',
+                                month: 'long',
+                                weekday: 'long',
+                                hour: 'numeric',
+                                minute: '2-digit',
+                                hour12: true
+                            });
+                        }
+                    } catch {
+                        examDateHtml = 'Invalid Date';
+                    }
+
+                    return `
+                        <div class="p-3 bg-light border rounded">
+                            <h6>Executive Function Coaching Details</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Package:</strong></td>
+                                    <td>${data.package}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Exam Date:</strong></td>
+                                    <td>${examDateHtml}</td>
+                                </tr>
+                            </table>
+                        </div>`;
+                }
+
+                const table = $('#executiveFunctionTable').DataTable({
+                    order: [[1, 'asc']],
                     columnDefs: [
+                        {
+                            className: 'details-control',
+                            orderable: false,
+                            data: null,
+                            defaultContent: '',
+                            targets: 0
+                        },
                         { className: 'fw-semibold', targets: [7] }, // Bold Total Amount column
-                        { className: 'text-center', targets: [6] }  // Center Package column
+                        { className: 'text-center', targets: [6, 7] } // Center Package and Total Amount columns
                     ],
                     responsive: true,
                     pageLength: 10,
                     lengthMenu: [10, 25, 50, 100],
                     dom: 'Bfrtip',
-                    buttons: [ 'excel', 'pdf']
+                    buttons: ['excel', 'pdf']
+                });
+
+                $('#executiveFunctionTable tbody').on('click', 'td.details-control', function () {
+                    const tr = $(this).closest('tr');
+                    const row = table.row(tr);
+
+                    if (row.child.isShown()) {
+                        row.child.hide();
+                        tr.removeClass('shown');
+                    } else {
+                        row.child(format({
+                            package: tr.data('package'),
+                            examDate: tr.data('exam_date')
+                        })).show();
+                        tr.addClass('shown');
+                    }
                 });
             }
         });

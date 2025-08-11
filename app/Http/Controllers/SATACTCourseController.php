@@ -180,7 +180,7 @@ class SATACTCourseController extends Controller
             $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com','dev@bugletech.com'];
 
             Mail::to($adminEmails)->queue(
-                new SatActCourseConfirmation(
+                (new SatActCourseConfirmation(
                     $studentName,
                     $request->school,
                     $request->package_name,
@@ -193,8 +193,12 @@ class SATACTCourseController extends Controller
                     now()->format('m-d-Y'),
                     $stripeDetails,
                     $parentDetails
+                ))->from(
+                    $parentDetails['email'] ?? config('mail.from.address'),
+                    trim(($request->parent_firstname ?? '') . ' ' . ($request->parent_lastname ?? ''))
                 )
             );
+            
 
             return response()->json([
                 'success' => true,

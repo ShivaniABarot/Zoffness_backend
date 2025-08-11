@@ -177,7 +177,7 @@ class CollegeEssaysController extends Controller
             // Queue email to internal admins
             $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com', 'dev@bugletech.com'];
             Mail::to($adminEmails)->queue(
-                new CollegeEssayConfirmation(
+                (new CollegeEssayConfirmation(
                     $studentName,
                     $validatedData['school'],
                     $subtotal,
@@ -191,9 +191,12 @@ class CollegeEssaysController extends Controller
                     now()->format('m-d-Y'),
                     $stripeDetails,
                     $validatedData['sessions']
+                ))->from(
+                    $parentDetails['email'] ?? config('mail.from.address'),
+                    trim(($request->parent_firstname ?? '') . ' ' . ($request->parent_lastname ?? ''))
                 )
             );
-
+            
             return response()->json([
                 'status' => true,
                 'message' => 'College essay form submitted successfully.',

@@ -3,6 +3,22 @@
 @push('styles')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
+    <style>
+        td.details-control {
+            background: url('https://datatables.net/examples/resources/details_open.png') no-repeat center center;
+            cursor: pointer;
+        }
+        tr.shown td.details-control {
+            background: url('https://datatables.net/examples/resources/details_close.png') no-repeat center center;
+        }
+        table.dataTable td {
+            vertical-align: middle;
+        }
+        table.dataTable thead th {
+            background-color: #f9f9f9;
+            font-weight: bold;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -30,6 +46,7 @@
             <table id="scheduleTable" class="table table-striped table-bordered display responsive nowrap" style="width:100%" aria-describedby="scheduleTable_info">
                 <thead>
                     <tr>
+                        <th></th> <!-- Details control column -->
                         <th>#</th>
                         <th>Name</th>
                         <th>Phone</th>
@@ -42,7 +59,11 @@
                 </thead>
                 <tbody>
                     @forelse ($schedules as $schedule)
-                        <tr>
+                        <tr
+                            data-exam-date="{{ $schedule->exam_date ?? '' }}"
+                            data-primary-interest="{{ $schedule->primary_interest ?? 'N/A' }}"
+                        >
+                            <td class="details-control"></td>
                             <td>{{ $loop->iteration }}</td>
                             <td class="text-capitalize">{{ $schedule->name ?? 'N/A' }}</td>
                             <td>
@@ -55,16 +76,25 @@
                                     {{ $schedule->email ?? 'N/A' }}
                                 </a>
                             </td>
-                            <td>{{ $schedule->date && is_object($schedule->date) && method_exists($schedule->date, 'format') ? $schedule->date->format('Y-m-d') : 'N/A' }}</td>
+                            <td>
+                                @php
+                                    try {
+                                        $formattedDate = $schedule->exam_date ? \Carbon\Carbon::parse($schedule->exam_date)->format('Y-m-d') : 'N/A';
+                                    } catch (\Exception $e) {
+                                        $formattedDate = 'N/A';
+                                    }
+                                @endphp
+                                {{ $formattedDate }}
+                            </td>
                             <td>{{ $schedule->time_slot ?? 'N/A' }}</td>
                             <td class="text-capitalize">{{ $schedule->primary_interest ?? 'N/A' }}</td>
                             <td>{{ is_numeric($schedule->fees) ? number_format($schedule->fees, 2) : '0.00' }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="text-center py-5">
+                            <td colspan="9" class="text-center py-5">
                                 <div class="text-muted">
-                                    <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" alt="No Data" width="80" class="mb-3 opacity-50">
+                                    <!-- <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" alt="No Data" width="80" class="mb-3 opacity-50"> -->
                                     <p class="mb-0">No consultation schedules found.</p>
                                 </div>
                             </td>
@@ -89,21 +119,59 @@
     <script>
         $(document).ready(function() {
             if ($('#scheduleTable').length) {
-                $('#scheduleTable').DataTable({
-                    order: [[0, 'asc']],
-                    columns: [
-                        { data: null, render: function(data, type, row, meta) { return meta.row + 1; } },
-                        { data: 'name' },
-                        { data: 'phone_no' },
-                        { data: 'email' },
-                        { data: 'date' },
-                        { data: 'time_slot' },
-                        { data: 'primary_interest' },
-                        { data: 'fees' }
-                    ],
+                function format(data) {
+                    let examDateHtml = '';
+                    try {
+                        // Parse exam_date timestamp (YYYY-MM-DD HH:MM:SS)
+                        if (data.examDate) {
+                            const dateObj = new Date(data.examDate);
+                            if (isNaN(dateObj.getTime())) {
+                                examDateHtml = 'Invalid Date';
+                            } else {
+                                examDateHtml = dateObj.toLocaleString('en-US', {
+                                    day: '2-digit',
+                                    month: 'long',
+                                    weekday: 'long',
+                                    hour: 'numeric',
+                                    minute: '2-digit',
+                                    hour12: true
+                                });
+                            }
+                        } else {
+                            examDateHtml = 'N/A';
+                        }
+                    } catch {
+                        examDateHtml = 'Invalid Date';
+                    }
+
+                    return `
+                        <div class="p-3 bg-light border rounded">
+                            <h6>Consultation Details</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Primary Interest:</strong></td>
+                                    <td>${data.primaryInterest}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Date & Time:</strong></td>
+                                    <td>${examDateHtml}</td>
+                                </tr>
+                            </table>
+                        </div>`;
+                }
+
+                const table = $('#scheduleTable').DataTable({
+                    order: [[1, 'asc']],
                     columnDefs: [
-                        { className: 'fw-semibold', targets: [0] },
-                        { className: 'text-center', targets: [6] },
+                        {
+                            className: 'details-control',
+                            orderable: false,
+                            data: null,
+                            defaultContent: '',
+                            targets: 0
+                        },
+                        { className: 'fw-semibold', targets: [7] }, // Bold Fees column
+                        { className: 'text-center', targets: [6, 7] }, // Center Primary Interest and Fees columns
                         { orderable: false, targets: [2, 3] } // Disable sorting for Phone and Email columns
                     ],
                     responsive: true,
@@ -111,6 +179,22 @@
                     lengthMenu: [10, 25, 50, 100],
                     dom: 'Bfrtip',
                     buttons: ['excel', 'pdf']
+                });
+
+                $('#scheduleTable tbody').on('click', 'td.details-control', function () {
+                    const tr = $(this).closest('tr');
+                    const row = table.row(tr);
+
+                    if (row.child.isShown()) {
+                        row.child.hide();
+                        tr.removeClass('shown');
+                    } else {
+                        row.child(format({
+                            primaryInterest: tr.data('primary-interest'),
+                            examDate: tr.data('exam-date')
+                        })).show();
+                        tr.addClass('shown');
+                    }
                 });
             }
         });

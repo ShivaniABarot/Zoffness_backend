@@ -164,7 +164,7 @@ class ExecutiveCoachingController extends Controller
             // Queue email to internal admins
             $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com', 'dev@bugletech.com'];
             Mail::to($adminEmails)->queue(
-                new ExecutiveCoachingConfirmation(
+                (new ExecutiveCoachingConfirmation(
                     $studentName,
                     $request->school,
                     $request->package_type,
@@ -177,8 +177,12 @@ class ExecutiveCoachingController extends Controller
                     $request->payment_status,
                     now()->format('m-d-Y'),
                     $stripeDetails
+                ))->from(
+                    $parentDetails['email'] ?? config('mail.from.address'),
+                    trim(($request->parent_firstname ?? '') . ' ' . ($request->parent_lastname ?? ''))
                 )
             );
+            
 
             return response()->json([
                 'status' => 'success',

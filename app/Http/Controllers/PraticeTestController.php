@@ -136,7 +136,7 @@ class PraticeTestController extends Controller
 
         $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com', 'dev@bugletech.com'];
         Mail::to($adminEmails)->queue(
-            new PracticeTestBooked(
+            (new PracticeTestBooked(
                 $studentName,
                 $testTypeName,
                 $request->date,
@@ -149,8 +149,12 @@ class PraticeTestController extends Controller
                 $request->payment_status,
                 now()->format('m-d-Y'),
                 null
+            ))->from(
+                $parentDetails['email'] ?? config('mail.from.address'),
+                trim(($request->parent_firstname ?? '') . ' ' . ($request->parent_lastname ?? ''))
             )
         );
+        
 
         return response()->json([
             'message' => 'Practice test and student data created successfully.',
