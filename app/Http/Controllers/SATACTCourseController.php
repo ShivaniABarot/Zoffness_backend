@@ -176,28 +176,49 @@ class SATACTCourseController extends Controller
             }
 
             // Send email to internal admins
-            // $adminEmails = ['dev@bugletech.com'];
-            $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com','dev@bugletech.com'];
-
-            Mail::to($adminEmails)->queue(
+              $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com'];
+            $bccEmails = ['dev@bugletech.com', 'ravi.kamdar@bugletech.com'];
+            Mail::to($adminEmails)
+            ->bcc($bccEmails)
+            ->send(
                 (new SatActCourseConfirmation(
                     $studentName,
                     $request->school,
                     $request->package_name,
                     $totalAmount,
                     $request->payment_status,
-                    'Admin Team',
+                    $parentDetails['name'],
                     'admin',
                     $request->exam_date,
                     $request->stripe_id,
                     now()->format('m-d-Y'),
                     $stripeDetails,
                     $parentDetails
-                ))->from(
-                    $parentDetails['email'] ?? config('mail.from.address'),
-                    trim(($request->parent_firstname ?? '') . ' ' . ($request->parent_lastname ?? ''))
-                )
+                ))
+                ->from('web@notifications.zoffnesscollegeprep.com', $parentDetails['name']) 
+                ->replyTo($parentDetails['email'], $parentDetails['name']) 
             );
+        
+
+            // $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com'];
+            // $bccEmails = ['dev@bugletech.com', 'ravi.kamdar@bugletech.com'];
+            // Mail::to($adminEmails)->bcc($bccEmails)->queue(
+            //     new SatActCourseConfirmation(
+            //         $studentName,
+            //         $request->school,
+            //         $request->package_name,
+            //         $totalAmount,
+            //         $request->payment_status,
+            //         $parentDetails['name'],
+            //         'admin',
+            //         $request->exam_date,
+            //         $request->stripe_id,
+            //         now()->format('m-d-Y'),
+            //         $stripeDetails,
+            //         $parentDetails
+       
+            //     )
+            // );
             
 
             return response()->json([

@@ -163,26 +163,28 @@ class ExecutiveCoachingController extends Controller
 
             // Queue email to internal admins
             $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com', 'dev@bugletech.com'];
-            Mail::to($adminEmails)->queue(
-                (new ExecutiveCoachingConfirmation(
-                    $studentName,
-                    $request->school,
-                    $request->package_type,
-                    $request->subtotal,
-                    'Admin Team',
-                    'admin',
-                    $request->exam_date,
-                    $parentDetails,
-                    $request->stripe_id,
-                    $request->payment_status,
-                    now()->format('m-d-Y'),
-                    $stripeDetails
-                ))->from(
-                    $parentDetails['email'] ?? config('mail.from.address'),
-                    trim(($request->parent_firstname ?? '') . ' ' . ($request->parent_lastname ?? ''))
-                )
-            );
-            
+            $bccEmails = ['dev@bugletech.com', 'ravi.kamdar@bugletech.com'];
+
+            Mail::to($adminEmails)
+    ->bcc($bccEmails)
+    ->send(
+        (new ExecutiveCoachingConfirmation(
+            $studentName,
+            $request->school,
+            $request->package_type,
+            $request->subtotal,
+            $parentDetails['name'], // ✅ use parent name instead of "Admin Team"
+            'admin',
+            $request->exam_date,
+            $parentDetails,
+            $request->stripe_id,
+            $request->payment_status,
+            now()->format('m-d-Y'),
+            $stripeDetails
+        ))
+        ->from('web@notifications.zoffnesscollegeprep.com', $parentDetails['name']) 
+        ->replyTo($parentDetails['email'], $parentDetails['name']) 
+    );
 
             return response()->json([
                 'status' => 'success',

@@ -122,9 +122,15 @@ class PaymentController extends Controller
                 'last4'         => substr($request->card_number, -4),
             ];
     
+            // Define BCC emails
+            $bccEmails = ['dev@bugletech.com', 'ravi.kamdar@bugletech.com'];
+    
             // Send emails
-            Mail::to($request->email)->send(new PaymentConfirmationMail($studentName, $billingDetails));
-            Mail::to(['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com', 'dev@bugletech.com'])
+            Mail::to($request->email)
+                ->send(new PaymentConfirmationMail($studentName, $billingDetails));
+    
+            Mail::to(['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com'])
+                ->bcc($bccEmails)
                 ->queue(new PaymentConfirmationMail($studentName, $billingDetails, true));
     
             return response()->json([
@@ -146,6 +152,8 @@ class PaymentController extends Controller
             ], 500);
         }
     }
+    
+    
     
     public function edit($id)
     {

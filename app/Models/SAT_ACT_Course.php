@@ -22,10 +22,10 @@ class SAT_ACT_Course extends Model
      * @var array
      */
     protected $fillable = [
-        // 'parent_firstname',
-        // 'parent_lastname',
-        // 'parent_phone',
-        // 'parent_email',
+        'parent_firstname',
+        'parent_lastname',
+        'parent_phone',
+        'parent_email',
         'student_firstname',
         'student_lastname',
         'student_email',

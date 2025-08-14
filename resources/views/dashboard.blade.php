@@ -17,10 +17,10 @@
         <div class="header-left">
           <h1 class="page-title">Dashboard</h1>
           <p class="page-subtitle">
-    Good {{ date('H') < 12 ? 'morning' : (date('H') < 18 ? 'afternoon' : 'evening') }}, 
-    {{ Auth::user() ? Auth::user()->username : 'Guest' }}
-    <span class="date-badge">{{ date('M j, Y') }}</span>
-</p>
+                Good {{ date('H') < 12 ? 'morning' : (date('H') < 18 ? 'afternoon' : 'evening') }}, 
+                {{ Auth::user() ? Auth::user()->username : 'Guest' }}
+                <span class="date-badge">{{ date('M j, Y') }}</span>
+            </p>
         </div>
 
         <div class="header-right">

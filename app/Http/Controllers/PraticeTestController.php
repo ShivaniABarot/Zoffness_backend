@@ -22,156 +22,159 @@ class PraticeTestController extends Controller
     }
 
     public function store(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'parent_first_name' => 'nullable|string|max:255',
-        'parent_last_name' => 'nullable|string|max:255',
-        'parent_phone' => 'nullable|string|max:20',
-        'parent_email' => 'nullable|email|max:255',
-        'student_first_name' => 'required|string|max:255',
-        'student_last_name' => 'required|string|max:255',
-        'student_email' => 'required|email|max:255',
-        'school' => 'nullable|string|max:255',
-        'test_type' => 'required|exists:sessions,id',
-        'date' => 'nullable|array',
-        'date.*' => 'date_format:Y-m-d H:i',
-        'bank_name' => 'nullable|string|max:255',
-        'account_number' => 'nullable|string|max:255',
-        'payment_status' => 'required|string|in:Success,Failed,Pending',
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json(['errors' => $validator->errors()], 422);
-    }
-
-    $subtotal = \DB::table('sessions')->where('id', $request->test_type)->value('price_per_slot');
-    \Log::info('Subtotal fetched', ['subtotal' => $subtotal, 'test_type' => $request->test_type]);
-
-    $parentName = trim($request->parent_first_name . ' ' . $request->parent_last_name);
-    $studentName = trim($request->student_first_name . ' ' . $request->student_last_name);
-
-    $parentDetails = [
-        'name' => $parentName,
-        'phone' => $request->parent_phone,
-        'email' => $request->parent_email,
-    ];
-
-    try {
-        $test = DB::transaction(function () use ($request, $subtotal, $parentName, $studentName) {
-            $student = Student::create([
-                'student_email' => $request->student_email,
-                'parent_name' => $parentName,
-                'parent_phone' => $request->parent_phone,
-                'parent_email' => $request->parent_email,
-                'student_name' => $studentName,
-                'school' => $request->school,
-                'bank_name' => $request->bank_name,
-                'account_number' => $request->account_number
-            ]);
-
-            \Log::info('Student created', [
-                'email' => $request->student_email,
-                'id' => $student->id
-            ]);
-
-            $dates = is_array($request->date) ? $request->date : ($request->date ? [$request->date] : null);
-
-            $test = PraticeTest::create([
-                'parent_first_name' => $request->parent_first_name,
-                'parent_last_name' => $request->parent_last_name,
-                'parent_phone' => $request->parent_phone,
-                'parent_email' => $request->parent_email,
-                'student_first_name' => $request->student_first_name,
-                'student_last_name' => $request->student_last_name,
-                'student_email' => $request->student_email,
-                'school' => $request->school,
-                'date' => $dates ? json_encode($dates) : null,
-                'subtotal' => $subtotal,
-                'student_id' => $student->id,
-                'session_id' => $request->test_type
-            ]);
-
-            return $test;
-        });
-
-        $testTypeName = DB::table('sessions')->where('id', $request->test_type)->value('title');
-
-        if (!empty($request->parent_email)) {
-            Mail::to($request->parent_email)->queue(
-                new PracticeTestBooked(
-                    $studentName,
-                    $testTypeName,
-                    $request->date,
-                    $subtotal,
-                    $parentName,
-                    'parent',
-                    $request->school,
-                    $parentDetails,
-                    null, // stripe_id removed
-                    $request->payment_status,
-                    now()->format('m-d-Y'),
-                    null // stripeDetails removed
-                )
-            );
-        }
-
-        if (!empty($request->student_email)) {
-            Mail::to($request->student_email)->queue(
-                new PracticeTestBooked(
-                    $studentName,
-                    $testTypeName,
-                    $request->date,
-                    $subtotal,
-                    $studentName,
-                    'student',
-                    $request->school,
-                    $parentDetails,
-                    null,
-                    $request->payment_status,
-                    now()->format('m-d-Y'),
-                    null
-                )
-            );
-        }
-
-        $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com', 'dev@bugletech.com'];
-        Mail::to($adminEmails)->queue(
-            (new PracticeTestBooked(
-                $studentName,
-                $testTypeName,
-                $request->date,
-                $subtotal,
-                'Admin Team',
-                'admin',
-                $request->school,
-                $parentDetails,
-                null,
-                $request->payment_status,
-                now()->format('m-d-Y'),
-                null
-            ))->from(
-                $parentDetails['email'] ?? config('mail.from.address'),
-                trim(($request->parent_firstname ?? '') . ' ' . ($request->parent_lastname ?? ''))
-            )
-        );
-        
-
-        return response()->json([
-            'message' => 'Practice test and student data created successfully.',
-            'data' => $test
-        ], 201);
-
-    } catch (\Exception $e) {
-        \Log::error('Failed to create practice test or student', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
+    {
+        $validator = Validator::make($request->all(), [
+            'parent_first_name' => 'nullable|string|max:255',
+            'parent_last_name' => 'nullable|string|max:255',
+            'parent_phone' => 'nullable|string|max:20',
+            'parent_email' => 'nullable|email|max:255',
+            'student_first_name' => 'required|string|max:255',
+            'student_last_name' => 'required|string|max:255',
+            'student_email' => 'required|email|max:255',
+            'school' => 'nullable|string|max:255',
+            'test_type' => 'required|exists:sessions,id',
+            'date' => 'nullable|array',
+            'date.*' => 'date_format:Y-m-d H:i',
+            'bank_name' => 'nullable|string|max:255',
+            'account_number' => 'nullable|string|max:255',
+            'payment_status' => 'required|string|in:Success,Failed,Pending',
         ]);
 
-        return response()->json([
-            'message' => 'Failed to create practice test or student: ' . $e->getMessage()
-        ], 500);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $subtotal = \DB::table('sessions')->where('id', $request->test_type)->value('price_per_slot');
+        \Log::info('Subtotal fetched', ['subtotal' => $subtotal, 'test_type' => $request->test_type]);
+
+        $parentName = trim($request->parent_first_name . ' ' . $request->parent_last_name);
+        $studentName = trim($request->student_first_name . ' ' . $request->student_last_name);
+
+        $parentDetails = [
+            'name' => $parentName,
+            'phone' => $request->parent_phone,
+            'email' => $request->parent_email,
+        ];
+
+        try {
+            $test = DB::transaction(function () use ($request, $subtotal, $parentName, $studentName) {
+                $student = Student::create([
+                    'student_email' => $request->student_email,
+                    'parent_name' => $parentName,
+                    'parent_phone' => $request->parent_phone,
+                    'parent_email' => $request->parent_email,
+                    'student_name' => $studentName,
+                    'school' => $request->school,
+                    'bank_name' => $request->bank_name,
+                    'account_number' => $request->account_number
+                ]);
+
+                \Log::info('Student created', [
+                    'email' => $request->student_email,
+                    'id' => $student->id
+                ]);
+
+                $dates = is_array($request->date) ? $request->date : ($request->date ? [$request->date] : null);
+
+                $test = PraticeTest::create([
+                    'parent_first_name' => $request->parent_first_name,
+                    'parent_last_name' => $request->parent_last_name,
+                    'parent_phone' => $request->parent_phone,
+                    'parent_email' => $request->parent_email,
+                    'student_first_name' => $request->student_first_name,
+                    'student_last_name' => $request->student_last_name,
+                    'student_email' => $request->student_email,
+                    'school' => $request->school,
+                    'date' => $dates ? json_encode($dates) : null,
+                    'subtotal' => $subtotal,
+                    'student_id' => $student->id,
+                    'session_id' => $request->test_type
+                ]);
+
+                return $test;
+            });
+
+            $testTypeName = DB::table('sessions')->where('id', $request->test_type)->value('title');
+
+            if (!empty($request->parent_email)) {
+                Mail::to($request->parent_email)->queue(
+                    new PracticeTestBooked(
+                        $studentName,
+                        $testTypeName,
+                        $request->date,
+                        $subtotal,
+                        $parentName,
+                        'parent',
+                        $request->school,
+                        $parentDetails,
+                        null, // stripe_id removed
+                        $request->payment_status,
+                        now()->format('m-d-Y'),
+                        null // stripeDetails removed
+                    )
+                );
+            }
+
+            if (!empty($request->student_email)) {
+                Mail::to($request->student_email)->queue(
+                    new PracticeTestBooked(
+                        $studentName,
+                        $testTypeName,
+                        $request->date,
+                        $subtotal,
+                        $studentName,
+                        'student',
+                        $request->school,
+                        $parentDetails,
+                        null,
+                        $request->payment_status,
+                        now()->format('m-d-Y'),
+                        null
+                    )
+                );
+            }
+
+            $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com', 'dev@bugletech.com'];
+            $bccEmails = ['dev@bugletech.com', 'ravi.kamdar@bugletech.com'];
+
+            Mail::to($adminEmails)
+                ->bcc($bccEmails)
+                ->send(
+                    (new PracticeTestBooked(
+                        $studentName,
+                        $testTypeName,
+                        $request->date,
+                        $subtotal,
+                        $parentDetails['name'], // show parent's name instead of "Admin Team"
+                        'admin',
+                        $request->school,
+                        $parentDetails,
+                        null,
+                        $request->payment_status,
+                        now()->format('m-d-Y'),
+                        null
+                    ))
+                        ->from('web@notifications.zoffnesscollegeprep.com', $parentDetails['name'])
+                        ->replyTo($parentDetails['email'], $parentDetails['name'])
+                );
+
+
+            return response()->json([
+                'message' => 'Practice test and student data created successfully.',
+                'data' => $test
+            ], 201);
+
+        } catch (\Exception $e) {
+            \Log::error('Failed to create practice test or student', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'message' => 'Failed to create practice test or student: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
 
 
     // public function store(Request $request)
@@ -193,23 +196,23 @@ class PraticeTestController extends Controller
     //         'stripe_id' => 'nullable|string',
     //         'payment_status' => 'required|string|in:Success,Failed,Pending',
     //     ]);
-    
+
     //     if ($validator->fails()) {
     //         return response()->json(['errors' => $validator->errors()], 422);
     //     }
-    
+
     //     $subtotal = \DB::table('sessions')->where('id', $request->test_type)->value('price_per_slot');
     //     \Log::info('Subtotal fetched', ['subtotal' => $subtotal, 'test_type' => $request->test_type]); // Debug log
     //     $parentName = trim($request->parent_first_name . ' ' . $request->parent_last_name);
     //     $studentName = trim($request->student_first_name . ' ' . $request->student_last_name);
-    
+
     //     // Prepare parent details for email
     //     $parentDetails = [
     //         'name' => $parentName,
     //         'phone' => $request->parent_phone,
     //         'email' => $request->parent_email,
     //     ];
-    
+
     //     // Fetch Stripe details if stripe_id is provided
     //     Stripe::setApiKey(env('VITE_STRIPE_SECRET_KEY'));
     //     $stripeDetails = null;
@@ -236,7 +239,7 @@ class PraticeTestController extends Controller
     //             'status' => 'N/A',
     //         ];
     //     }
-    
+
     //     try {
     //         $test = DB::transaction(function () use ($request, $subtotal, $parentName, $studentName) {
     //             // Create student
@@ -250,15 +253,15 @@ class PraticeTestController extends Controller
     //                 'bank_name' => $request->bank_name,
     //                 'account_number' => $request->account_number
     //             ]);
-    
+
     //             \Log::info('Student created', [
     //                 'email' => $request->student_email,
     //                 'id' => $student->id
     //             ]);
-    
+
     //             // Handle date as array or single value
     //             $dates = is_array($request->date) ? $request->date : ($request->date ? [$request->date] : null);
-    
+
     //             // Create practice test
     //             $test = PraticeTest::create([
     //                 'parent_first_name' => $request->parent_first_name,
@@ -275,13 +278,13 @@ class PraticeTestController extends Controller
     //                 'stripe_id' => $request->stripe_id,
     //                 'session_id' => $request->test_type // Store single session ID directly
     //             ]);
-    
+
     //             return $test;
     //         });
-    
+
     //         // Get test type name for email
     //         $testTypeName = DB::table('sessions')->where('id', $request->test_type)->value('title');
-    
+
     //         // Send email to parent
     //         if (!empty($request->parent_email)) {
     //             Mail::to($request->parent_email)->queue(
@@ -301,7 +304,7 @@ class PraticeTestController extends Controller
     //                 )
     //             );
     //         }
-    
+
     //         // Send email to student
     //         if (!empty($request->student_email)) {
     //             Mail::to($request->student_email)->queue(
@@ -321,7 +324,7 @@ class PraticeTestController extends Controller
     //                 )
     //             );
     //         }
-    
+
     //         // Send email to internal admins
     //         $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com', 'dev@bugletech.com'];
     //         Mail::to($adminEmails)->queue(
@@ -340,18 +343,18 @@ class PraticeTestController extends Controller
     //                 $stripeDetails
     //             )
     //         );
-    
+
     //         return response()->json([
     //             'message' => 'Practice test and student data created successfully.',
     //             'data' => $test
     //         ], 201);
-    
+
     //     } catch (\Exception $e) {
     //         \Log::error('Failed to create practice test or student', [
     //             'error' => $e->getMessage(),
     //             'trace' => $e->getTraceAsString()
     //         ]);
-    
+
     //         return response()->json([
     //             'message' => 'Failed to create practice test or student: ' . $e->getMessage()
     //         ], 500);

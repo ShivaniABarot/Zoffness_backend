@@ -29,6 +29,7 @@ use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\LogController;
+use App\Http\Controllers\InquiryController;
 
 
 
@@ -177,9 +178,8 @@ Route::get('/payment-success', [ExamController::class, 'success'])->name('paymen
 Route::get('/payment-cancel', [ExamController::class, 'cancel'])->name('payment.cancel');
 
 
-// Booking module routes
-Route::get('/bookings/create', [BookingController::class, 'create'])->name('bookings.create');
-Route::post('/bookings/store', [BookingController::class, 'store'])->name('bookings.store');
+// Booking module routes sessions
+
 Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
 Route::get('/bookings/edit/{id}', [BookingController::class, 'edit'])->name('bookings.edit');
 Route::post('/bookings/update/{id}', [BookingController::class, 'update'])->name('bookings.update');
@@ -188,16 +188,17 @@ Route::delete('bookings/{id}', [BookingController::class, 'destroy'])->name('boo
 
 
 // Inquiry->Enroll
-Route::get('/inquiry/enroll', [EnrollController::class, 'index'])->name('enroll.list');
+Route::get('/inquiry', [InquiryController::class, 'index'])->name('inquiry.index');
 
-//Bookings->Pratice test forms
-Route::get('/inquiry/pratice_test', [PraticeTestController::class, 'index'])->name('pratice_test');
-Route::get('/inquiry/college_admission',  [CollegeAdmissionController::class, 'index'])->name('collegeadmission.index');
-Route::get('/inquiry/college_essays', [CollegeEssaysController::class, 'index'])->name('college_essays');
-Route::get('/inquiry/executive_function', [ExecutiveCoachingController::class, 'index'])->name('executive_function');
-Route::get('/inquiry/schedule_consultation', [ScheduleController::class, 'index'])->name('schedule_consultation');
-Route::get('inquiry/sat_act_course', [SATACTCourseController::class, 'sat_act_course'])->name('sat_act_course');
-Route::get('inquiry/online_payment', [PaymentController::class, 'index'])->name('online_payment');
+// Route::get('/inquiry/enroll', [EnrollController::class, 'index'])->name('enroll.list');
+// //Bookings->Pratice test forms
+// Route::get('/inquiry/pratice_test', [PraticeTestController::class, 'index'])->name('pratice_test');
+// Route::get('/inquiry/college_admission',  [CollegeAdmissionController::class, 'index'])->name('collegeadmission.index');
+// Route::get('/inquiry/college_essays', [CollegeEssaysController::class, 'index'])->name('college_essays');
+// Route::get('/inquiry/executive_function', [ExecutiveCoachingController::class, 'index'])->name('executive_function');
+// Route::get('/inquiry/schedule_consultation', [ScheduleController::class, 'index'])->name('schedule_consultation');
+// Route::get('inquiry/sat_act_course', [SATACTCourseController::class, 'sat_act_course'])->name('sat_act_course');
+// Route::get('inquiry/online_payment', [PaymentController::class, 'index'])->name('online_payment');
 
 
 Route::get('login/{provider}', [SocialLoginController::class, 'redirect']);
@@ -213,6 +214,8 @@ Route::delete('/announcements/{id}', [AnnouncementController::class, 'destroy'])
 Route::post('/send-announcement', [AnnouncementController::class, 'sendAnnouncement'])->name('send.announcement');
 Route::post('/send-announcement', [AnnouncementController::class, 'sendAnnouncement'])->middleware('auth')
     ->name('send.announcement');
+
+
 
 // LOGIN LOGS AND EMAIL LOGS 
 Route::prefix('logs')->group(function () {

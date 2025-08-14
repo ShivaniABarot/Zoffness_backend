@@ -599,55 +599,15 @@
                 </li>
               </ul>
             </li>
-            <li class="menu-item">
-              <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon bx bx-help-circle"></i>
-                <div>Bookings</div>
-              </a>
-              <ul class="menu-sub">
-                <li class="menu-item {{ Request::routeIs('sat_act_course') ? 'active' : '' }}">
-                  <a href="{{ route('sat_act_course') }}" class="menu-link">
-                    <div>SAT/ACT Course</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ Request::routeIs('enroll.list') ? 'active' : '' }}">
-                  <a href="{{ route('enroll.list') }}" class="menu-link">
-                    <div>Enroll/Register</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ Request::routeIs('pratice_test') ? 'active' : '' }}">
-                  <a href="{{ route('pratice_test') }}" class="menu-link">
-                    <div>Practice Test & Analysis</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ Request::routeIs('collegeadmission.index') ? 'active' : '' }}">
-                  <a href="{{ route('collegeadmission.index') }}" class="menu-link">
-                    <div>College Admission Counseling</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ Request::routeIs('college_essays') ? 'active' : '' }}">
-                  <a href="{{ route('college_essays') }}" class="menu-link">
-                    <div>College Essays</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ Request::routeIs('executive_function') ? 'active' : '' }}">
-                  <a href="{{ route('executive_function') }}" class="menu-link">
-                    <div>Executive Function</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ Request::routeIs('schedule_consultation') ? 'active' : '' }}">
-                  <a href="{{ route('schedule_consultation') }}" class="menu-link">
-                    <div>Schedule Consultation</div>
-                  </a>
-                </li>
-                <li class="menu-item {{ Request::routeIs('online_payment') ? 'active' : '' }}">
-                  <a href="{{ route('online_payment') }}" class="menu-link">
-                    <div>Online Payment</div>
-                  </a>
-                </li>
-              </ul>
-            </li>
+            
               <!-- Logs module -->
+
+              <li class="menu-item {{ request()->is('inquiry*') ? 'active' : '' }}">
+                <a href="{{ route('inquiry.index') }}" class="menu-link">
+                    <i class="menu-icon bx bx-file"></i>
+                    <div>Inquiry</div>
+                </a>
+            </li>
             <li class="menu-item {{ request()->is('logs*') ? 'active' : '' }}">
     <a href="{{ route('logs.index') }}" class="menu-link">
         <i class="menu-icon bx bx-file"></i>

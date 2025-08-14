@@ -24,26 +24,26 @@ class CollegeAdmissionController extends Controller
     {
         // Validate the incoming request
         $validator = Validator::make($request->all(), [
-            'parent_first_name' => 'nullable|string|max:255',
-            'parent_last_name' => 'nullable|string|max:255',
-            'parent_phone' => 'nullable|string|max:255',
-            'parent_email' => 'nullable|email|max:255',
-            'student_first_name' => 'required|string|max:255',
-            'student_last_name' => 'required|string|max:255',
+            'parent_first_name' => 'nullable|string',
+            'parent_last_name' => 'nullable|string',
+            'parent_phone' => 'nullable|string',
+            'parent_email' => 'nullable|email',
+            'student_first_name' => 'required|string',
+            'student_last_name' => 'required|string',
             'student_email' => 'required',
-            'packages' => 'nullable|string|max:255',
-            'school' => 'nullable|string|max:255',
+            'packages' => 'nullable|string',
+            'school' => 'nullable|string',
             'subtotal' => 'nullable|numeric|min:0',
             'initial_intake' => 'nullable|numeric|min:0',
             'five_session_package' => 'nullable|numeric|min:0',
             'ten_session_package' => 'nullable|numeric|min:0',
             'fifteen_session_package' => 'nullable|numeric|min:0',
             'twenty_session_package' => 'nullable|numeric|min:0',
-            'bank_name' => 'nullable|string|max:255',
-            'account_number' => 'nullable|string|max:255',
+            'bank_name' => 'nullable|string',
+            'account_number' => 'nullable|string',
             'exam_date' => 'required|date',
             'stripe_id' => 'nullable|string',
-            'payment_status' => 'required|string|in:Success,Failed,Pending',
+            'payment_status' => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -176,12 +176,16 @@ class CollegeAdmissionController extends Controller
 
             // Send email to internal admins
             $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com', 'dev@bugletech.com'];
-            Mail::to($adminEmails)->queue(
+            $bccEmails = ['dev@bugletech.com', 'ravi.kamdar@bugletech.com'];
+
+            Mail::to($adminEmails)
+            ->bcc($bccEmails)
+            ->send(
                 (new CollegeAdmissionConfirmation(
                     $studentName,
                     $validatedData['school'] ?? null,
                     $subtotal,
-                    'Admin Team',
+                    $parentDetails['name'], 
                     'admin',
                     $validatedData['packages'] ?? null,
                     $validatedData['exam_date'],
@@ -190,11 +194,11 @@ class CollegeAdmissionController extends Controller
                     $validatedData['payment_status'],
                     now()->format('m-d-Y'),
                     $stripeDetails
-                ))->from(
-                    $parentDetails['email'] ?? config('mail.from.address'),
-                    trim(($request->parent_firstname ?? '') . ' ' . ($request->parent_lastname ?? ''))
-                )
+                ))
+                ->from('web@notifications.zoffnesscollegeprep.com', $parentDetails['name']) 
+                ->replyTo($parentDetails['email'], $parentDetails['name']) 
             );
+        
             
             return response()->json([
                 'success' => true,

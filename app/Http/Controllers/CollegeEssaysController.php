@@ -23,22 +23,22 @@ class CollegeEssaysController extends Controller
     public function college_essays(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'parent_first_name' => 'nullable|string|max:255',
-            'parent_last_name' => 'nullable|string|max:255',
-            'parent_phone' => 'nullable|string|max:255',
-            'parent_email' => 'nullable|email|max:255',
-            'student_first_name' => 'required|string|max:255',
-            'student_last_name' => 'required|string|max:255',
-            'student_email' => 'required|email|max:255',
-            'sessions' => 'nullable|numeric|min:0',
-            'packages' => 'nullable|string|max:255',
-            'school' => 'nullable|string|max:255',
-            'bank_name' => 'nullable|string|max:255',
-            'account_number' => 'nullable|string|max:255',
+            'parent_first_name' => 'nullable|string',
+            'parent_last_name' => 'nullable|string',
+            'parent_phone' => 'nullable|string',
+            'parent_email' => 'nullable|email',
+            'student_first_name' => 'required|string',
+            'student_last_name' => 'required|string',
+            'student_email' => 'required|email',
+            'sessions' => 'nullable|numeric',
+            'packages' => 'nullable|string',
+            'school' => 'nullable|string',
+            'bank_name' => 'nullable|string',
+            'account_number' => 'nullable|string',
             'exam_date' => 'required|date',
             'stripe_id' => 'nullable|string',
-            'payment_status' => 'required|string|in:Success,Failed,Pending',
-            'subtotal' => 'nullable|numeric|min:0',
+            'payment_status' => 'required|string',
+            'subtotal' => 'nullable|numeric',
         ]);
 
         if ($validator->fails()) {
@@ -176,12 +176,16 @@ class CollegeEssaysController extends Controller
 
             // Queue email to internal admins
             $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com', 'dev@bugletech.com'];
-            Mail::to($adminEmails)->queue(
+            $bccEmails = ['dev@bugletech.com', 'ravi.kamdar@bugletech.com'];
+
+            Mail::to($adminEmails)
+            ->bcc($bccEmails)
+            ->send(
                 (new CollegeEssayConfirmation(
                     $studentName,
                     $validatedData['school'],
                     $subtotal,
-                    'Admin Team',
+                    $parentDetails['name'], // ✅ use parent's name instead of "Admin Team"
                     'admin',
                     $validatedData['packages'],
                     $validatedData['exam_date'],
@@ -191,11 +195,11 @@ class CollegeEssaysController extends Controller
                     now()->format('m-d-Y'),
                     $stripeDetails,
                     $validatedData['sessions']
-                ))->from(
-                    $parentDetails['email'] ?? config('mail.from.address'),
-                    trim(($request->parent_firstname ?? '') . ' ' . ($request->parent_lastname ?? ''))
-                )
+                ))
+                ->from('web@notifications.zoffnesscollegeprep.com', $parentDetails['name']) // ✅ verified sender
+                ->replyTo($parentDetails['email'], $parentDetails['name']) // ✅ replies go to parent
             );
+        
             
             return response()->json([
                 'status' => true,
