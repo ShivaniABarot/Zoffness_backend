@@ -51,7 +51,7 @@ Route::post('/college_essays', [CollegeEssaysController::class, 'college_essays'
 Route::get('/get_packages', [PackageController::class, 'get_packages']);
 Route::get('/get_dates', [PackageController::class,'get_dates']);
 // payment api
-Route::post('/payments', [PaymentController::class, 'store'])->middleware('auth:sanctum')->name('payments.store');
+Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');
 Route::get('/get_sessions', [SessionController::class, 'get_sessions']);
 Route::get('/get_sat_act_packages', [Satact_packagesController::class, 'get_sat_act_packages']);
 Route::get('/get_ExecutivePackage', [ExecutivePackageController::class, 'get_ExecutivePackage']);

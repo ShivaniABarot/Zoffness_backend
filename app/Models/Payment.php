@@ -12,6 +12,8 @@ class Payment extends Model
     protected $table = 'payments';
 
     protected $fillable = [
+        'parent_first_name',
+        'parent_last_name',
         'student_first_name',
         'student_last_name',
         'email',
@@ -23,6 +25,7 @@ class Payment extends Model
         'card_exp_date',
         'cvv',
         'bill_address',
+        'parent_phone',
         'city',
         'state',
         'zip_code',

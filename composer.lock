@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a7a47cd04ae50a661fb7596bc1f19b66",
+    "content-hash": "c9c247741c7c606fef21daddcf92471e",
     "packages": [
         {
             "name": "akaunting/laravel-money",
@@ -933,6 +933,88 @@
                 }
             ],
             "time": "2024-05-06T09:10:03+00:00"
+        },
+        {
+            "name": "dbfx/laravel-strapi",
+            "version": "v4.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dbfx/laravel-strapi.git",
+                "reference": "42e53f912a3a7da0e3d6de1be937747396318fc3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dbfx/laravel-strapi/zipball/42e53f912a3a7da0e3d6de1be937747396318fc3",
+                "reference": "42e53f912a3a7da0e3d6de1be937747396318fc3",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/contracts": "^8.37 || ^9.0 || ^10",
+                "laravel/framework": "^8 || ^9 || ^10",
+                "php": "^7.4 || ^8.0",
+                "spatie/laravel-package-tools": "^1.4.3"
+            },
+            "require-dev": {
+                "brianium/paratest": "^6.2",
+                "ergebnis/composer-normalize": "^2.42",
+                "friendsofphp/php-cs-fixer": "^3.48",
+                "nunomaduro/collision": "^5.3 || ^6.0",
+                "orchestra/testbench": "^6.15",
+                "phpro/grumphp-shim": "^1.13",
+                "phpunit/phpunit": "^9.3",
+                "rector/rector": "^0.19.5",
+                "roave/security-advisories": "dev-latest",
+                "spatie/laravel-ray": "^1.9",
+                "vimeo/psalm": "^5.7"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "LaravelStrapi": "Dbfx\\LaravelStrapi\\LaravelStrapiFacade"
+                    },
+                    "providers": [
+                        "Dbfx\\LaravelStrapi\\LaravelStrapiServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Dbfx\\LaravelStrapi\\": "src",
+                    "Dbfx\\LaravelStrapi\\Database\\Factories\\": "database/factories"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dave Blakey",
+                    "email": "dave@blakey.co",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Laravel wrapper for using the Strapi headless CMS",
+            "homepage": "https://github.com/dbfx/laravel-strapi",
+            "keywords": [
+                "laravel",
+                "laravel-package",
+                "laravel-strapi",
+                "strapi",
+                "strapi-cms"
+            ],
+            "support": {
+                "issues": "https://github.com/dbfx/laravel-strapi/issues",
+                "source": "https://github.com/dbfx/laravel-strapi/tree/v4.0.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/dbfx",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-02-05T03:03:08+00:00"
         },
         {
             "name": "dflydev/dot-access-data",

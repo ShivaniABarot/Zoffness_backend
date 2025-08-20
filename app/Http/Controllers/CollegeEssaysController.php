@@ -26,46 +26,46 @@ class CollegeEssaysController extends Controller
             'parent_first_name' => 'nullable|string',
             'parent_last_name' => 'nullable|string',
             'parent_phone' => 'nullable|string',
-            'parent_email' => 'nullable|email',
-            'student_first_name' => 'required|string',
-            'student_last_name' => 'required|string',
-            'student_email' => 'required|email',
+            'parent_email' => 'nullable',
+            'student_first_name' => 'nullable|string',
+            'student_last_name' => 'nullable|string',
+            'student_email' => 'nullable',
             'sessions' => 'nullable|numeric',
             'packages' => 'nullable|string',
             'school' => 'nullable|string',
             'bank_name' => 'nullable|string',
             'account_number' => 'nullable|string',
-            'exam_date' => 'required|date',
+            'exam_date' => 'nullable|date',
             'stripe_id' => 'nullable|string',
-            'payment_status' => 'required|string',
+            'payment_status' => 'nullable|string',
             'subtotal' => 'nullable|numeric',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
                 'errors' => $validator->errors()
             ], 422);
         }
-
+    
         $validatedData = $validator->validated();
-
+    
         // Prepare names and parent details
-        $parentName = trim($validatedData['parent_first_name'] . ' ' . $validatedData['parent_last_name']);
-        $studentName = trim($validatedData['student_first_name'] . ' ' . $validatedData['student_last_name']);
+        $parentName = trim(($validatedData['parent_first_name'] ?? '') . ' ' . ($validatedData['parent_last_name'] ?? ''));
+        $studentName = trim(($validatedData['student_first_name'] ?? '') . ' ' . ($validatedData['student_last_name'] ?? ''));
         $subtotal = isset($validatedData['subtotal']) ? (float) $validatedData['subtotal'] : 0.00;
-
+    
         // Prepare parent details for email
         $parentDetails = [
             'name' => $parentName,
-            'phone' => $validatedData['parent_phone'],
-            'email' => $validatedData['parent_email'],
+            'phone' => $validatedData['parent_phone'] ?? null,
+            'email' => $validatedData['parent_email'] ?? null,
         ];
-
-        // Fetch Stripe details if stripe_id is provided
+    
         Stripe::setApiKey(env('VITE_STRIPE_SECRET_KEY'));
         $stripeDetails = null;
-        if ($validatedData['stripe_id']) {
+    
+        if (!empty($validatedData['stripe_id'] ?? null)) {
             try {
                 $paymentIntent = PaymentIntent::retrieve($validatedData['stripe_id']);
                 $stripeDetails = [
@@ -88,131 +88,130 @@ class CollegeEssaysController extends Controller
                 'status' => 'N/A',
             ];
         }
-
+    
         try {
             $essay = DB::transaction(function () use ($validatedData, $parentName, $studentName) {
                 // Create student
                 $student = Student::create([
-                    'student_email' => $validatedData['student_email'],
+                    'student_email' => $validatedData['student_email'] ?? null,
                     'parent_name' => $parentName,
-                    'parent_phone' => $validatedData['parent_phone'],
-                    'parent_email' => $validatedData['parent_email'],
+                    'parent_phone' => $validatedData['parent_phone'] ?? null,
+                    'parent_email' => $validatedData['parent_email'] ?? null,
                     'student_name' => $studentName,
                     'school' => $validatedData['school'] ?? null,
                     'bank_name' => $validatedData['bank_name'] ?? null,
                     'account_number' => $validatedData['account_number'] ?? null,
                     'exam_date' => $validatedData['exam_date'] ?? null,
                 ]);
-
+    
                 \Log::info('Student created', [
                     'email' => $validatedData['student_email'],
                     'id' => $student->id
                 ]);
-
+    
                 // Create essay record
                 $essay = CollegeEssays::create([
-                    'parent_first_name' => $validatedData['parent_first_name'],
-                    'parent_last_name' => $validatedData['parent_last_name'],
-                    'parent_phone' => $validatedData['parent_phone'],
-                    'parent_email' => $validatedData['parent_email'],
-                    'student_first_name' => $validatedData['student_first_name'],
-                    'student_last_name' => $validatedData['student_last_name'],
-                    'student_email' => $validatedData['student_email'],
-                    'sessions' => $validatedData['sessions'] ?? null,
-                    'packages' => $validatedData['packages'] ?? null,
-                    'school' => $validatedData['school'] ?? null,
-                    'bank_name' => $validatedData['bank_name'] ?? null,
-                    'account_number' => $validatedData['account_number'] ?? null,
-                    'exam_date' => $validatedData['exam_date'] ?? null,
-                    'student_id' => $student->id,
-                    'stripe_id' => $validatedData['stripe_id'] ?? null,
-                    'subtotal' => $validatedData['subtotal'] ?? null,
+                    'parent_first_name'  => $validatedData['parent_first_name'] ?? null,
+                    'parent_last_name'   => $validatedData['parent_last_name'] ?? null,
+                    'parent_phone'       => $validatedData['parent_phone'] ?? null,
+                    'parent_email'       => $validatedData['parent_email'] ?? null,
+                    'student_first_name' => $validatedData['student_first_name'] ?? null,
+                    'student_last_name'  => $validatedData['student_last_name'] ?? null,
+                    'student_email'      => $validatedData['student_email'] ?? null,
+                    'sessions'           => $validatedData['sessions'] ?? null,
+                    'packages'           => $validatedData['packages'] ?? null,
+                    'school'             => $validatedData['school'] ?? null,
+                    'bank_name'          => $validatedData['bank_name'] ?? null,
+                    'account_number'     => $validatedData['account_number'] ?? null,
+                    'exam_date'          => $validatedData['exam_date'] ?? null,
+                    'student_id'         => $student->id,
+                    'stripe_id'          => $validatedData['stripe_id'] ?? null,
+                    'subtotal'           => $validatedData['subtotal'] ?? null,
                 ]);
-
+    
                 return $essay;
             });
-
+    
             // Queue emails to parent
             if (!empty($validatedData['parent_email'])) {
                 Mail::to($validatedData['parent_email'])->queue(
                     new CollegeEssayConfirmation(
                         $studentName,
-                        $validatedData['school'],
+                        $validatedData['school'] ?? null, // Fix: Provide fallback
                         $subtotal,
                         $parentName,
                         'parent',
-                        $validatedData['packages'],
-                        $validatedData['exam_date'],
+                        $validatedData['packages'] ?? null,
+                        $validatedData['exam_date'] ?? null,
                         $parentDetails,
-                        $validatedData['stripe_id'],
-                        $validatedData['payment_status'],
+                        $validatedData['stripe_id'] ?? null,
+                        $validatedData['payment_status'] ?? null,
                         now()->format('m-d-Y'),
                         $stripeDetails,
-                        $validatedData['sessions']
+                        $validatedData['sessions'] ?? null
                     )
                 );
             }
-
+    
             // Queue emails to student
             if (!empty($validatedData['student_email'])) {
                 Mail::to($validatedData['student_email'])->queue(
                     new CollegeEssayConfirmation(
                         $studentName,
-                        $validatedData['school'],
+                        $validatedData['school'] ?? null, // Fix: Provide fallback
                         $subtotal,
                         $studentName,
                         'student',
-                        $validatedData['packages'],
-                        $validatedData['exam_date'],
+                        $validatedData['packages'] ?? null,
+                        $validatedData['exam_date'] ?? null,
                         $parentDetails,
-                        $validatedData['stripe_id'],
-                        $validatedData['payment_status'],
+                        $validatedData['stripe_id'] ?? null,
+                        $validatedData['payment_status'] ?? null,
                         now()->format('m-d-Y'),
                         $stripeDetails,
-                        $validatedData['sessions']
+                        $validatedData['sessions'] ?? null
                     )
                 );
             }
-
+    
             // Queue email to internal admins
             $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com', 'dev@bugletech.com'];
             $bccEmails = ['dev@bugletech.com', 'ravi.kamdar@bugletech.com'];
-
+    
             Mail::to($adminEmails)
-            ->bcc($bccEmails)
-            ->send(
-                (new CollegeEssayConfirmation(
-                    $studentName,
-                    $validatedData['school'],
-                    $subtotal,
-                    $parentDetails['name'], // ✅ use parent's name instead of "Admin Team"
-                    'admin',
-                    $validatedData['packages'],
-                    $validatedData['exam_date'],
-                    $parentDetails,
-                    $validatedData['stripe_id'],
-                    $validatedData['payment_status'],
-                    now()->format('m-d-Y'),
-                    $stripeDetails,
-                    $validatedData['sessions']
-                ))
-                ->from('web@notifications.zoffnesscollegeprep.com', $parentDetails['name']) // ✅ verified sender
-                ->replyTo($parentDetails['email'], $parentDetails['name']) // ✅ replies go to parent
-            );
-        
-            
+                ->bcc($bccEmails)
+                ->send(
+                    (new CollegeEssayConfirmation(
+                        $studentName,
+                        $validatedData['school'] ?? null, // Fix: Provide fallback
+                        $subtotal,
+                        $parentDetails['name'],
+                        'admin',
+                        $validatedData['packages'] ?? null,
+                        $validatedData['exam_date'] ?? null,
+                        $parentDetails,
+                        $validatedData['stripe_id'] ?? null,
+                        $validatedData['payment_status'] ?? null,
+                        now()->format('m-d-Y'),
+                        $stripeDetails,
+                        $validatedData['sessions'] ?? null
+                    ))
+                    ->from('web@notifications.zoffnesscollegeprep.com', $parentDetails['name'])
+                    ->replyTo($parentDetails['email'], $parentDetails['name'])
+                );
+    
             return response()->json([
                 'status' => true,
                 'message' => 'College essay form submitted successfully.',
                 'data' => $essay
             ], 201);
-
+    
         } catch (\Exception $e) {
             \Log::error('Failed to create college essay or student', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-
+    
             return response()->json([
                 'status' => false,
                 'message' => 'Failed to save form: ' . $e->getMessage()

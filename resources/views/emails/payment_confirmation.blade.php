@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title>Payment Confirmation</title>
@@ -45,35 +46,50 @@
         }
     </style>
 </head>
+
 <body>
-<div class="container">
-    <div style="text-align:center;">
-        <img src="cid:zoffnesscollegeprep-logo.png" alt="Logo" style="max-width:150px;">
+    <div class="container">
+        <div style="text-align:center;">
+            <img src="cid:zoffnesscollegeprep-logo.png" alt="Logo" style="max-width:150px;">
+        </div>
+        <h2>Payment Confirmation</h2>
+
+        <p>
+            @if($isAdmin)
+                Dear Admin,
+            @else
+                Dear {{ $payment->parent_first_name ?? $payment->student_first_name }},
+            @endif
+        </p>
+
+
+
+        <div class="info-box">
+            <p><strong>Student Name:</strong> {{ $payment->student_first_name }} {{ $payment->student_last_name }}</p>
+            <p><strong>Student Email:</strong> {{ $payment->email }}</p>
+
+            @if (!empty($payment->parent_first_name) || !empty($payment->parent_last_name))
+                <p><strong>Parent Name:</strong> {{ $payment->parent_first_name }} {{ $payment->parent_last_name }}</p>
+                <p><strong>Parent Phone No:</strong> {{ $payment->parent_phone ?? 'N/A' }}</p>
+            @endif
+
+            <p><strong>Amount:</strong> ${{ number_format($payment->payment_amount, 2) }}</p>
+            <p><strong>Payment Type:</strong> {{ $payment->payment_type }}</p>
+            <p><strong>Cardholder:</strong> {{ $payment->cardholder_name }}
+                (****{{ $payment->card_number }})
+            </p>
+            <p><strong>Date:</strong> {{ now()->format('m-d-Y') }}</p>
+
+            @if (!empty($payment->note))
+                <p><strong>Note:</strong> {{ $payment->note }}</p>
+            @endif
+
+            <p><strong>Address:</strong> {{ $payment->bill_address }}, {{ $payment->city }}, {{ $payment->state }}
+                {{ $payment->zip_code }}</p>
+        </div>
+
+        <p><strong>Zoffness College Prep</strong></p>
     </div>
-    <h2>Payment Confirmation</h2>
-
-    <p>Dear {{ $billingDetails['parent_name'] !== 'N/A' ? $billingDetails['parent_name'] : $studentName }},</p>
-    <p>Thank you for your payment. Below are your payment details:</p>
-
-    <div class="info-box">
-        <p><strong>Student Name:</strong> {{ $studentName }}</p>
-        <p><strong>Student Email:</strong> {{ $billingDetails['email'] }}</p>
-        @if ($billingDetails['parent_name'] !== 'N/A')
-            <p><strong>Parent Name:</strong> {{ $billingDetails['parent_name'] }}</p>
-            <p><strong>Parent Email:</strong> {{ $billingDetails['parent_email'] }}</p>
-            <p><strong>Parent Phone No:</strong> {{ $billingDetails['phone_no'] }}</p>
-        @endif
-        <p><strong>Amount:</strong> ${{ number_format($billingDetails['amount'], 2) }}</p>
-        <p><strong>Payment Type:</strong> {{ $billingDetails['payment_type'] }}</p>
-        <p><strong>Cardholder:</strong> {{ $billingDetails['cardholder'] }} (****{{ $billingDetails['last4'] }})</p>
-        <p><strong>Date:</strong> {{ $billingDetails['payment_date'] }}</p>
-        @if (!empty($billingDetails['note']) && $billingDetails['note'] !== 'No note provided')
-            <p><strong>Note:</strong> {{ $billingDetails['note'] }}</p>
-        @endif
-        <p><strong>Address:</strong> {{ $billingDetails['address'] }}, {{ $billingDetails['city'] }}, {{ $billingDetails['state'] }} {{ $billingDetails['zip_code'] }}</p>
-    </div>
-
-    <p><strong>Zoffness College Prep</strong></p>
-</div>
 </body>
+
 </html>
