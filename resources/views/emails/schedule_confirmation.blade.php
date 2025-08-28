@@ -87,7 +87,18 @@
         <div class="details">
             <p><strong>Name:</strong> {{ $name }}</p>
             <p><strong>Email:</strong> {{ $email }}</p>
-            <p><strong>Phone:</strong> {{ $phone }}</p>
+            @php
+    $digits = preg_replace('/\D/', '', $phone ?? '');
+    if (strlen($digits) === 10) {
+        $formattedPhone = '(' . substr($digits, 0, 3) . ') ' . substr($digits, 3, 3) . '-' . substr($digits, 6);
+    } else {
+        $formattedPhone = $phone ?: 'N/A';
+    }
+@endphp
+
+<p><strong>Phone:</strong> {{ $formattedPhone }}</p>
+
+            <!-- <p><strong>Phone:</strong> {{ $phone }}</p> -->
             <p><strong>Date:</strong> {{ $date }}</p>
             <p><strong>Time Slot:</strong> {{ $timeSlot }}</p>
             <p><strong>Primary Interest:</strong> {{ $primaryInterest }}</p>

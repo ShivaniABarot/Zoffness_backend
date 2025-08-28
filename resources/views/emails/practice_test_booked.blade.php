@@ -112,8 +112,20 @@
                 <p><strong>Parent Name:</strong> {{ $parentDetails['name'] }}</p>
             @endif
             @if($parentDetails['phone'])
+    @php
+        $digits = preg_replace('/\D/', '', $parentDetails['phone']); // remove non-digits
+        if(strlen($digits) === 10) {
+            $formattedPhone = '(' . substr($digits, 0, 3) . ') ' . substr($digits, 3, 3) . '-' . substr($digits, 6);
+        } else {
+            $formattedPhone = $parentDetails['phone']; // fallback
+        }
+    @endphp
+    <p><strong>Parent Phone:</strong> {{ $formattedPhone }}</p>
+@endif
+
+            <!-- @if($parentDetails['phone'])
                 <p><strong>Parent Phone:</strong> {{ $parentDetails['phone'] }}</p>
-            @endif
+            @endif -->
             @if($parentDetails['email'])
                 <p><strong>Parent Email:</strong> {{ $parentDetails['email'] }}</p>
             @endif

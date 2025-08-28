@@ -70,7 +70,18 @@
 
             @if (!empty($payment->parent_first_name) || !empty($payment->parent_last_name))
                 <p><strong>Parent Name:</strong> {{ $payment->parent_first_name }} {{ $payment->parent_last_name }}</p>
-                <p><strong>Parent Phone No:</strong> {{ $payment->parent_phone ?? 'N/A' }}</p>
+                @php
+    $digits = preg_replace('/\D/', '', $payment->parent_phone ?? '');
+    if (strlen($digits) === 10) {
+        $formattedPhone = '(' . substr($digits, 0, 3) . ') ' . substr($digits, 3, 3) . '-' . substr($digits, 6);
+    } else {
+        $formattedPhone = $payment->parent_phone ?? 'N/A';
+    }
+@endphp
+
+<p><strong>Parent Phone No:</strong> {{ $formattedPhone }}</p>
+
+                <!-- <p><strong>Parent Phone No:</strong> {{ $payment->parent_phone ?? 'N/A' }}</p> -->
             @endif
 
             <p><strong>Amount:</strong> ${{ number_format($payment->payment_amount, 2) }}</p>
