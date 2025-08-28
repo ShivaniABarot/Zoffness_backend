@@ -36,6 +36,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+
+//STRIPE API ROUTES:
+Route::post('/create-payment-intent', [PaymentController::class, 'createPaymentIntent']);
+
+
+
 Route::post('/login', [LoginController::class, 'login_api']);
 Route::post('/enroll', [EnrollController::class, 'new_enroll']);
 Route::post('/new_sat_act', [SATACTCourseController::class, 'new_sat_act']);

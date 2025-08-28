@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title>Practice Test Booking Confirmation</title>
@@ -78,6 +79,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="email-container">
         <!-- Logo -->
@@ -94,13 +96,15 @@
                 A new student has registered for a practice test. Below are the registration details:
             @else
                 Dear {{ $recipientName }},<br><br>
-                Thank you for registering for the practice test with Zoffness College Prep. Below are your registration details:
+                Thank you for registering for the practice test with Zoffness College Prep. Below are your registration
+                details:
             @endif
         </p>
 
         <h3>Personal Information</h3>
         <div class="details">
             <p><strong>Student Name:</strong> {{ $studentName }}</p>
+            <p><strong>Student Email:</strong> {{ $studentEmail }}</p> {{-- ✅ NEW --}}
             @if($school)
                 <p><strong>School:</strong> {{ $school }}</p>
             @endif
@@ -148,4 +152,5 @@
         </div>
     </div>
 </body>
+
 </html>

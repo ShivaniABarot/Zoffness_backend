@@ -23,6 +23,8 @@ class ExecutiveCoachingConfirmation extends Mailable implements ShouldQueue
     public $paymentStatus;
     public $paymentDate;
     public $stripeDetails;
+    public $studentEmail;
+
 
     public function __construct(
         $studentName,
@@ -36,7 +38,8 @@ class ExecutiveCoachingConfirmation extends Mailable implements ShouldQueue
         $stripeId,
         $paymentStatus,
         $paymentDate,
-        $stripeDetails
+        $stripeDetails,
+        $studentEmail
     ) {
         $this->studentName = $studentName;
         $this->school = $school;
@@ -54,6 +57,7 @@ class ExecutiveCoachingConfirmation extends Mailable implements ShouldQueue
             'last4' => 'N/A',
             'status' => 'N/A',
         ];
+        $this->studentEmail = $studentEmail;
     }
 
     public function build()

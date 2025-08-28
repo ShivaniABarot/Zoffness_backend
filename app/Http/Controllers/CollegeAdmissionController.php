@@ -135,44 +135,42 @@ class CollegeAdmissionController extends Controller
             });
 
             // Send email to parent
-            if (!empty($validatedData['parent_email'])) {
-                Mail::to($validatedData['parent_email'])->queue(
-                    new CollegeAdmissionConfirmation(
-                        $studentName,
-                        $validatedData['school'] ?? null,
-                        $subtotal,
-                        $parentName,
-                        'parent',
-                        $validatedData['packages'] ?? null,
-                        $validatedData['exam_date'],
-                        $parentDetails,
-                        $validatedData['stripe_id'] ?? null,
-                        $validatedData['payment_status'],
-                        now()->format('m-d-Y'),
-                        $stripeDetails
-                    )
-                );
-            }
+            Mail::to($validatedData['parent_email'])->queue(
+                new CollegeAdmissionConfirmation(
+                    $studentName,
+                    $validatedData['school'] ?? null,
+                    $subtotal,
+                    $parentName,
+                    'parent',
+                    $validatedData['packages'] ?? null,
+                    $validatedData['exam_date'],
+                    $parentDetails,
+                    $validatedData['stripe_id'] ?? null,
+                    $validatedData['payment_status'],
+                    now()->format('m-d-Y'),
+                    $stripeDetails,
+                    $validatedData['student_email'] // ✅ NEW
+                )
+            );
 
             // Send email to student
-            if (!empty($validatedData['student_email'])) {
-                Mail::to($validatedData['student_email'])->queue(
-                    new CollegeAdmissionConfirmation(
-                        $studentName,
-                        $validatedData['school'] ?? null,
-                        $subtotal,
-                        $studentName,
-                        'student',
-                        $validatedData['packages'] ?? null,
-                        $validatedData['exam_date'],
-                        $parentDetails,
-                        $validatedData['stripe_id'] ?? null,
-                        $validatedData['payment_status'],
-                        now()->format('m-d-Y'),
-                        $stripeDetails
-                    )
-                );
-            }
+            Mail::to($validatedData['student_email'])->queue(
+                new CollegeAdmissionConfirmation(
+                    $studentName,
+                    $validatedData['school'] ?? null,
+                    $subtotal,
+                    $studentName,
+                    'student',
+                    $validatedData['packages'] ?? null,
+                    $validatedData['exam_date'],
+                    $parentDetails,
+                    $validatedData['stripe_id'] ?? null,
+                    $validatedData['payment_status'],
+                    now()->format('m-d-Y'),
+                    $stripeDetails,
+                    $validatedData['student_email'] // ✅ NEW
+                )
+            );
 
             // Send email to internal admins
             $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com', 'dev@bugletech.com'];
@@ -193,7 +191,8 @@ class CollegeAdmissionController extends Controller
                     $validatedData['stripe_id'] ?? null,
                     $validatedData['payment_status'],
                     now()->format('m-d-Y'),
-                    $stripeDetails
+                    $stripeDetails,
+                    $validatedData['student_email'],
                 ))
                 ->from('web@notifications.zoffnesscollegeprep.com', $parentDetails['name']) 
                 ->replyTo($parentDetails['email'], $parentDetails['name']) 

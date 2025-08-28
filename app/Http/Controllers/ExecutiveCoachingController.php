@@ -138,7 +138,8 @@ class ExecutiveCoachingController extends Controller
                         $request->stripe_id,
                         $request->payment_status,
                         now()->format('m-d-Y'),
-                        $stripeDetails
+                        $stripeDetails,
+                        $request->student_email
                     )
                 );
             }
@@ -157,7 +158,8 @@ class ExecutiveCoachingController extends Controller
                     $request->stripe_id,
                     $request->payment_status,
                     now()->format('m-d-Y'),
-                    $stripeDetails
+                    $stripeDetails,
+                    $request->student_email
                 )
             );
 
@@ -180,7 +182,8 @@ class ExecutiveCoachingController extends Controller
             $request->stripe_id,
             $request->payment_status,
             now()->format('m-d-Y'),
-            $stripeDetails
+            $stripeDetails,
+            $request->student_email
         ))
         ->from('web@notifications.zoffnesscollegeprep.com', $parentDetails['name']) 
         ->replyTo($parentDetails['email'], $parentDetails['name']) 

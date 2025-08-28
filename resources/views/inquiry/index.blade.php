@@ -106,12 +106,19 @@
                             <td><span class="badge bg-primary">{{ $item->display_booking_type }}</span></td>
 
                             {{-- Parent Name --}}
-                            <td>
-                                {{ trim(
-                                    ($item->parent_first_name ?? $item->parent_firstname ?? '') . ' ' .
-                                    ($item->parent_last_name ?? $item->parentlastname ?? '')
-                                ) }}
-                            </td>
+                        {{-- Parent Name --}}
+<td>
+    <a href="{{ route('inquiry.show', [
+        'type' => \Illuminate\Support\Str::slug($item->display_booking_type, '-'),
+        'id' => $item->id
+    ]) }}">
+        {{ trim(
+            ($item->parent_first_name ?? $item->parent_firstname ?? '') . ' ' .
+            ($item->parent_last_name ?? $item->parent_lastname ?? '')
+        ) }}
+    </a>
+</td>
+
 
                             {{-- Student Name --}}
                             <td>
@@ -168,7 +175,7 @@
                                     @endphp
                                     <span class="badge bg-{{ $statusClass }}">{{ ucfirst($item->status) }}</span>
                                 @else
-                                    <span class="badge bg-secondary">N/A</span>
+                                    <span class="badge bg-secondary">Booked</span>
                                 @endif
                             </td>
                         </tr>

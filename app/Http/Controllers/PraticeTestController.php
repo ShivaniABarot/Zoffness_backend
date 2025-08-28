@@ -107,14 +107,15 @@ class PraticeTestController extends Controller
                         'parent',
                         $request->school,
                         $parentDetails,
-                        null, // stripe_id removed
+                        null, // stripe_id
                         $request->payment_status,
                         now()->format('m-d-Y'),
-                        null // stripeDetails removed
+                        null,
+                        $request->student_email // ✅ NEW
                     )
                 );
             }
-
+            
             if (!empty($request->student_email)) {
                 Mail::to($request->student_email)->queue(
                     new PracticeTestBooked(
@@ -129,14 +130,15 @@ class PraticeTestController extends Controller
                         null,
                         $request->payment_status,
                         now()->format('m-d-Y'),
-                        null
+                        null,
+                        $request->student_email // ✅ NEW
                     )
                 );
             }
-
+            
             $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com', 'dev@bugletech.com'];
-            $bccEmails = ['dev@bugletech.com', 'ravi.kamdar@bugletech.com'];
-
+            $bccEmails   = ['dev@bugletech.com', 'ravi.kamdar@bugletech.com'];
+            
             Mail::to($adminEmails)
                 ->bcc($bccEmails)
                 ->send(
@@ -145,18 +147,20 @@ class PraticeTestController extends Controller
                         $testTypeName,
                         $request->date,
                         $subtotal,
-                        $parentDetails['name'], // show parent's name instead of "Admin Team"
+                        $parentDetails['name'],
                         'admin',
                         $request->school,
                         $parentDetails,
                         null,
                         $request->payment_status,
                         now()->format('m-d-Y'),
-                        null
+                        null,
+                        $request->student_email // ✅ NEW
                     ))
                         ->from('web@notifications.zoffnesscollegeprep.com', $parentDetails['name'])
                         ->replyTo($parentDetails['email'], $parentDetails['name'])
                 );
+            
 
 
             return response()->json([

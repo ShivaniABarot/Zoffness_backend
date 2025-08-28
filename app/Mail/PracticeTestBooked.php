@@ -22,6 +22,7 @@ class PracticeTestBooked extends Mailable
     public $paymentStatus;
     public $paymentDate;
     public $stripeDetails;
+    public $studentEmail; // ✅ NEW
 
     public function __construct(
         $studentName,
@@ -35,26 +36,27 @@ class PracticeTestBooked extends Mailable
         $stripeId,
         $paymentStatus,
         $paymentDate,
-        $stripeDetails
+        $stripeDetails,
+        $studentEmail // ✅ NEW
     ) {
-        $this->studentName = $studentName;
-        $this->testTypes = $testTypes;
-        $this->date = $date;
-        $this->subtotal = $subtotal;
+        $this->studentName   = $studentName;
+        $this->testTypes     = $testTypes;
+        $this->date          = $date;
+        $this->subtotal      = $subtotal;
         $this->recipientName = $recipientName;
         $this->recipientType = $recipientType;
-        $this->school = $school;
+        $this->school        = $school;
         $this->parentDetails = $parentDetails;
-        $this->stripeId = $stripeId;
+        $this->stripeId      = $stripeId;
         $this->paymentStatus = $paymentStatus;
-        $this->paymentDate = $paymentDate ?: now()->format('m-d-Y');
+        $this->paymentDate   = $paymentDate ?: now()->format('m-d-Y');
         $this->stripeDetails = $stripeDetails ?: [
             'payment_method_type' => 'N/A',
-            'last4' => 'N/A',
-            'status' => 'N/A',
+            'last4'               => 'N/A',
+            'status'              => 'N/A',
         ];
+        $this->studentEmail  = $studentEmail; // ✅ NEW
     }
-
     public function build()
     {
         return $this->subject('Practice Test Booking Confirmation')

@@ -24,6 +24,7 @@ class CollegeEssayConfirmation extends Mailable implements ShouldQueue
     public $paymentDate;
     public $stripeDetails;
     public $sessions;
+    public $studentEmail;
 
     public function __construct(
         $studentName,
@@ -38,7 +39,8 @@ class CollegeEssayConfirmation extends Mailable implements ShouldQueue
         $paymentStatus,
         $paymentDate,
         $stripeDetails,
-        $sessions
+        $sessions,
+        $studentEmail
     ) {
         $this->studentName = $studentName;
         $this->school = $school;
@@ -57,6 +59,7 @@ class CollegeEssayConfirmation extends Mailable implements ShouldQueue
             'status' => 'N/A',
         ];
         $this->sessions = $sessions;
+        $this->studentEmail = $studentEmail;
     }
 
     public function build()

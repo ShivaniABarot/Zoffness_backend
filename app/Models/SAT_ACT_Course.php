@@ -33,8 +33,10 @@ class SAT_ACT_Course extends Model
         'amount',
         'package_name',
         'student_id',
-        'exam_date'
+        'exam_date',
+        // 'stripe_id' // also add this if column exists
     ];
+    
     
     protected $dates = ['created_at', 'updated_at'];
 

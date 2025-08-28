@@ -23,118 +23,96 @@ class SATACTCourseController extends Controller
 
     public function new_sat_act(Request $request)
     {
-        // Initialize Stripe with your secret key
+        // dd($request->all());
         Stripe::setApiKey(env('VITE_STRIPE_SECRET_KEY'));
-        // dd(env('VITE_STRIPE_SECRET_KEY'));
-
+    
         $validator = Validator::make($request->all(), [
-            'parent_firstname' => 'nullable|string',
-            'parent_lastname' => 'nullable|string',
-            'parent_phone' => 'nullable|string',
-            'parent_email' => 'nullable|email',
-            'student_firstname' => 'required|string',
-            'student_lastname' => 'required|string',
-            'student_email' => 'required|email',
-            'school' => 'required|string',
-            'package_name' => 'required|string',
-            'payment_status' => 'required|string|in:Success,Failed,Pending',
-            'bank_name' => 'nullable|string|max:255',
-            'account_number' => 'nullable|string|max:255',
-            'exam_date' => 'required|date',
-            'amount' => 'required|numeric',
-            'stripe_id' => 'nullable|string',
+            'parent_firstname'   => 'required|string',
+            'parent_lastname'    => 'required|string',
+            'parent_phone'       => 'required|string',
+            'parent_email'       => 'required|email',
+            'student_firstname'  => 'required|string',
+            'student_lastname'   => 'required|string',
+            'student_email'      => 'required|email',
+            'school'             => 'required|string',
+            'package_name'       => 'required|string',
+            'payment_status'     => 'required|string',
+            'bank_name'          => 'nullable|string|max:255',
+            'account_number'     => 'nullable|string|max:255',
+            'exam_date'          => 'required|date',
+            'amount'             => 'required|numeric',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors()
             ], 422);
         }
-
+    
         $totalAmount = is_array($request->amount) ? collect($request->amount)->sum() : (float) $request->amount;
-        $parentName = trim($request->parent_firstname . ' ' . $request->parent_lastname);
+        $parentName  = trim($request->parent_firstname . ' ' . $request->parent_lastname);
         $studentName = trim($request->student_firstname . ' ' . $request->student_lastname);
-
-    //   dd('Received stripe_id: ' . $request->stripe_id);
-
-
-        // Fetch parent details from users table
-        $parent = null;
-        if ($request->parent_email) {
-            $parent = User::where('email', $request->parent_email)
-                ->where('firstname', $request->parent_firstname)
-                ->where('lastname', $request->parent_lastname)
-                ->where('phone_no', $request->parent_phone)
-                ->first();
-        }
-
-        // Prepare parent details for email
+    
+        // Parent details
         $parentDetails = [
-            'name' => $parent ? trim($parent->firstname . ' ' . $parent->lastname) : $parentName,
-            'phone' => $parent ? $parent->phone_no : $request->parent_phone,
-            'email' => $parent ? $parent->email : $request->parent_email,
+            'name'  => $parentName,
+            'phone' => $request->parent_phone,
+            'email' => $request->parent_email,
         ];
-
-        // Fetch Stripe details if stripe_id is provided
-        $stripeDetails = null;
+    
+        // Stripe details
+        $stripeDetails = [
+            'payment_method_type' => 'N/A',
+            'last4'               => 'N/A',
+            'status'              => 'N/A',
+        ];
+    
         if ($request->stripe_id) {
-            // dd($stripeDetails);
             try {
                 $paymentIntent = PaymentIntent::retrieve($request->stripe_id);
                 $stripeDetails = [
                     'payment_method_type' => $paymentIntent->payment_method_types[0] ?? 'N/A',
-                    'last4' => $paymentIntent->charges->data[0]->payment_method_details->card->last4 ?? 'N/A',
-                    'status' => $paymentIntent->status ?? 'N/A',
+                    'last4'               => $paymentIntent->charges->data[0]->payment_method_details->card->last4 ?? 'N/A',
+                    'status'              => $paymentIntent->status ?? 'N/A',
                 ];
             } catch (\Exception $e) {
                 \Log::error('Failed to fetch Stripe details: ' . $e->getMessage());
-                $stripeDetails = [
-                    'payment_method_type' => 'N/A',
-                    'last4' => 'N/A',
-                    'status' => 'N/A',
-                ];
             }
-        } else {
-            $stripeDetails = [
-                'payment_method_type' => 'N/A',
-                'last4' => 'N/A',
-                'status' => 'N/A',
-            ];
         }
-
+    
         try {
-            $SAT_ACT_Course = DB::transaction(function () use ($request, $parentName, $studentName, $totalAmount, $parent) {
+            $SAT_ACT_Course = DB::transaction(function () use ($request, $parentName, $studentName, $totalAmount) {
                 $student = Student::create([
                     'student_email' => $request->student_email,
-                    'parent_name' => $parent ? trim($parent->firstname . ' ' . $parent->lastname) : $parentName,
-                    'parent_phone' => $parent ? $parent->phone_no : $request->parent_phone,
-                    'parent_email' => $parent ? $parent->email : $request->parent_email,
-                    'student_name' => $studentName,
-                    'school' => $request->school,
-                    'bank_name' => $request->bank_name,
-                    'account_number' => $request->account_number,
-                    'exam_date' => $request->exam_date,
-                    'amount' => $totalAmount
+                    'parent_name'   => $parentName,
+                    'parent_phone'  => $request->parent_phone,
+                    'parent_email'  => $request->parent_email,
+                    'student_name'  => $studentName,
+                    'school'        => $request->school,
+                    'bank_name'     => $request->bank_name,
+                    'account_number'=> $request->account_number,
+                    'exam_date'     => $request->exam_date,
+                    'amount'        => $totalAmount
                 ]);
-
+    
                 return SAT_ACT_Course::create([
-                    'parent_firstname' => $parent ? $parent->firstname : $request->parent_firstname,
-                    'parent_lastname' => $parent ? $parent->lastname : $request->parent_lastname,
-                    'parent_phone' => $parent ? $parent->phone_no : $request->parent_phone,
-                    'parent_email' => $parent ? $parent->email : $request->parent_email,
+                    'parent_firstname'  => $request->parent_firstname,
+                    'parent_lastname'   => $request->parent_lastname,
+                    'parent_phone'      => $request->parent_phone,
+                    'parent_email'      => $request->parent_email,
                     'student_firstname' => $request->student_firstname,
-                    'student_lastname' => $request->student_lastname,
-                    'student_email' => $request->student_email,
-                    'school' => $request->school,
-                    'amount' => $totalAmount,
-                    'package_name' => $request->package_name,
-                    'exam_date' => $request->exam_date,
-                    'student_id' => $student->id,
-                    'stripe_id' => $request->stripe_id
+                    'student_lastname'  => $request->student_lastname,
+                    'student_email'     => $request->student_email,
+                    'school'            => $request->school,
+                    'amount'            => $totalAmount,
+                    'package_name'      => $request->package_name,
+                    'exam_date'         => $request->exam_date,
+                    'student_id'        => $student->id,
+                    'stripe_id'         => $request->stripe_id
                 ]);
             });
-
+    
             // Send email to parent
             if (!empty($request->parent_email)) {
                 Mail::to($request->parent_email)->queue(
@@ -144,17 +122,18 @@ class SATACTCourseController extends Controller
                         $request->package_name,
                         $totalAmount,
                         $request->payment_status,
-                        $parentDetails['name'],
+                        $parentName,
                         'parent',
                         $request->exam_date,
                         $request->stripe_id,
                         now()->format('m-d-Y'),
                         $stripeDetails,
-                        $parentDetails
+                        $parentDetails,
+                        $request->student_email // ✅ NEW
                     )
                 );
             }
-
+    
             // Send email to student
             if (!empty($request->student_email)) {
                 Mail::to($request->student_email)->queue(
@@ -170,64 +149,45 @@ class SATACTCourseController extends Controller
                         $request->stripe_id,
                         now()->format('m-d-Y'),
                         $stripeDetails,
-                        $parentDetails
+                        $parentDetails,
+                        $request->student_email // ✅ NEW
                     )
                 );
             }
-
-            // Send email to internal admins
-              $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com'];
-            $bccEmails = ['dev@bugletech.com', 'ravi.kamdar@bugletech.com'];
+    
+            // Send email to admins
+            $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com'];
+            $bccEmails   = ['dev@bugletech.com', 'ravi.kamdar@bugletech.com'];
+    
             Mail::to($adminEmails)
-            ->bcc($bccEmails)
-            ->send(
-                (new SatActCourseConfirmation(
-                    $studentName,
-                    $request->school,
-                    $request->package_name,
-                    $totalAmount,
-                    $request->payment_status,
-                    $parentDetails['name'],
-                    'admin',
-                    $request->exam_date,
-                    $request->stripe_id,
-                    now()->format('m-d-Y'),
-                    $stripeDetails,
-                    $parentDetails
-                ))
-                ->from('web@notifications.zoffnesscollegeprep.com', $parentDetails['name']) 
-                ->replyTo($parentDetails['email'], $parentDetails['name']) 
-            );
-        
-
-            // $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com'];
-            // $bccEmails = ['dev@bugletech.com', 'ravi.kamdar@bugletech.com'];
-            // Mail::to($adminEmails)->bcc($bccEmails)->queue(
-            //     new SatActCourseConfirmation(
-            //         $studentName,
-            //         $request->school,
-            //         $request->package_name,
-            //         $totalAmount,
-            //         $request->payment_status,
-            //         $parentDetails['name'],
-            //         'admin',
-            //         $request->exam_date,
-            //         $request->stripe_id,
-            //         now()->format('m-d-Y'),
-            //         $stripeDetails,
-            //         $parentDetails
-       
-            //     )
-            // );
-            
-
+                ->bcc($bccEmails)
+                ->send(
+                    (new SatActCourseConfirmation(
+                        $studentName,
+                        $request->school,
+                        $request->package_name,
+                        $totalAmount,
+                        $request->payment_status,
+                        $parentName,
+                        'admin',
+                        $request->exam_date,
+                        $request->stripe_id,
+                        now()->format('m-d-Y'),
+                        $stripeDetails,
+                        $parentDetails,
+                        $request->student_email // ✅ NEW
+                    ))
+                    ->from('web@notifications.zoffnesscollegeprep.com', $parentName)
+                    ->replyTo($request->parent_email, $parentName)
+                );
+    
             return response()->json([
-                'success' => true,
-                'message' => 'SAT/ACT registration and student data created successfully',
-                'data' => $SAT_ACT_Course,
+                'success'        => true,
+                'message'        => 'SAT/ACT registration and student data created successfully',
+                'data'           => $SAT_ACT_Course,
                 'payment_status' => $request->payment_status
             ], 201);
-
+    
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -235,4 +195,6 @@ class SATACTCourseController extends Controller
             ], 500);
         }
     }
+    
+    
 }

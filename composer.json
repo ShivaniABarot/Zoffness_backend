@@ -22,7 +22,7 @@
         "laravel/tinker": "^2.7",
         "maatwebsite/excel": "^3.1",
         "open-admin-org/open-admin": "^1.0",
-        "stripe/stripe-php": "^16.3",
+        "stripe/stripe-php": "^17.5",
         "yajra/laravel-datatables": "*",
         "yajra/laravel-datatables-oracle": "^10.11"
     },

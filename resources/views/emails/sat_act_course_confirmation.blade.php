@@ -101,6 +101,7 @@
         <h3>Personal Information</h3>
         <div class="details">
             <p><strong>Student Name:</strong> {{ $studentName }}</p>
+            <p><strong>Student Email:</strong> {{ $studentEmail }}
             <p><strong>School:</strong> {{ $school }}</p>
             @if($parentDetails['name'])
                 <p><strong>Parent Name:</strong> {{ $parentDetails['name'] }}</p>

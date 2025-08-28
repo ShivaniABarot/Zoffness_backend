@@ -23,6 +23,9 @@ class SatActCourseConfirmation extends Mailable
     public $stripeDetails;
     public $parentDetails;
 
+    public $studentEmail;
+
+
     public function __construct(
         $studentName,
         $school,
@@ -35,7 +38,8 @@ class SatActCourseConfirmation extends Mailable
         $stripeId,
         $paymentDate,
         $stripeDetails,
-        $parentDetails
+        $parentDetails,
+        $studentEmail
     ) {
         $this->studentName = $studentName;
         $this->school = $school;
@@ -49,6 +53,7 @@ class SatActCourseConfirmation extends Mailable
         $this->paymentDate = $paymentDate;
         $this->stripeDetails = $stripeDetails;
         $this->parentDetails = $parentDetails;
+        $this->studentEmail = $studentEmail;
     }
 
     public function build()
@@ -57,6 +62,7 @@ class SatActCourseConfirmation extends Mailable
             ->with([
                 'recipientName' => $this->recipientName,
                 'studentName' => $this->studentName,
+                'studentEmail'  => $this->studentEmail,
                 'school' => $this->school,
                 'packageName' => $this->packageName,
                 'examDate' => $this->examDate,

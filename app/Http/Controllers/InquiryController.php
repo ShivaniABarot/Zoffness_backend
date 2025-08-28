@@ -92,6 +92,48 @@ class InquiryController extends Controller
         ]);
     }
     
+
+    // view details
+    public function show($type, $id)
+{
+    switch ($type) {
+        case 'college-admission':
+            $item = CollegeAdmission::findOrFail($id);
+            $title = "College Admission Inquiry";
+            break;
+
+        case 'college-essay':
+            $item = CollegeEssays::findOrFail($id);
+            $title = "College Essay Inquiry";
+            break;
+
+        case 'executive-coaching':
+            $item = ExecutiveCoaching::findOrFail($id);
+            $title = "Executive Coaching Inquiry";
+            break;
+
+        case 'practice-test':
+            $item = PraticeTest::findOrFail($id);
+            $title = "Practice Test Inquiry";
+            break;
+
+        case 'sat-act-course':
+            $item = SAT_ACT_Course::findOrFail($id);
+            $title = "SAT/ACT Course Inquiry";
+            break;
+
+        case 'payment':
+            $item = Payment::with('user')->findOrFail($id);
+            $title = "Payment Details";
+            break;
+
+        default:
+            abort(404);
+    }
+    // dd($item);
+    return view('inquiry.show', compact('item', 'title', 'type'));
+}
+
     
 
 }

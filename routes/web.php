@@ -189,6 +189,7 @@ Route::delete('bookings/{id}', [BookingController::class, 'destroy'])->name('boo
 
 // Inquiry->Enroll
 Route::get('/inquiry', [InquiryController::class, 'index'])->name('inquiry.index');
+Route::get('/inquiry/{type}/{id}', [InquiryController::class, 'show'])->name('inquiry.show');
 
 // Route::get('/inquiry/enroll', [EnrollController::class, 'index'])->name('enroll.list');
 // //Bookings->Pratice test forms
