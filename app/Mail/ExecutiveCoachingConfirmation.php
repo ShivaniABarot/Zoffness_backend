@@ -40,7 +40,8 @@ class ExecutiveCoachingConfirmation extends Mailable implements ShouldQueue
         $paymentDate,
         $stripeDetails,
         $studentEmail
-    ) {
+    )
+     {
         $this->studentName = $studentName;
         $this->school = $school;
         $this->packageType = $packageType;
