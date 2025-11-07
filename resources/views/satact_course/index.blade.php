@@ -1,15 +1,15 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid">
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">SAT-ACT Course List</h5>
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2><i class="bx bx-book-alt"></i> SAT-ACT Course List</h2>
             <a href="{{ route('satact_course.create') }}" class="btn btn-primary">
-                <i class="bx bx-plus me-1"></i> Add SAT/ACT Course
+                <i class="bx bx-plus"></i> Add SAT/ACT Course
             </a>
         </div>
-        <div class="card-body">
+
+        <div class="card p-3 shadow-sm">
             @if(session('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     {{ session('success') }}
@@ -17,125 +17,129 @@
                 </div>
             @endif
 
-            <div class="table-responsive">
-                <table id="satActCoursesTable" class="table table-striped table-hover datatable">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Package Name</th>
-                            <th>Price</th>
-                            <th>Description</th>
-                            <th class="text-center no-export">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($SAT_ACT_Packages as $package)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $package->name }}</td>
-                                <td class="fw-semibold">${{ number_format($package->price, 2) }}</td>
-                                <td>{{ Str::limit($package->description, 100) }}</td>
-                                <td class="text-center">
-                                    <div class="d-inline-flex">
-                                        <a href="{{ route('satact_course.show', $package->id) }}" class="btn btn-sm btn-icon btn-action-view" title="View">
-                                            <i class="bx bx-show"></i>
-                                        </a>
-                                        <a href="{{ route('satact_course.edit', $package->id) }}" class="btn btn-sm btn-icon btn-action-edit" title="Edit">
-                                            <i class="bx bx-edit"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-sm btn-icon btn-action-delete"
-                                                onclick="deletePackage({{ $package->id }})" title="Delete">
-                                            <i class="bx bx-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="text-center py-5">
-                                    <div class="text-muted">
-                                        <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" alt="No Data" width="80" class="mb-3 opacity-50">
-                                        <p class="mb-0">No SAT/ACT courses found.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+            <table id="satActCoursesTable" class="table table-striped table-bordered w-100">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Package Name</th>
+                        <th>Price</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+            </table>
         </div>
     </div>
-</div>
 
-<script>
-    function deletePackage(packageId) {
-        // Show SweetAlert confirmation dialog
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'Do you want to delete this course?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'No, cancel!',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // If confirmed, send AJAX request to delete the package
-                $.ajax({
-                    url: '{{ route('satact_course.delete', '') }}/' + packageId,
-                    type: 'DELETE',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            Swal.fire(
-                                'Deleted!',
-                                response.message,
-                                'success'
-                            ).then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            Swal.fire(
-                                'Error!',
-                                response.message,
-                                'error'
-                            );
-                        }
-                    },
-                    error: function() {
-                        Swal.fire(
-                            'Error!',
-                            'An unexpected error occurred.',
-                            'error'
-                        );
-                    }
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        div.dataTables_wrapper { padding: 15px; }
+        .dataTables_filter, .dataTables_length { margin-bottom: 15px; }
+        table.dataTable { margin-top: 10px !important; margin-bottom: 20px !important; }
+        .dataTables_paginate { margin-top: 15px; }
+        .dataTables_info { margin-top: 10px; }
+        #satActCoursesTable { border-radius: 10px; overflow: hidden; }
+
+        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e74c3c; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #2ecc71; }
+        input:checked + .slider:before { transform: translateX(24px); }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            if (!$.fn.DataTable.isDataTable('#satActCoursesTable')) {
+                $('#satActCoursesTable').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: '{{ route('satact_course.data') }}',
+                    columns: [
+                        { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+                        { data: 'name', name: 'name' },
+                        { data: 'price', name: 'price' },
+                        { data: 'description', name: 'description' },
+                        { data: 'status', name: 'status', orderable: false, searchable: false },
+                        { data: 'actions', name: 'actions', orderable: false, searchable: false }
+                    ],
+                    order: [[1, 'asc']],
+                    destroy: true
                 });
             }
         });
-    }
-</script>
 
-@push('scripts')
-<script>
-    $(document).ready(function() {
-        // Initialize DataTable with custom options
-        initDataTable('satActCoursesTable', {
-            // Any custom options specific to this table
-            order: [[1, 'asc']], // Sort by package name column
-            columnDefs: [
-                { width: "5%", targets: [0] },       // Make # column narrow
-                { width: "30%", targets: [1] },      // Package name column width
-                { width: "15%", targets: [2] },      // Price column width
-                { width: "35%", targets: [3] },      // Description column width
-                { width: "15%", targets: [4] },      // Actions column width
-                { className: 'fw-semibold', targets: [2] }, // Make price column bold
-                { orderable: false, targets: [4] }   // Disable sorting on actions column
-            ]
-        });
+        function deletePackage(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'This course will be deleted.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('satact_course.delete', ':id') }}".replace(':id', id),
+                        type: 'DELETE',
+                        data: { _token: '{{ csrf_token() }}' },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire('Deleted!', response.message, 'success');
+                                $('#satActCoursesTable').DataTable().ajax.reload();
+                            } else {
+                                Swal.fire('Error!', response.message, 'error');
+                            }
+                        },
+                        error: function () {
+                            Swal.fire('Error!', 'An unexpected error occurred.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        function toggleStatus(id, currentStatus) {
+    const newStatus = currentStatus === 'active' ? 'in-active' : 'active';
+
+    Swal.fire({
+        title: 'Change Status',
+        text: `Are you sure you want to ${newStatus.toLowerCase()} this course?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: `Yes, ${newStatus}`,
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: "{{ route('satact_course.toggleStatus', ':id') }}".replace(':id', id),
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire('Updated!', response.message, 'success');
+                        $('#satActCoursesTable').DataTable().ajax.reload();
+                    } else {
+                        Swal.fire('Error!', 'Could not update status.', 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error!', 'An error occurred while updating status.', 'error');
+                }
+            });
+        } else {
+            $('#satActCoursesTable').DataTable().ajax.reload();
+        }
     });
-</script>
-@endpush
+}
 
+    </script>
 @endsection

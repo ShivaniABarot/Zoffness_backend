@@ -5,15 +5,64 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Session;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\DataTables;
+
 
 class SessionController extends Controller
 {
     // list 
     public function index()
     {
-        $sessions = Session::all();
-        return view('sessions.index', compact('sessions'));
+        return view('sessions.index');
     }
+
+    // Fetch sessions for DataTable
+   
+    public function getSessions(Request $request)
+{
+    if ($request->ajax()) {
+        try {
+            $sessions = Session::select(['id','title','date','price_per_slot','status']);
+
+            return DataTables::of($sessions)
+                ->addIndexColumn() // DT_RowIndex
+                ->addColumn('formatted_date', function($row) {
+                    return $row->date ? date('m-d-Y', strtotime($row->date)) : '';
+                })
+                ->addColumn('formatted_price', function($row) {
+                    return '$' . number_format($row->price_per_slot, 2);
+                })
+                ->addColumn('status', function($row) {
+                    $status = $row->status ?? 'in-active';
+                    return '<label class="switch">
+                                <input type="checkbox" '.($status === 'active' ? 'checked' : '').'
+                                    onchange="toggleStatus('.$row->id.', \''.$status.'\')">
+                                <span class="slider"></span>
+                            </label>';
+                })
+                ->addColumn('actions', function($row){
+                    $view = '<a href="'.route('sessions.show', $row->id).'" class="btn btn-sm"><i class="bx bx-show"></i></a>';
+
+                    $edit = '<a href="'.route('sessions.edit', $row->id).'" class="btn btn-sm"><i class="bx bx-edit"></i></a> ';
+
+                    $delete = '<button class="btn btn-sm" onclick="deleteSession('.$row->id.')"><i class="bx bx-trash"></i></button>';
+                    return $view . $edit . $delete;
+                })
+                ->rawColumns(['status', 'actions'])
+                ->make(true); // must use make(true) for DataTables JSON
+        } catch (\Exception $e) {
+            // return proper JSON so DataTables doesn't break
+            return response()->json([
+                'data' => [],
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+}
+
+    
+
+
 
     // create new session 
     public function create()
@@ -25,23 +74,21 @@ class SessionController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'session_type' => 'required|in:study,exam,regular,extended_exam',
             'price_per_slot' => 'required|numeric',
-            'max_capacity' => 'required|integer|min:1',
             'date' => 'required|date',
         ]);
-
+    
         Session::create([
             'title' => $request->title,
-            'session_type' => $request->session_type,
             'price_per_slot' => $request->price_per_slot,
-            'max_capacity' => $request->max_capacity,
             'date' => $request->date,
             'status' => $request->status ?? 'active',
         ]);
-
-        return redirect()->route('sessions')->with('success', 'Session created successfully.');
+    
+        return redirect()->route('sessions.index') // correct route
+            ->with('success', 'Session created successfully.');
     }
+    
 
     // edit and update 
     public function edit($id)
@@ -53,44 +100,34 @@ class SessionController extends Controller
     // Update the specified user (update)
     public function update(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'title' => 'required|string|max:255',
-            'session_type' => 'required|in:study,exam,regular,extended_exam',
             'price_per_slot' => 'required|numeric',
-            'max_capacity' => 'required|integer|min:1',
             'date' => 'required|date',
+            'status' => 'required|in:active,in-active',
         ]);
-
-        if ($validator->fails()) {
-            return redirect()->route('sessions.edit', $id)
-                ->withErrors($validator)
-                ->withInput();
-        }
-
+    
         $session = Session::findOrFail($id);
         $session->title = $request->title;
-        $session->session_type = $request->session_type;
         $session->price_per_slot = $request->price_per_slot;
-        $session->max_capacity = $request->max_capacity;
         $session->date = $request->date;
-        $session->status = $request->status ?? 'active';
-
+        $session->status = $request->status;
         $session->save();
-
+    
         return response()->json([
             'success' => true,
             'message' => 'Session updated successfully.'
         ]);
     }
-
+    
 
     public function show($id)
-    {
-        $session = Session::findOrFail($id);
-        // dd($session);
-        return view('sessions.view', compact('session'));
-    }
+{
+    $session = Session::findOrFail($id);
+    return view('sessions.view', compact('session'));
+}
 
+    
     //ACTIVE INACTIVE BUTTON FUNCTION
     public function toggleStatus($id)
     {

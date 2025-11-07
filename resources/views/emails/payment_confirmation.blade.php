@@ -65,30 +65,30 @@
 
 
         <div class="info-box">
-            <p><strong>Student Name:</strong> {{ $payment->student_first_name }} {{ $payment->student_last_name }}</p>
-            <p><strong>Student Email:</strong> {{ $payment->email }}</p>
+
 
             @if (!empty($payment->parent_first_name) || !empty($payment->parent_last_name))
                 <p><strong>Parent Name:</strong> {{ $payment->parent_first_name }} {{ $payment->parent_last_name }}</p>
                 @php
-    $digits = preg_replace('/\D/', '', $payment->parent_phone ?? '');
-    if (strlen($digits) === 10) {
-        $formattedPhone = '(' . substr($digits, 0, 3) . ') ' . substr($digits, 3, 3) . '-' . substr($digits, 6);
-    } else {
-        $formattedPhone = $payment->parent_phone ?? 'N/A';
-    }
-@endphp
+                    $digits = preg_replace('/\D/', '', $payment->parent_phone ?? '');
+                    if (strlen($digits) === 10) {
+                        $formattedPhone = '(' . substr($digits, 0, 3) . ') ' . substr($digits, 3, 3) . '-' . substr($digits, 6);
+                    } else {
+                        $formattedPhone = $payment->parent_phone ?? 'N/A';
+                    }
+                @endphp
 
-<p><strong>Parent Phone No:</strong> {{ $formattedPhone }}</p>
+                <p><strong>Parent Phone No:</strong> {{ $formattedPhone }}</p>
 
                 <!-- <p><strong>Parent Phone No:</strong> {{ $payment->parent_phone ?? 'N/A' }}</p> -->
             @endif
+            <p><strong>Parent Email:</strong> {{ $payment->parent_email }}</p>
 
+            <p><strong>Student Name:</strong> {{ $payment->student_first_name }} {{ $payment->student_last_name }}</p>
+            <p><strong>Student Email:</strong> {{ $payment->email }}</p>
             <p><strong>Amount:</strong> ${{ number_format($payment->payment_amount, 2) }}</p>
             <p><strong>Payment Type:</strong> {{ $payment->payment_type }}</p>
-            <p><strong>Cardholder:</strong> {{ $payment->cardholder_name }}
-                (****{{ $payment->card_number }})
-            </p>
+            <p><strong>Note:</strong> {{ $payment->note }}</p>
             <p><strong>Date:</strong> {{ now()->format('m-d-Y') }}</p>
 
             @if (!empty($payment->note))
@@ -96,7 +96,8 @@
             @endif
 
             <p><strong>Address:</strong> {{ $payment->bill_address }}, {{ $payment->city }}, {{ $payment->state }}
-                {{ $payment->zip_code }}</p>
+                {{ $payment->zip_code }}
+            </p>
         </div>
 
         <p><strong>Zoffness College Prep</strong></p>

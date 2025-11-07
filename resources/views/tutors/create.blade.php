@@ -30,13 +30,6 @@
                             <small id="designationError" class="text-danger"></small>
                         </div>
 
-                        {{-- Email --}}
-                        <div class="form-floating mb-3">
-                            <input type="email" id="email" name="email" class="form-control" placeholder="Email Address" required>
-                            <label for="email"><i class="bi bi-envelope-fill me-2"></i>Email Address</label>
-                            <small id="emailError" class="text-danger"></small>
-                        </div>
-
                         {{-- Bio --}}
                         <div class="mb-3">
                             <label for="bio" class="form-label"><i class="bi bi-card-text me-2"></i>Bio</label>
@@ -54,14 +47,15 @@
                             <small id="statusError" class="text-danger"></small>
                         </div>
 
-                        {{-- Profile Image (optional, currently hidden) --}}
-                        <!--
+                        {{-- Profile Image --}}
                         <div class="mb-3">
                             <label for="image" class="form-label"><i class="bi bi-image-fill me-2"></i>Profile Image</label>
                             <input type="file" id="image" name="image" class="form-control" accept="image/*">
                             <small id="imageError" class="text-danger"></small>
+                            <div class="mt-3 text-center">
+                                <img id="imagePreview" src="#" alt="Preview" style="display:none; width:120px; height:120px; object-fit:cover; border-radius:10px; border:1px solid #ddd;">
+                            </div>
                         </div>
-                        -->
 
                         <div class="d-flex justify-content-end gap-2">
                             <a href="{{ route('tutors') }}" class="btn btn-outline-secondary">
@@ -86,15 +80,24 @@
 
 <script>
     $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
+        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
     });
 
     $(document).ready(function () {
+
+        // 🖼 Preview image before upload
+        $('#image').change(function (e) {
+            let reader = new FileReader();
+            reader.onload = function (e) {
+                $('#imagePreview').attr('src', e.target.result).show();
+            }
+            reader.readAsDataURL(this.files[0]);
+        });
+
+        // 🧾 Form submission
         $('#createTutorForm').on('submit', function (e) {
             e.preventDefault();
-            $('#nameError, #designationError, #emailError, #bioError, #imageError, #statusError').text('');
+            $('#nameError, #designationError, #bioError, #imageError, #statusError').text('');
             var formData = new FormData(this);
 
             $.ajax({
@@ -122,7 +125,6 @@
                     if (errors) {
                         if (errors.name) $('#nameError').text(errors.name[0]);
                         if (errors.designation) $('#designationError').text(errors.designation[0]);
-                        if (errors.email) $('#emailError').text(errors.email[0]);
                         if (errors.bio) $('#bioError').text(errors.bio[0]);
                         if (errors.image) $('#imageError').text(errors.image[0]);
                         if (errors.status) $('#statusError').text(errors.status[0]);

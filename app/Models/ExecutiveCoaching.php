@@ -20,6 +20,12 @@ class ExecutiveCoaching extends Model
         'package_type',
         'subtotal',
         'exam_date',
-        'student_id'
+        'student_id',
+        'packages' // Keep this if it exists, but we'll prioritize package_type
     ];
+    
+    public function package()
+    {
+        return $this->hasOne(ExecutivePackage::class, 'name', 'package_type');
+    }
 }

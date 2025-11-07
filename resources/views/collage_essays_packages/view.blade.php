@@ -7,7 +7,7 @@
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-primary text-white text-center rounded-top">
                     <h4 class="mb-0 text-white">
-                        <i class="bi bi-box-seam-fill me-2"></i>Collage Essays Package Details
+                        <i class="bi bi-box-seam-fill me-2"></i>College Essays Package Details
                     </h4>
                 </div>
 
@@ -39,6 +39,15 @@
                         <div>
                             <strong>Package Description:</strong>
                             <div class="text-muted">{{ $CollageEssaysPackage->description ?? 'N/A' }}</div>
+                        </div>
+                    </div>
+
+                    {{-- Package Status --}}
+                    <div class="mb-4 d-flex align-items-center">
+                        <i class="bi bi-toggle-on text-primary me-2 fs-5"></i>
+                        <div>
+                            <strong>Status:</strong>
+                            <div class="text-muted">{{ ucfirst($CollageEssaysPackage->status ?? 'N/A') }}</div>
                         </div>
                     </div>
 

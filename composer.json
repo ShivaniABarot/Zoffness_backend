@@ -11,7 +11,7 @@
         "php": "^8.0.2",
         "barryvdh/laravel-dompdf": "^3.1",
         "dbfx/laravel-strapi": "^4.0",
-        "filament/filament": "2.17",
+        "filament/filament": "^2.17",
         "guzzlehttp/guzzle": "^7.2",
         "illuminate/auth": "*",
         "jdavidbakr/mail-tracker": "6.0.11",
@@ -21,10 +21,10 @@
         "laravel/socialite": "^5.21",
         "laravel/tinker": "^2.7",
         "maatwebsite/excel": "^3.1",
-        "open-admin-org/open-admin": "^1.0",
         "stripe/stripe-php": "^17.5",
         "yajra/laravel-datatables": "*",
-        "yajra/laravel-datatables-oracle": "^10.11"
+        "yajra/laravel-datatables-buttons": "9.0",
+        "yajra/laravel-datatables-oracle": "10.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

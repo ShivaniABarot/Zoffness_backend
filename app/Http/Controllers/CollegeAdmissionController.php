@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\CollegeAdmission;
 use App\Models\Student;
+use App\Models\Package;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\CollegeAdmissionConfirmation;
 use Illuminate\Support\Facades\DB;
@@ -59,7 +60,17 @@ class CollegeAdmissionController extends Controller
         $parentName = trim(($validatedData['parent_first_name'] ?? '') . ' ' . ($validatedData['parent_last_name'] ?? ''));
         $studentName = trim($validatedData['student_first_name'] . ' ' . $validatedData['student_last_name']);
         $subtotal = isset($validatedData['subtotal']) ? (float) $validatedData['subtotal'] : 0.00;
-
+        if (!empty($validatedData['packages'])) {
+            // Try to match by ID or by text (handles both)
+            $packageRecord = Package::where('id', $validatedData['packages'])
+                ->orWhere('name', $validatedData['packages'])
+                ->first();
+        
+            $packageName = $packageRecord ? $packageRecord->name : $validatedData['packages'];
+        } else {
+            $packageName = 'N/A';
+        }
+    
         // Prepare parent details for email
         $parentDetails = [
             'name' => $parentName,
@@ -142,7 +153,8 @@ class CollegeAdmissionController extends Controller
                     $subtotal,
                     $parentName,
                     'parent',
-                    $validatedData['packages'] ?? null,
+                    // $validatedData['packages'] ?? null,
+                    $packageName, 
                     $validatedData['exam_date'],
                     $parentDetails,
                     $validatedData['stripe_id'] ?? null,
@@ -161,7 +173,7 @@ class CollegeAdmissionController extends Controller
                     $subtotal,
                     $studentName,
                     'student',
-                    $validatedData['packages'] ?? null,
+                    $packageName, 
                     $validatedData['exam_date'],
                     $parentDetails,
                     $validatedData['stripe_id'] ?? null,
@@ -185,7 +197,7 @@ class CollegeAdmissionController extends Controller
                     $subtotal,
                     $parentDetails['name'], 
                     'admin',
-                    $validatedData['packages'] ?? null,
+                    $packageName, 
                     $validatedData['exam_date'],
                     $parentDetails,
                     $validatedData['stripe_id'] ?? null,

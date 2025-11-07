@@ -38,7 +38,6 @@ class TutorController extends Controller
             'name' => 'required|string|max:255',
             'designation' => 'required|string|max:255',
             'bio' => 'required|string',
-            'email' => 'required|email|unique:tutors,email',
             'status' => 'required|in:active,inactive',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
@@ -47,6 +46,7 @@ class TutorController extends Controller
             if ($request->hasFile('image')) {
                 $validated['image'] = $request->file('image')->store('tutors', 'public');
             }
+            
 
             $tutor = Tutor::create($validated);
 
@@ -116,7 +116,6 @@ class TutorController extends Controller
             'name' => 'required|string|max:255',
             'designation' => 'required|string|max:255',
             'bio' => 'required|string',
-            'email' => 'required|email|unique:tutors,email,' . $tutor->id,
             'status' => 'required|in:active,inactive',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
@@ -168,145 +167,34 @@ class TutorController extends Controller
     }
 
 
-
-    // HERE IS MY API CODE
-
-    // List all tutors
-    public function index_api()
-    {
-        $tutors = Tutor::where('status', 'active')->orderBy('name')->get();
+ //GET ALL TUTORS
+ public function tutors()
+{
+    try {
+        $tutors = \DB::table('tutors')
+            ->where('status', 'active')
+            ->orderByRaw("
+                CASE
+                    WHEN name = 'Ben Zoffness' THEN 1
+                    WHEN name = 'Ben Hartman' THEN 2
+                    ELSE 3
+                END,
+                name ASC
+            ")
+            ->get();
         return response()->json([
             'success' => true,
-            'data' => $tutors
+            'message' => 'Active tutors retrieved successfully.',
+            'data' => $tutors,
         ]);
-    }
-
-    // Show a single tutor
-    public function show_api($id)
-    {
-        $tutor = Tutor::find($id);
-
-        if (!$tutor) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tutor not found.'
-            ], 404);
-        }
-
+    } catch (\Exception $e) {
         return response()->json([
-            'success' => true,
-            'data' => $tutor
-        ]);
+            'success' => false,
+            'message' => 'Failed to fetch tutors.',
+            'error' => $e->getMessage(),
+        ], 500);
     }
-
-    // Store a new tutor
-    public function store_api(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'designation' => 'required|string|max:255',
-            'bio' => 'required|string',
-            'email' => 'required|email|unique:tutors,email',
-            'status' => 'required|in:active,inactive', // ✅ Include status
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
-
-        try {
-            if ($request->hasFile('image')) {
-                $validated['image'] = $request->file('image')->store('tutors', 'public');
-            }
-
-            $tutor = Tutor::create($validated);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Tutor profile created successfully.',
-                'data' => $tutor
-            ]);
-        } catch (\Exception $e) {
-            Log::error('API Tutor Store Error: ' . $e->getMessage());
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to create tutor.',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-
-    // Update an existing tutor
-    public function update_api(Request $request, $id)
-    {
-        $tutor = Tutor::find($id);
-
-        if (!$tutor) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tutor not found.'
-            ], 404);
-        }
-
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'designation' => 'required|string|max:255',
-            'bio' => 'required|string',
-            'email' => 'required|email|unique:tutors,email,' . $tutor->id,
-            'status' => 'required|in:active,inactive', // ✅ Include status
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
-
-        try {
-            if ($request->hasFile('image')) {
-                if ($tutor->image) {
-                    Storage::disk('public')->delete($tutor->image);
-                }
-                $validated['image'] = $request->file('image')->store('tutors', 'public');
-            }
-
-            $tutor->update($validated);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Tutor profile updated successfully.',
-                'data' => $tutor
-            ]);
-        } catch (\Exception $e) {
-            Log::error('API Tutor Update Error: ' . $e->getMessage());
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to update tutor.',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-
-    // Delete a tutor
-    public function destroy_api($id)
-    {
-        $tutor = Tutor::find($id);
-
-        if (!$tutor) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tutor not found.'
-            ], 404);
-        }
-
-        if ($tutor->image) {
-            Storage::disk('public')->delete($tutor->image);
-        }
-
-        $tutor->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Tutor deleted successfully.'
-        ]);
-    }
-
+}
 
 
 }

@@ -76,7 +76,7 @@
     <div class="email-container">
         <h2>Consultation {{ $recipientRole === 'admin' ? 'Scheduled' : 'Confirmation' }}</h2>
 
-        <p>Hello {{ $name }},</p>
+        <p>Hello {{ $parentName }},</p>
 
         @if ($recipientRole === 'user')
             <p>Thank you for scheduling a consultation with us! Below are your appointment details:</p>
@@ -85,7 +85,7 @@
         @endif
 
         <div class="details">
-            <p><strong>Name:</strong> {{ $name }}</p>
+            <p><strong>Name:</strong> {{ $parentName }}</p>
             <p><strong>Email:</strong> {{ $email }}</p>
             @php
     $digits = preg_replace('/\D/', '', $phone ?? '');

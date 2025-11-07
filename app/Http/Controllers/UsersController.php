@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Hash;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\Facades\DataTables;
 
 class UsersController extends Controller
 {
@@ -15,54 +16,35 @@ class UsersController extends Controller
         return view('users.list', compact('users'));
     }
 
+    public function getUsers(Request $request)
+{
+    if ($request->ajax()) {
+        $users = User::select(['id', 'firstname', 'lastname', 'email', 'phone_no', 'created_at']);
+
+        return DataTables::of($users)
+            ->addIndexColumn()
+            ->addColumn('name', function($row){
+                return $row->firstname . ' ' . $row->lastname;
+            })
+            ->addColumn('actions', function($row) {
+                $viewBtn = '<a href="'.route('users.show', $row->id).'" class="btn btn-sm" title="View"><i class="bx bx-show"></i></a>';
+                $editBtn = '<a href="'.route('users.edit', $row->id).'" class="btn btn-sm" title="Edit"><i class="bx bx-edit"></i></a>';
+                $deleteBtn = '<button class="btn btn-sm" onclick="deleteUser('.$row->id.')" title="Delete"><i class="bx bx-trash"></i></button>';
+                return $viewBtn . ' ' . $editBtn . ' ' . $deleteBtn;
+            })
+            ->rawColumns(['actions'])
+            ->make(true);
+    }
+}
+
+
     // Show the form for creating a new user (create)
     public function create()
     {
         return view('users.create');
     }
 
-    // Store a newly created user (create)
-    // public function store(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'username' => 'required|string|max:255',
-    //         'email' => 'required|string|email|max:255|unique:users',
-    //         'password' => 'required|string|min:8|confirmed',
-    //         'role' => 'required|in:admin,tutor,parent',
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         // If it's an AJAX request, return JSON errors
-    //         if ($request->ajax()) {
-    //             return response()->json([
-    //                 'errors' => $validator->errors()
-    //             ], 422);
-    //         }
-
-    //         return redirect()->route('users.create')
-    //                          ->withErrors($validator)
-    //                          ->withInput();
-    //     }
-
-    //     User::create([
-    //         'username' => $request->username,
-    //         'email' => $request->email,
-    //         'password' => Hash::make($request->password),
-    //         'role' => $request->role,
-    //     ]);
-
-    //     // If it's an AJAX request, return success JSON
-    //     if ($request->ajax()) {
-    //         return response()->json([
-    //             'success' => true,
-    //             'message' => 'User created successfully!'
-    //         ]);
-    //     }
-
-    //     return redirect()->route('users')->with('success', 'User created successfully.');
-    // }
-
-
+   
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="UTF-8">
     <title>Practice Test Booking Confirmation</title>
@@ -79,7 +78,6 @@
         }
     </style>
 </head>
-
 <body>
     <div class="email-container">
         <!-- Logo -->
@@ -104,7 +102,7 @@
         <h3>Personal Information</h3>
         <div class="details">
             <p><strong>Student Name:</strong> {{ $studentName }}</p>
-            <p><strong>Student Email:</strong> {{ $studentEmail }}</p> {{-- ✅ NEW --}}
+            <p><strong>Student Email:</strong> {{ $studentEmail }}</p>
             @if($school)
                 <p><strong>School:</strong> {{ $school }}</p>
             @endif
@@ -112,20 +110,16 @@
                 <p><strong>Parent Name:</strong> {{ $parentDetails['name'] }}</p>
             @endif
             @if($parentDetails['phone'])
-    @php
-        $digits = preg_replace('/\D/', '', $parentDetails['phone']); // remove non-digits
-        if(strlen($digits) === 10) {
-            $formattedPhone = '(' . substr($digits, 0, 3) . ') ' . substr($digits, 3, 3) . '-' . substr($digits, 6);
-        } else {
-            $formattedPhone = $parentDetails['phone']; // fallback
-        }
-    @endphp
-    <p><strong>Parent Phone:</strong> {{ $formattedPhone }}</p>
-@endif
-
-            <!-- @if($parentDetails['phone'])
-                <p><strong>Parent Phone:</strong> {{ $parentDetails['phone'] }}</p>
-            @endif -->
+                @php
+                    $digits = preg_replace('/\D/', '', $parentDetails['phone']); // remove non-digits
+                    if (strlen($digits) === 10) {
+                        $formattedPhone = '(' . substr($digits, 0, 3) . ') ' . substr($digits, 3, 3) . '-' . substr($digits, 6);
+                    } else {
+                        $formattedPhone = $parentDetails['phone']; // fallback
+                    }
+                @endphp
+                <p><strong>Parent Phone:</strong> {{ $formattedPhone }}</p>
+            @endif
             @if($parentDetails['email'])
                 <p><strong>Parent Email:</strong> {{ $parentDetails['email'] }}</p>
             @endif
@@ -133,14 +127,30 @@
 
         <h3>Test Details</h3>
         <div class="details">
-            <p><strong>Test Type(s):</strong> {{ $testTypes }}</p>
+            <p><strong>Package Name:</strong> {{ $testTypes }}</p> <!-- Added Package Name -->
             <p><strong>Test Date(s):</strong>
-                @if(is_array($date))
-                    @foreach($date as $d)
-                        {{ \Carbon\Carbon::parse($d)->format('m-d-Y') }}@if(!$loop->last), @endif
+                @if(is_array($dates) && !empty($dates))
+                    @foreach($dates as $d)
+                        @php
+                            try {
+                                $formattedDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i', $d)->format('m-d-Y');
+                            } catch (\Exception $e) {
+                                $formattedDate = 'Invalid Date';
+                                \Log::error('Failed to parse date in Blade', ['date' => $d, 'error' => $e->getMessage()]);
+                            }
+                        @endphp
+                        {{ $formattedDate }}@if(!$loop->last), @endif
                     @endforeach
-                @elseif($date)
-                    {{ \Carbon\Carbon::parse($date)->format('m-d-Y') }}
+                @elseif($dates)
+                    @php
+                        try {
+                            $formattedDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i', $dates)->format('m-d-Y');
+                        } catch (\Exception $e) {
+                            $formattedDate = 'Invalid Date';
+                            \Log::error('Failed to parse single date in Blade', ['date' => $dates, 'error' => $e->getMessage()]);
+                        }
+                    @endphp
+                    {{ $formattedDate }}
                 @else
                     N/A
                 @endif
@@ -164,5 +174,4 @@
         </div>
     </div>
 </body>
-
 </html>

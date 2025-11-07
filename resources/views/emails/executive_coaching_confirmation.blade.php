@@ -130,7 +130,7 @@
 
         <h3>Program Details</h3>
         <div class="details">
-            <p><strong>Package Type:</strong> {{ $packageType }}</p>
+            <p><strong>Package Type:</strong> {{ $packageName }}</p>
             <p><strong>Exam Date:</strong> {{ \Carbon\Carbon::parse($examDate)->format('m-d-Y') }}</p>
         </div>
 

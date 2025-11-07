@@ -47,86 +47,88 @@ class PaymentController extends Controller
 
 
     public function store(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'parent_first_name' => 'nullable|string|max:255',
-        'parent_last_name'  => 'nullable|string|max:255',
-        'parent_phone'      => 'nullable|numeric',
-        'student_first_name'=> 'nullable|string|max:255',
-        'student_last_name' => 'nullable|string|max:255',
-        'email'             => 'nullable|email|max:255',
-        'payment_type'      => 'nullable|string|max:100',
-        'payment_amount'    => 'nullable|numeric|min:0',
-        'note'              => 'nullable|string',
-        'cardholder_name'   => 'nullable|string|max:255',
-        'card_number'       => 'nullable|string|max:20',
-        'card_exp_date'     => 'nullable|string|max:10',
-        'cvv'               => 'nullable|string|max:4',
-        'bill_address'      => 'nullable|string|max:255',
-        'city'              => 'nullable|string|max:100',
-        'state'             => 'nullable|string|max:100',
-        'zip_code'          => 'nullable|string|max:20',
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Validation failed',
-            'errors'  => $validator->errors()
-        ], 422);
-    }
-
-    try {
-        $payment = DB::transaction(function () use ($request) {
-            return Payment::create([
-                'parent_first_name' => $request->parent_first_name,
-                'parent_last_name'  => $request->parent_last_name,
-                'parent_phone'      => $request->parent_phone,
-                'student_first_name'=> $request->student_first_name,
-                'student_last_name' => $request->student_last_name,
-                'email'             => $request->email,
-                'payment_type'      => $request->payment_type,
-                'payment_amount'    => $request->payment_amount,
-                'note'              => $request->note,
-                'cardholder_name'   => $request->cardholder_name,
-                'card_number'       => substr($request->card_number, -4), // last 4 only
-                'card_exp_date'     => encrypt($request->card_exp_date),
-                'cvv'               => encrypt($request->cvv),
-                'bill_address'      => $request->bill_address,
-                'city'              => $request->city,
-                'state'             => $request->state,
-                'zip_code'          => $request->zip_code,
-            ]);
-        });
-
-        $bccEmails = ['dev@bugletech.com', 'ravi.kamdar@bugletech.com'];
-
-        // Queue both student and admin emails
-        Mail::to($payment->email)
-            ->queue(new PaymentConfirmationMail($payment));
-
-        Mail::to(['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com'])
-            ->bcc($bccEmails)
-            ->queue(new PaymentConfirmationMail($payment, true));
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Payment recorded and confirmation email sent.',
-            'data'    => $payment
-        ], 201);
-
-    } catch (\Exception $e) {
-        \Log::error('Payment storing failed: ' . $e->getMessage(), [
-            'request_data' => $request->all(),
-            'exception'    => $e,
+    {
+        $validator = Validator::make($request->all(), [
+            'parent_first_name' => 'nullable|string',
+            'parent_last_name' => 'nullable|string',
+            'parent_phone' => 'nullable|numeric',
+            'parent_email' => 'nullable',
+            'student_first_name' => 'nullable|string',
+            'student_last_name' => 'nullable|string',
+            'email' => 'nullable|email',
+            'payment_type' => 'nullable|string',
+            'payment_amount' => 'nullable|numeric',
+            'note' => 'nullable|string',
+            'cardholder_name' => 'nullable|string',
+            'card_number' => 'nullable|string',
+            'card_exp_date' => 'nullable|string',
+            'cvv' => 'nullable|string',
+            'bill_address' => 'nullable|string',
+            'city' => 'nullable|string',
+            'state' => 'nullable|string',
+            'zip_code' => 'nullable|string',
         ]);
 
-        return response()->json([
-            'success' => false,
-            'message' => 'Something went wrong: ' . $e->getMessage()
-        ], 500);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $payment = DB::transaction(function () use ($request) {
+                return Payment::create([
+                    'parent_first_name' => $request->parent_first_name,
+                    'parent_last_name' => $request->parent_last_name,
+                    'parent_phone' => $request->parent_phone,
+                    'parent_email' => $request->parent_email,
+                    'student_first_name' => $request->student_first_name,
+                    'student_last_name' => $request->student_last_name,
+                    'email' => $request->email,
+                    'payment_type' => $request->payment_type,
+                    'payment_amount' => $request->payment_amount,
+                    'note' => $request->note,
+                    'cardholder_name' => $request->cardholder_name,
+                    'card_number' => substr($request->card_number, -4), // last 4 only
+                    'card_exp_date' => encrypt($request->card_exp_date),
+                    'cvv' => encrypt($request->cvv),
+                    'bill_address' => $request->bill_address,
+                    'city' => $request->city,
+                    'state' => $request->state,
+                    'zip_code' => $request->zip_code,
+                ]);
+            });
+
+            $bccEmails = ['dev@bugletech.com', 'ravi.kamdar@bugletech.com'];
+
+            // Queue both student and admin emails
+            Mail::to($payment->parent_email)
+                ->queue(new PaymentConfirmationMail($payment));
+
+            Mail::to(['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com'])
+                ->bcc($bccEmails)
+                ->queue(new PaymentConfirmationMail($payment, true));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment recorded and confirmation email sent.',
+                'data' => $payment
+            ], 201);
+
+        } catch (\Exception $e) {
+            \Log::error('Payment storing failed: ' . $e->getMessage(), [
+                'request_data' => $request->all(),
+                'exception' => $e,
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
 
     public function edit($id)
     {
@@ -177,145 +179,201 @@ class PaymentController extends Controller
         return view('payments.view', compact('payment'));
     }
 
+    public function createPaymentIntent(Request $request)
+    {
+        try {
+            // 🔹 Normalize inconsistent keys before validation
+            $request->merge([
+                'student_first_name' => $request->input('student_first_name') ?? $request->input('student_firstname'),
+                'student_last_name' => $request->input('student_last_name') ?? $request->input('student_lastname'),
+                'parent_first_name' => $request->input('parent_first_name') ?? $request->input('parent_firstname'),
+                'parent_last_name' => $request->input('parent_last_name') ?? $request->input('parent_lastname'),
+
+                // ✅ Normalize exam_date and date into one field
+                'exam_date' => $request->input('exam_date') ?? $request->input('date'),
+            ]);
+
+            // 🔹 Validate input
+            $validated = $request->validate([
+                'amount' => 'required|integer',
+                'currency' => 'nullable|string|in:usd,eur,inr',
+                'description' => 'nullable|string',
+                'receipt_email' => 'nullable|email',
+                'student_first_name' => 'nullable|string',
+                'student_last_name' => 'nullable|string',
+                'parent_first_name' => 'nullable|string',
+                'parent_last_name' => 'nullable|string',
+                'parent_email' => 'nullable|email',
+                'student_email' => 'nullable|email',
+                'parent_phone' => 'nullable|string',
+                'school' => 'nullable|string',
+                'graduation_year' => 'nullable|string',
+                'exam_date' => 'nullable|array',     // ✅ accepts array for exam_date/date
+                'exam_date.*' => 'nullable|string',    // ✅ each value should be string
+            ]);
+
+            Stripe::setApiKey(env('STRIPE_SECRET'));
+
+            // 🔹 Extract test dates safely
+            $testDates = $validated['exam_date'] ?? [];
+            $formattedTestDates = json_encode($testDates); // ✅ JSON encode for Stripe metadata
+
+            // 🔹 Metadata
+            $metadata = [
+                'student_first_name' => $validated['student_first_name'] ?? '',
+                'student_last_name' => $validated['student_last_name'] ?? '',
+                'parent_first_name' => $validated['parent_first_name'] ?? '',
+                'parent_last_name' => $validated['parent_last_name'] ?? '',
+                'parent_email' => $validated['parent_email'] ?? '',
+                'student_email' => $validated['student_email'] ?? '',
+                'parent_phone' => $validated['parent_phone'] ?? '',
+                'school' => $validated['school'] ?? '',
+                'graduation_year' => $validated['graduation_year'] ?? '',
+                'test_date' => $formattedTestDates, // ✅ stored as JSON string in Stripe
+            ];
+
+            $currency = $validated['currency'] ?? 'usd';
+            $description = $validated['description'] ?? 'Zoffness Payment';
+            // $receiptEmail = $validated['receipt_email'] ?? $validated['parent_email'] ?? null;
+
+            $paymentIntent = PaymentIntent::create([
+                'amount' => $validated['amount'],
+                'currency' => $currency,
+                'description' => $description,
+                // 'receipt_email' => $receiptEmail,
+                'metadata' => $metadata,
+                'automatic_payment_methods' => ['enabled' => true],
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'clientSecret' => $paymentIntent->client_secret,
+                'payment_id' => $paymentIntent->id,
+                'metadata' => $metadata,
+                'test_date' => $testDates, // ✅ return parsed array to frontend
+            ]);
+
+        } catch (\Stripe\Exception\ApiErrorException $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 400);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
 
     // public function createPaymentIntent(Request $request)
     // {
     //     try {
-    //         // 🔹 Normalize inconsistent keys before validation
+    //         // Normalize inconsistent keys
     //         $request->merge([
     //             'student_first_name' => $request->input('student_first_name') ?? $request->input('student_firstname'),
-    //             'student_last_name'  => $request->input('student_last_name') ?? $request->input('student_lastname'),
-    //             'parent_first_name'  => $request->input('parent_first_name') ?? $request->input('parent_firstname'),
-    //             'parent_last_name'   => $request->input('parent_last_name') ?? $request->input('parent_lastname'),
+    //             'student_last_name' => $request->input('student_last_name') ?? $request->input('student_lastname'),
+    //             'parent_first_name' => $request->input('parent_first_name') ?? $request->input('parent_firstname'),
+    //             'parent_last_name' => $request->input('parent_last_name') ?? $request->input('parent_lastname'),
+    //             'exam_date' => $request->input('exam_date') ?? $request->input('date'),
     //         ]);
-    
-    //         // 🔹 Validate input
+
     //         $validated = $request->validate([
-    //             'amount'        => 'required|integer|min:50', 
-    //             'currency'      => 'nullable|string|in:usd,eur,inr',
-    //             'description'   => 'nullable|string',
-    //             'receipt_email' => 'nullable|email',
-    //             'student_first_name' => 'nullable|string',
-    //             'student_last_name'  => 'nullable|string',
-    //             'parent_first_name'  => 'nullable|string',
-    //             'parent_last_name'   => 'nullable|string',
-    //             'parent_email'       => 'nullable|email',
-    //             'student_email'      => 'nullable|email',
-    //             'parent_phone'       => 'nullable|string',
-    //             'school'             => 'nullable|string',
-    //             'graduation_year'    => 'nullable|string',
+    //             'amount' => 'required|integer',
+    //             'currency' => 'nullable|string|in:usd,eur,inr',
+    //             'description' => 'nullable|string',
+    //             'student_first_name' => 'required|string',
+    //             'student_last_name' => 'required|string',
+    //             'parent_first_name' => 'required|string',
+    //             'parent_last_name' => 'required|string',
+    //             'parent_email' => 'required|email',
+    //             'student_email' => 'nullable|email',
+    //             'parent_phone' => 'required|string',
+    //             'school' => 'nullable|string',
+    //             'graduation_year' => 'nullable|string',
+    //             'exam_date' => 'nullable|array',
+    //             'exam_date.*' => 'nullable|string',
+    //             'test_type' => 'nullable|integer', // ✅ ADD THIS - Critical for webhook
     //         ]);
-    
-    //         \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
-    
-    //         // 🔹 Build metadata centrally (no frontend duplication)
+
+    //         Stripe::setApiKey(config('services.stripe.secret'));
+
+    //         $testDates = $validated['exam_date'] ?? [];
+    //         $formattedTestDates = json_encode($testDates);
+
+    //         // ✅ CRITICAL: Include test_type in metadata
     //         $metadata = [
-    //             'student_name'   => trim(($validated['student_first_name'] ?? '') . ' ' . ($validated['student_last_name'] ?? '')) ?: '',
-    //             'parent_name'    => trim(($validated['parent_first_name'] ?? '') . ' ' . ($validated['parent_last_name'] ?? '')) ?: '',
-    //             'parent_email'   => $validated['parent_email'] ?? '',
-    //             'student_email'  => $validated['student_email'] ?? '',
-    //             'parent_phone'   => $validated['parent_phone'] ?? '',
-    //             'school'         => $validated['school'] ?? '',
-    //             'graduation_year'=> $validated['graduation_year'] ?? '',
-    //             'payment_date'   => now()->toDateString(),
+    //             'student_first_name' => $validated['student_first_name'],
+    //             'student_last_name' => $validated['student_last_name'],
+    //             'parent_first_name' => $validated['parent_first_name'],
+    //             'parent_last_name' => $validated['parent_last_name'],
+    //             'parent_email' => $validated['parent_email'],
+    //             'student_email' => $validated['student_email'] ?? '',
+    //             'parent_phone' => $validated['parent_phone'],
+    //             'school' => $validated['school'] ?? '',
+    //             'graduation_year' => $validated['graduation_year'] ?? '',
+    //             'test_date' => $formattedTestDates,
+    //             'test_type' => $validated['test_type'] ?? 1, // ✅ ADD THIS
     //         ];
-    
-    //         $currency     = $validated['currency'] ?? 'usd';
-    //         $description  = $validated['description'] ?? 'Zoffness Payment';
-    //         $receiptEmail = $validated['receipt_email'] ?? $validated['parent_email'] ?? null;
-    
-    //         $paymentIntent = \Stripe\PaymentIntent::create([
-    //             'amount'   => $validated['amount'],
-    //             'currency' => $currency,
-    //             'description' => $description,
-    //             'receipt_email' => $receiptEmail,
+
+    //         // Create Stripe Payment Intent
+    //         $paymentIntent = PaymentIntent::create([
+    //             'amount' => $validated['amount'],
+    //             'currency' => $validated['currency'] ?? 'usd',
+    //             'description' => $validated['description'] ?? 'Zoffness Payment',
     //             'metadata' => $metadata,
     //             'automatic_payment_methods' => ['enabled' => true],
     //         ]);
-    
-    //         return response()->json([
-    //             'success'      => true,
-    //             'clientSecret' => $paymentIntent->client_secret,
-    //             'payment_id'   => $paymentIntent->id,
-    //             'metadata'     => $metadata, // return for frontend display
+
+    //         // ✅ CREATE PAYMENT RECORD IMMEDIATELY
+    //         $payment = Payment::create([
+    //             'user_id' => auth()->id() ?? null,
+    //             'stripe_payment_intent_id' => $paymentIntent->id,
+    //             'amount' => $validated['amount'] / 100,
+    //             'currency' => $validated['currency'] ?? 'usd',
+    //             'status' => 'pending',
+    //             'metadata' => $metadata,
     //         ]);
-    
+
+    //         Log::info('Payment intent created', [
+    //             'payment_id' => $payment->id,
+    //             'stripe_id' => $paymentIntent->id,
+    //             'amount' => $validated['amount'],
+    //             'test_type' => $validated['test_type'] ?? 'not_provided',
+    //         ]);
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'clientSecret' => $paymentIntent->client_secret,
+    //             'payment_id' => $payment->id, // ✅ Return our DB ID
+    //             'stripe_payment_intent_id' => $paymentIntent->id,
+    //             'metadata' => $metadata,
+    //             'test_date' => $testDates,
+    //         ]);
+
     //     } catch (\Stripe\Exception\ApiErrorException $e) {
+    //         Log::error('Stripe API error', ['error' => $e->getMessage()]);
     //         return response()->json(['success' => false, 'error' => $e->getMessage()], 400);
     //     } catch (\Exception $e) {
+    //         Log::error('Payment intent creation failed', ['error' => $e->getMessage()]);
     //         return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
     //     }
     // }
-    
 
-
-    public function createPaymentIntent(Request $request)
-{
-    try {
-        // 🔹 Normalize inconsistent keys before validation
-        $request->merge([
-            'student_first_name' => $request->input('student_first_name') ?? $request->input('student_firstname'),
-            'student_last_name'  => $request->input('student_last_name') ?? $request->input('student_lastname'),
-            'parent_first_name'  => $request->input('parent_first_name') ?? $request->input('parent_firstname'),
-            'parent_last_name'   => $request->input('parent_last_name') ?? $request->input('parent_lastname'),
-        ]);
-
-        // 🔹 Validate input
-        $validated = $request->validate([
-            'amount'        => 'required|integer', 
-            'currency'      => 'nullable|string|in:usd,eur,inr',
-            'description'   => 'nullable|string',
-            'receipt_email' => 'nullable|email',
-            'student_first_name' => 'nullable|string',
-            'student_last_name'  => 'nullable|string',
-            'parent_first_name'  => 'nullable|string',
-            'parent_last_name'   => 'nullable|string',
-            'parent_email'       => 'nullable|email',
-            'student_email'      => 'nullable|email',
-            'parent_phone'       => 'nullable|string',
-            'school'             => 'nullable|string',
-            'graduation_year'    => 'nullable|string',
-        ]);
-
-        Stripe::setApiKey(env('STRIPE_SECRET'));
-
-        // 🔹 Build metadata centrally with consistent naming
-        $metadata = [
-            'student_name'   => trim(($validated['student_first_name'] ?? '') . ' ' . ($validated['student_last_name'] ?? '')) ?: '',
-            'parent_name'    => trim(($validated['parent_first_name'] ?? '') . ' ' . ($validated['parent_last_name'] ?? '')) ?: '',
-            'parent_email'   => $validated['parent_email'] ?? '',
-            'student_email'  => $validated['student_email'] ?? '',
-            'parent_phone'   => $validated['parent_phone'] ?? '',
-            'school'         => $validated['school'] ?? '',
-            'graduation_year' => $validated['graduation_year'] ?? '',
-            'payment_date'   => now()->toDateString(),
-        ];
-
-        $currency     = $validated['currency'] ?? 'usd';
-        $description  = $validated['description'] ?? 'Zoffness Payment';
-        $receiptEmail = $validated['receipt_email'] ?? $validated['parent_email'] ?? null;
-
-        $paymentIntent = PaymentIntent::create([
-            'amount'   => $validated['amount'],
-            'currency' => $currency,
-            'description' => $description,
-            'receipt_email' => $receiptEmail,
-            'metadata' => $metadata,
-            'automatic_payment_methods' => ['enabled' => true],
-        ]);
-
-        return response()->json([
-            'success'      => true,
-            'clientSecret' => $paymentIntent->client_secret,
-            'payment_id'   => $paymentIntent->id,
-            'metadata'     => $metadata, // Return for frontend display
-        ]);
-
-    } catch (\Stripe\Exception\ApiErrorException $e) {
-        return response()->json(['success' => false, 'error' => $e->getMessage()], 400);
-    } catch (\Exception $e) {
-        return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
-    }
-}
-    
+    /**
+     * Check payment status (called by frontend to poll)
+     */
+    // public function getPaymentStatus($id)
+    // {
+    //     try {
+    //         $payment = Payment::findOrFail($id);
+            
+    //         return response()->json([
+    //             'success' => true,
+    //             'status' => $payment->status,
+    //             'practice_test_id' => $payment->practice_test_id,
+    //             'paid_at' => $payment->paid_at,
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'error' => 'Payment not found'
+    //         ], 404);
+    //     }
+    // }
 }

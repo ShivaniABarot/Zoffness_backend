@@ -1,141 +1,144 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid">
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">College Admission</h5>
-            <a href="{{ route('collage_essays_packages.create') }}" class="btn btn-primary">
-                <i class="bx bx-plus me-1"></i> Add Package
-            </a>
-        </div>
-        <div class="card-body">
-            @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2><i class="bx bx-book-alt"></i> College Essays Packages</h2>
+        <a href="{{ route('collage_essays_packages.create') }}" class="btn btn-primary">
+            <i class="bx bx-plus"></i> Add Package
+        </a>
+    </div>
 
-            <div class="table-responsive">
-                <table id="collegeAdmissionTable" class="table table-striped table-hover datatable">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Name</th>
-                            <th>Price</th>
-                            <th>Description</th>
-                            <th class="text-center no-export">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($CollageEssaysPackage as $package)
-                            <tr>
-                                <td>{{ $package->id }}</td>
-                                <td>{{ $package->name }}</td>
-                                <td class="fw-semibold">${{ number_format($package->price, 2) }}</td>
-                                <td>{{ Str::limit($package->description, 100) }}</td>
-                                <td class="text-center">
-                                    <div class="d-inline-flex">
-                                        <a href="{{ route('collage_essays_packages.show', $package->id) }}" class="btn btn-sm btn-icon btn-action-view" title="View">
-                                            <i class="bx bx-show"></i>
-                                        </a>
-                                        <a href="{{ route('collage_essays_packages.edit', $package->id) }}" class="btn btn-sm btn-icon btn-action-edit" title="Edit">
-                                            <i class="bx bx-edit"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-sm btn-icon btn-action-delete"
-                                                onclick="deletePackage({{ $package->id }})" title="Delete">
-                                            <i class="bx bx-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="text-center py-5">
-                                    <div class="text-muted">
-                                        <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" alt="No Data" width="80" class="mb-3 opacity-50">
-                                        <p class="mb-0">No college admission packages found.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+    <div class="card p-3 shadow-sm">
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-        </div>
+        @endif
+
+        <table id="collegeAdmissionTable" class="table table-striped table-bordered w-100">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+        </table>
     </div>
 </div>
 
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+    div.dataTables_wrapper { padding: 15px; }
+    .dataTables_filter, .dataTables_length { margin-bottom: 15px; }
+    table.dataTable { margin-top: 10px !important; margin-bottom: 20px !important; }
+    .dataTables_paginate { margin-top: 15px; }
+    .dataTables_info { margin-top: 10px; }
+    #collegeAdmissionTable { border-radius: 10px; overflow: hidden; }
+
+    .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e74c3c; transition: .4s; border-radius: 34px; }
+    .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: #2ecc71; }
+    input:checked + .slider:before { transform: translateX(24px); }
+</style>
+
 <script>
-    function deletePackage(packageId) {
-        // Show SweetAlert confirmation dialog
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'Do you want to delete this package?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'No, cancel!',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // If confirmed, send AJAX request to delete the package
-                $.ajax({
-                    url: '{{ route('collage_essays_packages.delete', '') }}/' + packageId,
-                    type: 'DELETE',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            Swal.fire(
-                                'Deleted!',
-                                response.message,
-                                'success'
-                            ).then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            Swal.fire(
-                                'Error!',
-                                response.message,
-                                'error'
-                            );
-                        }
-                    },
-                    error: function(xhr) {
-                        Swal.fire(
-                            'Error!',
-                            'An unexpected error occurred.',
-                            'error'
-                        );
-                    }
-                });
-            }
+$(document).ready(function () {
+    if (!$.fn.DataTable.isDataTable('#collegeAdmissionTable')) {
+        $('#collegeAdmissionTable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: '{{ route("collage_essays_packages.data") }}',
+            columns: [
+                { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+                { data: 'name', name: 'name' },
+                { data: 'price', name: 'price' },
+                { data: 'description', name: 'description' },
+                { data: 'status', name: 'status', orderable: false, searchable: false },
+                { data: 'created_at', name: 'created_at' },
+                { data: 'actions', name: 'actions', orderable: false, searchable: false }
+            ],
+            order: [[1, 'asc']],
+            destroy: true
         });
     }
-</script>
+});
 
-@push('scripts')
-<script>
-    $(document).ready(function() {
-        // Initialize DataTable with custom options
-        initDataTable('collegeAdmissionTable', {
-            // Any custom options specific to this table
-            order: [[1, 'asc']], // Sort by name column
-            columnDefs: [
-                { width: "5%", targets: [0] },       // Make # column narrow
-                { width: "30%", targets: [1] },      // Name column width
-                { width: "15%", targets: [2] },      // Price column width
-                { width: "35%", targets: [3] },      // Description column width
-                { width: "15%", targets: [4] },      // Actions column width
-                { className: 'fw-semibold', targets: [2] }, // Make price column bold
-                { orderable: false, targets: [4] }   // Disable sorting on actions column
-            ]
-        });
+function deletePackage(id) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'This package will be deleted.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: "{{ route('collage_essays_packages.delete', ':id') }}".replace(':id', id),
+                type: 'DELETE',
+                data: { _token: '{{ csrf_token() }}' },
+                success: function (response) {
+                    if (response.success) {
+                        Swal.fire('Deleted!', response.message, 'success');
+                        $('#collegeAdmissionTable').DataTable().ajax.reload();
+                    } else {
+                        Swal.fire('Error!', response.message, 'error');
+                    }
+                },
+                error: function () {
+                    Swal.fire('Error!', 'An unexpected error occurred.', 'error');
+                }
+            });
+        }
     });
-</script>
-@endpush
+}
 
+function toggleStatus(id, currentStatus) {
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+
+    Swal.fire({
+        title: 'Change Status',
+        text: `Are you sure you want to ${newStatus} this package?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: `Yes, ${newStatus}`,
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: "{{ route('collage_essays_packages.toggleStatus', ':id') }}".replace(':id', id),
+                method: 'POST',
+                data: { _token: '{{ csrf_token() }}' },
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire('Updated!', response.message, 'success');
+                        $('#collegeAdmissionTable').DataTable().ajax.reload();
+                    } else {
+                        Swal.fire('Error!', 'Could not update status.', 'error');
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error!', 'An error occurred while updating status.', 'error');
+                }
+            });
+        } else {
+            $('#collegeAdmissionTable').DataTable().ajax.reload();
+        }
+    });
+}
+</script>
 @endsection

@@ -21,42 +21,47 @@ class ScheduleController extends Controller
     }
 
     public function schedule(Request $request)
-    {
-        $request->validate([
-            'name'             => 'required',
-            'email'            => 'required|email',
-            'phone_no'         => 'required',
-            'date'             => 'required',
-            'time_slot'        => 'required',
-            'primary_interest' => 'required',
-        ]);
+{
+    $request->validate([
+        'name'             => 'required',
+        'email'            => 'required|email',
+        'phone_no'         => 'required',
+        'date'             => 'required',
+        'time_slot'        => 'required',
+        'primary_interest' => 'required',
+    ]);
 
-        $data = $request->all();
-        $data['fees'] = 199;
+    $data = $request->all();
+    $data['fees'] = 199;
 
-        $schedule = Schedule::create($data);
+    $schedule = Schedule::create($data);
 
-        // Send email to user
-        Mail::to($schedule->email)->queue(new ScheduleConfirmation(
-            $schedule->name,
-            $schedule->email,
-            $schedule->phone_no,
-            $schedule->date,
-            $schedule->time_slot,
-            $schedule->primary_interest,
-            $schedule->fees,
-            'user'
-        ));
+    // Parent / user name
+    $parentName = $request->name; // or you can split first/last if needed
 
-        // Send email to admins
-        $adminEmails = [
-            'ben.hartman@zoffnesscollegeprep.com',
-            'info@zoffnesscollegeprep.com',
-            'dev@bugletech.com'
-        ];
+    // Send email to user
+    Mail::to($schedule->email)->queue(new ScheduleConfirmation(
+        $parentName,
+        $schedule->email,
+        $schedule->phone_no,
+        $schedule->date,
+        $schedule->time_slot,
+        $schedule->primary_interest,
+        $schedule->fees,
+        'user'
+    ));
 
-        Mail::to($adminEmails)->queue(new ScheduleConfirmation(
-            $schedule->name,
+    // Admin emails
+    $adminEmails = [
+        'ben.hartman@zoffnesscollegeprep.com',
+        'info@zoffnesscollegeprep.com',
+        'dev@bugletech.com'
+    ];
+
+    // Send email to admins with parent name displayed
+    Mail::to($adminEmails)->send(
+        (new ScheduleConfirmation(
+            $parentName,
             $schedule->email,
             $schedule->phone_no,
             $schedule->date,
@@ -64,12 +69,69 @@ class ScheduleController extends Controller
             $schedule->primary_interest,
             $schedule->fees,
             'admin'
-        ));
+        ))
+        ->from('web@notifications.zoffnesscollegeprep.com', $parentName)
+        ->replyTo($schedule->email, $parentName)
+    );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Schedule created successfully.',
-            'data'    => $schedule
-        ], 201);
-    }
+    return response()->json([
+        'success' => true,
+        'message' => 'Schedule created successfully.',
+        'data'    => $schedule
+    ], 201);
+}
+
+
+    // public function schedule(Request $request)
+    // {
+    //     $request->validate([
+    //         'name'             => 'required',
+    //         'email'            => 'required|email',
+    //         'phone_no'         => 'required',
+    //         'date'             => 'required',
+    //         'time_slot'        => 'required',
+    //         'primary_interest' => 'required',
+    //     ]);
+
+    //     $data = $request->all();
+    //     $data['fees'] = 199;
+
+    //     $schedule = Schedule::create($data);
+
+    //     // Send email to user
+    //     Mail::to($schedule->email)->queue(new ScheduleConfirmation(
+    //         $schedule->name,
+    //         $schedule->email,
+    //         $schedule->phone_no,
+    //         $schedule->date,
+    //         $schedule->time_slot,
+    //         $schedule->primary_interest,
+    //         $schedule->fees,
+    //         'user'
+    //     ));
+
+    //     // Send email to admins
+    //     $adminEmails = [
+    //         'ben.hartman@zoffnesscollegeprep.com',
+    //         'info@zoffnesscollegeprep.com',
+    //         'dev@bugletech.com'
+    //     ];
+
+    //     Mail::to($adminEmails)->queue(new ScheduleConfirmation(
+    //         $schedule->name,
+    //         $schedule->email,
+    //         $schedule->phone_no,
+    //         $schedule->date,
+    //         $schedule->time_slot,
+    //         $schedule->primary_interest,
+    //         $schedule->fees,
+    //         'admin'
+    //     ));
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'Schedule created successfully.',
+    //         'data'    => $schedule
+    //     ], 201);
+    // }
 }

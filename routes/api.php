@@ -16,11 +16,21 @@ use App\Http\Controllers\SessionController;
 use App\Http\Controllers\Satact_packagesController;
 use App\Http\Controllers\ExecutivePackageController;
 use App\Http\Controllers\CollageEssaysPackageController;
-use App\Http\Controllers\StudentController; 
+use App\Http\Controllers\StudentController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\TutorController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\HeroBannerController;
+use App\Http\Controllers\OurProgramsController;
+use App\Http\Controllers\AboutZoffnessController;
+use App\Http\Controllers\TestimonialController;
+use App\Http\Controllers\OurApproachController;
+use App\Http\Controllers\MediaVideoController;
+use App\Http\Controllers\Api\ErrorLogController;
+use App\Http\Controllers\StripeWebhookController;
+use App\Http\Controllers\MasterSatActPageController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -35,13 +45,8 @@ use App\Http\Controllers\PaymentController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
-
 //STRIPE API ROUTES:
 Route::post('/create-payment-intent', [PaymentController::class, 'createPaymentIntent']);
-
-
-
 Route::post('/login', [LoginController::class, 'login_api']);
 Route::post('/enroll', [EnrollController::class, 'new_enroll']);
 Route::post('/new_sat_act', [SATACTCourseController::class, 'new_sat_act']);
@@ -55,7 +60,7 @@ Route::post('/executive_coaching', [ExecutiveCoachingController::class, 'store']
 Route::post('/college_admission', [CollegeAdmissionController::class, 'college_admission']);
 Route::post('/college_essays', [CollegeEssaysController::class, 'college_essays']);
 Route::get('/get_packages', [PackageController::class, 'get_packages']);
-Route::get('/get_dates', [PackageController::class,'get_dates']);
+Route::get('/get_dates', [PackageController::class, 'get_dates']);
 // payment api
 Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');
 Route::get('/get_sessions', [SessionController::class, 'get_sessions']);
@@ -75,15 +80,47 @@ Route::put('/students/{id}', [StudentController::class, 'update']);
 Route::delete('/students/{id}', [StudentController::class, 'destroy']);
 Route::get('/parent/{id}', [StudentController::class, 'show']);
 Route::get('/parent/user/{userId}', [StudentController::class, 'getStudentsByUserId']);
+Route::get('/tutors', [TutorController::class, 'tutors']);
+
 // Tutor routes
 Route::prefix('tutors')->group(function () {
-    Route::get('/', [TutorController::class, 'index_api']);      
-    Route::get('{id}', [TutorController::class, 'show_api']);      
-    Route::post('/', [TutorController::class, 'store_api']);       
-    Route::put('{id}', [TutorController::class, 'update_api']);    
-    Route::delete('{id}', [TutorController::class, 'destroy_api']); 
+    Route::get('/', [TutorController::class, 'index_api']);
+    Route::get('{id}', [TutorController::class, 'show_api']);
+    Route::post('/', [TutorController::class, 'store_api']);
+    Route::put('{id}', [TutorController::class, 'update_api']);
+    Route::delete('{id}', [TutorController::class, 'destroy_api']);
 
     //schedule consultation api
     Route::post('/schedule', [ScheduleController::class, 'schedule']);
 
 });
+
+// Content Management -> Hero Banner Route
+Route::get('/hero-banners', [HeroBannerController::class, 'banners']);
+// Content Management -> Our Programs Route
+Route::get('/programs', [OurProgramsController::class, 'programs'])->name('api.programs');
+// Content Management -> About zoffness Route
+Route::get('/about_zoffness', [AboutZoffnessController::class, 'about']);
+// Content Management -> Testimonial Routes
+Route::get('/testimonials', [TestimonialController::class, 'testimonials'])->name('api.testimonials');
+// Content Management -> Our approach Routes
+Route::get('/our-approach', [OurApproachController::class, 'ourApproaches'])->name('api.our-approach');
+// Content Management -> Zoffness Media Videos Routes
+Route::get('/media', [MediaVideoController::class, 'media'])->name('api.media');
+// Content Management -> Master the SAT/ACT Page Routes
+Route::get('/master_sat_act_page', [MasterSatActPageController::class, 'getFrontendData'])->name('api.getFrontendData');
+// content Management ->pratice test page Routes
+
+
+// Public endpoint for logging errors
+Route::post('/log-error', [ErrorLogController::class, 'store']);
+
+// Protected endpoints for viewing errors (admin only)
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+    Route::get('/error-logs', [ErrorLogController::class, 'index']);
+    Route::get('/error-logs/critical', [ErrorLogController::class, 'critical']);
+    Route::post('/error-logs/{id}/resolve', [ErrorLogController::class, 'resolve']);
+});
+
+
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);

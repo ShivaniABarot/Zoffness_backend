@@ -2,7 +2,7 @@
 <html lang="en" class="light-style" dir="ltr" data-theme="theme-default">
 
 <head>
-  <meta charset="utf-8" />  
+  <meta charset="utf-8" />
   <meta name="viewport"
     content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
   <title>@yield('title', 'Dashboard')</title>
@@ -30,6 +30,12 @@
   <link rel="stylesheet" href="{{ asset('css/custom-datatables.css') }}">
   <link rel="stylesheet" href="{{ asset('css/action-buttons.css') }}">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script src="{{ asset('js/jquery-3.6.0.min.js') }}"></script>
+  <script src="{{ asset('js/moment.min.js') }}"></script>
+  <script src="{{ asset('js/bootstrap-datepicker.min.js') }}"></script>
+  <link href="{{ asset('css/bootstrap-datepicker.min.css') }}" rel="stylesheet">
+
   @stack('styles')
   <style>
     /* Sidebar with Toggle Functionality */
@@ -485,7 +491,8 @@
 
     /* Fallback icon for announcements */
     .menu-icon.fallback-icon.bx-bullhorn::before {
-      content: '\f0a1' !important; /* Font Awesome bullhorn icon */
+      content: '\f0a1' !important;
+      /* Font Awesome bullhorn icon */
       font-family: 'Font Awesome 6 Free' !important;
       font-weight: 900 !important;
       display: inline-block !important;
@@ -561,7 +568,7 @@
               </a>
             </li>
             <li
-              class="menu-item {{ request()->is('session') || request()->is('sat_act_packages') || request()->is('package') || request()->is('executive_package') || request()->is('collage_essays_packages') ? 'active open' : '' }}">
+              class="menu-item {{ request()->is('session') || request()->is('sat_act_packages') || request()->is('college_admission_package') || request()->is('executive_package') || request()->is('collage_essays_packages') ? 'active open' : '' }}">
               <a href="#" class="menu-link menu-toggle">
                 <i class="menu-icon bx bx-package"></i>
                 <div>Packages</div>
@@ -579,8 +586,8 @@
                     <div>SAT-ACT Packages</div>
                   </a>
                 </li>
-                <li class="menu-item {{ request()->is('package') ? 'active' : '' }}">
-                  <a href="{{ url('package') }}" class="menu-link">
+                <li class="menu-item {{ request()->is('college_admission_package') ? 'active' : '' }}">
+                  <a href="{{ url('college_admission_package') }}" class="menu-link">
                     <i class="menu-icon bx bx-package"></i>
                     <div>College Admissions Packages</div>
                   </a>
@@ -599,21 +606,28 @@
                 </li>
               </ul>
             </li>
-            
-              <!-- Logs module -->
 
-              <li class="menu-item {{ request()->is('inquiry*') ? 'active' : '' }}">
-                <a href="{{ route('inquiry.index') }}" class="menu-link">
-                    <i class="menu-icon bx bx-file"></i>
-                    <div>Inquiry</div>
-                </a>
+            <!-- Logs module -->
+
+            <li class="menu-item {{ request()->is('inquiry*') ? 'active' : '' }}">
+              <a href="{{ route('inquiry.index') }}" class="menu-link">
+                <i class="menu-icon bx bx-file"></i>
+                <div>Bookings</div>
+              </a>
             </li>
+            <li class="menu-item {{ request()->is('transactions*') ? 'active' : '' }}">
+              <a href="{{ route('transactions.index') }}" class="menu-link">
+                <i class="menu-icon bx bx-credit-card"></i>
+                <div>Transactions</div>
+              </a>
+            </li>
+
             <li class="menu-item {{ request()->is('logs*') ? 'active' : '' }}">
-    <a href="{{ route('logs.index') }}" class="menu-link">
-        <i class="menu-icon bx bx-file"></i>
-        <div>Logs</div>
-    </a>
-</li>
+              <a href="{{ route('logs.index') }}" class="menu-link">
+                <i class="menu-icon bx bx-file"></i>
+                <div>Logs</div>
+              </a>
+            </li>
 
             <!-- Announcements Menu Item -->
             <li class="menu-item {{ request()->is('announcements') ? 'active' : '' }}">
@@ -622,7 +636,69 @@
                 <div>Announcements</div>
               </a>
             </li>
-        
+
+            <li class="menu-item {{ request()->is('hero-banners*') ? 'active open' : '' }}">
+              <a href="#" class="menu-link menu-toggle">
+                <i class="menu-icon bx bx-layer"></i>
+                <div>Content Management</div>
+              </a>
+              <ul class="menu-sub">
+                <li class="menu-item {{ request()->is('hero-banners*') ? 'active' : '' }}">
+                  <a href="{{ route('hero-banners.index') }}" class="menu-link">
+                    <i class="menu-icon bx bx-image"></i>
+                    <div>Hero Banners</div>
+                  </a>
+                </li>
+                <li class="menu-item {{ request()->is('programs*') ? 'active' : '' }}">
+                  <a href="{{ route('programs.index') }}" class="menu-link">
+                    <i class="menu-icon bx bx-book-open"></i>
+                    <div>Our Programs</div>
+                  </a>
+                </li>
+                <li class="menu-item {{ request()->is('about-zoffness*') ? 'active' : '' }}">
+                  <a href="{{ route('about-zoffness.index') }}" class="menu-link">
+                    <i class="menu-icon bx bx-info-circle"></i>
+                    <div>About Zoffness</div>
+                  </a>
+                </li>
+                <li class="menu-item {{ request()->is('testimonials*') ? 'active' : '' }}">
+                  <a href="{{ route('testimonials.index') }}" class="menu-link">
+                    <i class="menu-icon bx bx-star"></i>
+                    <div>Testimonials</div>
+                  </a>
+                </li>
+                <li class="menu-item {{ request()->is('our-approach*') ? 'active' : '' }}">
+                  <a href="{{ route('our-approach.index') }}" class="menu-link">
+                    <i class="menu-icon bx bx-info-circle"></i>
+                    <div>Our Approach</div>
+                  </a>
+                </li>
+
+                <li class="menu-item {{ request()->is('media-videos*') ? 'active' : '' }}">
+                  <a href="{{ route('media-videos.index') }}" class="menu-link">
+                    <i class="menu-icon bx bx-video"></i> <!-- Changed icon -->
+                    <div>Zoffness Media</div>
+                  </a>
+                </li>
+                <!-- Master the SAT/ACT Page -->
+                <li class="menu-item {{ request()->is('master_sat_act_page*') ? 'active' : '' }}">
+                <a href="{{ route('master_sat_act_page.index') }}" class="menu-link">
+
+                  <i class="menu-icon bx bx-book-open"></i>
+                    <div>Master the SAT/ACT Page</div>
+                  </a>
+                </li>
+
+
+
+
+
+                <!-- Add more CMS submodules here -->
+              </ul>
+            </li>
+
+
+
           @endif
         </ul>
       </aside>
@@ -650,9 +726,9 @@
                       <i class="bx bx-user-circle text-white"></i>
                     </div>
                     <div>
-  <strong>{{ optional(Auth::user())->name ?? 'Guest' }}</strong><br>
-  <small class="text-muted">{{ ucfirst($userRole ?? 'Guest') }}</small>
-</div>
+                      <strong>{{ optional(Auth::user())->name ?? 'Guest' }}</strong><br>
+                      <small class="text-muted">{{ ucfirst($userRole ?? 'Guest') }}</small>
+                    </div>
 
                   </div>
                 </li>
@@ -700,9 +776,9 @@
   <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
   <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
   <link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet">
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script src="{{ asset('js/custom-datatables.js') }}"></script>
   @stack('scripts')

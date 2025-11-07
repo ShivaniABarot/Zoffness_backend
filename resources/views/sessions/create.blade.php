@@ -30,19 +30,6 @@
                             <small id="dateError" class="text-danger"></small>
                         </div>
 
-                        {{-- Session Type --}}
-                        <div class="form-floating mb-3">
-                            <select id="session_type" name="session_type" class="form-select" required>
-                                <option value="" disabled selected>Select Session Type</option>
-                                <option value="study">Study</option>
-                                <option value="exam">Exam</option>
-                                <option value="regular">Regular</option>
-                                <option value="extended_exam">Extended Exam</option>
-                            </select>
-                            <label for="session_type"><i class="bi bi-list-check me-2"></i>Session Type</label>
-                            <small id="session_typeError" class="text-danger"></small>
-                        </div>
-
                         {{-- Price Per Slot --}}
                         <div class="form-floating mb-3">
                             <input type="number" id="price_per_slot" name="price_per_slot" step="0.01" class="form-control" placeholder="Price Per Slot" required>
@@ -50,25 +37,18 @@
                             <small id="price_per_slotError" class="text-danger"></small>
                         </div>
 
-                        {{-- Max Capacity --}}
-                        <div class="form-floating mb-3">
-                            <input type="number" id="max_capacity" name="max_capacity" class="form-control" placeholder="Max Capacity" required>
-                            <label for="max_capacity"><i class="bi bi-people-fill me-2"></i>Max Capacity</label>
-                            <small id="max_capacityError" class="text-danger"></small>
-                        </div>
-
                         {{-- Status --}}
                         <div class="form-floating mb-3">
                             <select id="status" name="status" class="form-select" required>
-                                <option value="1">Active</option>
-                                <option value="0">Inactive</option>
+                                <option value="active">Active</option>
+                                <option value="in-active">Inactive</option>
                             </select>
                             <label for="status"><i class="bi bi-toggle-on me-2"></i>Status</label>
                             <small id="statusError" class="text-danger"></small>
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">
-                            <a href="{{ route('sessions') }}" class="btn btn-outline-secondary">
+                            <a href="{{ route('sessions.index') }}" class="btn btn-outline-secondary">
                                 <i class="bi bi-arrow-left"></i> Cancel
                             </a>
                             <button type="submit" class="btn btn-success">
@@ -98,33 +78,30 @@
     $(document).ready(function () {
         $('#createSessionForm').on('submit', function (e) {
             e.preventDefault();
-            $('#titleError, #session_typeError, #price_per_slotError, #max_capacityError, #statusError').text('');
+            
+            // Clear previous errors
+            $('#titleError, #dateError, #price_per_slotError, #statusError').text('');
 
             $.ajax({
                 url: '{{ route('sessions.store') }}',
                 method: 'POST',
                 data: $(this).serialize(),
                 success: function (response) {
-                    if (response.success) {
-                        Swal.fire({
-                            title: 'Success!',
-                            text: response.message,
-                            icon: 'success',
-                            confirmButtonText: 'Go to List',
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = '{{ route('sessions') }}';
-                            }
-                        });
-                    }
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Session created successfully.',
+                        icon: 'success',
+                        confirmButtonText: 'Go to List',
+                    }).then(() => {
+                        window.location.href = '{{ route('sessions.index') }}';
+                    });
                 },
                 error: function (xhr) {
-                    const errors = xhr.responseJSON.errors;
-                    if (errors) {
+                    if (xhr.status === 422) { // Validation error
+                        const errors = xhr.responseJSON.errors;
                         if (errors.title) $('#titleError').text(errors.title[0]);
-                        if (errors.session_type) $('#session_typeError').text(errors.session_type[0]);
+                        if (errors.date) $('#dateError').text(errors.date[0]);
                         if (errors.price_per_slot) $('#price_per_slotError').text(errors.price_per_slot[0]);
-                        if (errors.max_capacity) $('#max_capacityError').text(errors.max_capacity[0]);
                         if (errors.status) $('#statusError').text(errors.status[0]);
                     } else {
                         Swal.fire({

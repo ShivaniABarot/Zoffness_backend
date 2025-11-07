@@ -23,15 +23,21 @@ class ExecutivePackage extends Model
      */
     protected $fillable = [
         'name',
-        'description',
         'price',
+        'status',
     ];
 
     /**
      * Get the packages associated with this course.
      */
     public function packages()
-    {
-        return $this->hasMany(Package::class, 'id');
-    }
+{
+    return $this->hasMany(Package::class, 'id');
+}
+    
+public function executiveCoachings()
+{
+    return $this->hasMany(ExecutiveCoaching::class, 'package_type', 'name');
+}
+    
 }

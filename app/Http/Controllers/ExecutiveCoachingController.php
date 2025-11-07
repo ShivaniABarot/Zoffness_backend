@@ -21,10 +21,14 @@ class ExecutiveCoachingController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
+        // Set Stripe API key
         Stripe::setApiKey(env('VITE_STRIPE_SECRET_KEY'));
-        // dd(1111);
-        // dd($request->all());
+    
+        // Clean email addresses by removing timestamp prefix
+        $studentEmail = preg_replace('/^\d+_/', '', $request->student_email);
+        $parentEmail = $request->parent_email ? preg_replace('/^\d+_/', '', $request->parent_email) : null;
+    
+        // Validation
         $validator = Validator::make($request->all(), [
             'parent_first_name' => 'nullable|string',
             'parent_last_name'  => 'nullable|string',
@@ -34,7 +38,7 @@ class ExecutiveCoachingController extends Controller
             'student_last_name' => 'required|string',
             'student_email'     => 'required|email',
             'school'            => 'required|string',
-            'package_type'      => 'required|string',
+            'package_type'      => 'required', // allow ID or name
             'subtotal'          => 'required|numeric|min:0',
             'bank_name'         => 'nullable|string|max:255',
             'account_number'    => 'nullable|string|max:255',
@@ -43,7 +47,6 @@ class ExecutiveCoachingController extends Controller
             'payment_status'    => 'required|string',
         ]);
     
-    // dd(121, $validator);
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
@@ -55,15 +58,21 @@ class ExecutiveCoachingController extends Controller
         $parentName  = trim($request->parent_first_name . ' ' . $request->parent_last_name);
         $studentName = trim($request->student_first_name . ' ' . $request->student_last_name);
     
+        // ✅ Safe lookup for package (by ID or name)
+        $package = \App\Models\ExecutivePackage::where('id', $request->package_type)
+            ->orWhere('name', $request->package_type)
+            ->first();
+    
+        $packageName = $package ? $package->name : $request->package_type;
+    
         // Parent details
         $parentDetails = [
             'name'  => $parentName,
             'phone' => $request->parent_phone,
-            'email' => $request->parent_email,
+            'email' => $parentEmail,
         ];
     
-            // dd($parentDetails);
-            // Stripe details
+        // Stripe details (defaults)
         $stripeDetails = [
             'payment_method_type' => 'N/A',
             'last4'               => 'N/A',
@@ -84,12 +93,12 @@ class ExecutiveCoachingController extends Controller
         }
     
         try {
-            $coaching = DB::transaction(function () use ($request, $parentName, $studentName, $totalAmount) {
+            $coaching = DB::transaction(function () use ($request, $parentName, $studentName, $totalAmount, $studentEmail, $parentEmail, $packageName) {
                 $student = Student::create([
-                    'student_email'  => $request->student_email,
+                    'student_email'  => $studentEmail,
                     'parent_name'    => $parentName,
                     'parent_phone'   => $request->parent_phone,
-                    'parent_email'   => $request->parent_email,
+                    'parent_email'   => $parentEmail,
                     'student_name'   => $studentName,
                     'school'         => $request->school,
                     'bank_name'      => $request->bank_name,
@@ -102,12 +111,13 @@ class ExecutiveCoachingController extends Controller
                     'parent_first_name'  => $request->parent_first_name,
                     'parent_last_name'   => $request->parent_last_name,
                     'parent_phone'       => $request->parent_phone,
-                    'parent_email'       => $request->parent_email,
+                    'parent_email'       => $parentEmail,
                     'student_first_name' => $request->student_first_name,
                     'student_last_name'  => $request->student_last_name,
-                    'student_email'      => $request->student_email,
+                    'student_email'      => $studentEmail,
                     'school'             => $request->school,
-                    'package_type'       => $request->package_type,
+                    'package_id'         => $request->package_type, // can be ID
+                    'package_type'       => $packageName,           // ✅ always store name
                     'subtotal'           => $totalAmount,
                     'exam_date'          => $request->exam_date,
                     'student_id'         => $student->id,
@@ -116,42 +126,41 @@ class ExecutiveCoachingController extends Controller
             });
     
             // Send email to parent
-            if (!empty($request->parent_email)) {
-                Mail::to($request->parent_email)->send(new ExecutiveCoachingConfirmation(
-                    $studentName,              // studentName
-                    $request->school,          // school
-                    $request->package_type,    // packageType
-                    $totalAmount,              // subtotal
-                    $parentName,               // recipientName
-                    'parent',                  // recipientType
-                    $request->exam_date,       // examDate
-                    $parentDetails,            // parentDetails (array)
-                    $request->stripe_id,       // stripeId
-                    $request->payment_status,  // paymentStatus
-                    now()->format('m-d-Y'),    // paymentDate
-                    $stripeDetails,            // stripeDetails
-                    $request->student_email    // studentEmail
+            if (!empty($parentEmail)) {
+                Mail::to($parentEmail)->send(new ExecutiveCoachingConfirmation(
+                    $studentName,
+                    $request->school,
+                    $packageName,
+                    $totalAmount,
+                    $parentName,
+                    'parent',
+                    $request->exam_date,
+                    $parentDetails,
+                    $request->stripe_id,
+                    $request->payment_status,
+                    now()->format('m-d-Y'),
+                    $stripeDetails,
+                    $studentEmail
                 ));
             }
     
             // Send email to student
-            if (!empty($request->student_email)) {
-                Mail::to($request->student_email)->send(new ExecutiveCoachingConfirmation(
-                    $studentName,              // studentName
-                    $request->school,          // school
-                    $request->package_type,    // packageType
-                    $totalAmount,              // subtotal
-                    $studentName,              // recipientName
-                    'student',                 // recipientType
-                    $request->exam_date,       // examDate
-                    $parentDetails,            // parentDetails (array)
-                    $request->stripe_id,       // stripeId
-                    $request->payment_status,  // paymentStatus
-                    now()->format('m-d-Y'),    // paymentDate
-                    $stripeDetails,            // stripeDetails
-                    $request->student_email    // studentEmail
+            if (!empty($studentEmail)) {
+                Mail::to($studentEmail)->send(new ExecutiveCoachingConfirmation(
+                    $studentName,
+                    $request->school,
+                    $packageName,
+                    $totalAmount,
+                    $studentName,
+                    'student',
+                    $request->exam_date,
+                    $parentDetails,
+                    $request->stripe_id,
+                    $request->payment_status,
+                    now()->format('m-d-Y'),
+                    $stripeDetails,
+                    $studentEmail
                 ));
-                
             }
     
             // Send email to admins
@@ -162,22 +171,22 @@ class ExecutiveCoachingController extends Controller
                 ->bcc($bccEmails)
                 ->send(
                     (new ExecutiveCoachingConfirmation(
-                        $studentName,              // studentName
-                        $request->school,          // school
-                        $request->package_type,    // packageType
-                        $totalAmount,              // subtotal
-                        'Admin',                   // recipientName
-                        'admin',                   // recipientType
-                        $request->exam_date,       // examDate
-                        $parentDetails,            // parentDetails (array)
-                        $request->stripe_id,       // stripeId
-                        $request->payment_status,  // paymentStatus
-                        now()->format('m-d-Y'),    // paymentDate
-                        $stripeDetails,            // stripeDetails
-                        $request->student_email    // studentEmail
+                        $studentName,
+                        $request->school,
+                        $packageName,
+                        $totalAmount,
+                        'Admin',
+                        'admin',
+                        $request->exam_date,
+                        $parentDetails,
+                        $request->stripe_id,
+                        $request->payment_status,
+                        now()->format('m-d-Y'),
+                        $stripeDetails,
+                        $studentEmail
                     ))
                     ->from('web@notifications.zoffnesscollegeprep.com', $parentName)
-                    ->replyTo($request->parent_email, $parentName)
+                    ->replyTo($parentEmail, $parentName)
                 );
     
             return response()->json([

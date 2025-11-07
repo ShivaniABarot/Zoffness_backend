@@ -15,6 +15,7 @@ class CollegeAdmission extends Model
      * @var array<string>
      */
     protected $fillable = [
+        'id',
         'parent_first_name',
         'parent_last_name',
         'parent_phone',

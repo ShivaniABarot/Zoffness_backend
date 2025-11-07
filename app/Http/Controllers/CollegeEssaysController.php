@@ -197,7 +197,7 @@ class CollegeEssaysController extends Controller
             }
 
             // Queue email to internal admins
-            $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com', 'dev@bugletech.com'];
+            $adminEmails = ['ben.hartman@zoffnesscollegeprep.com', 'info@zoffnesscollegeprep.com'];
             $bccEmails = ['dev@bugletech.com', 'ravi.kamdar@bugletech.com'];
 
             Mail::to($adminEmails)

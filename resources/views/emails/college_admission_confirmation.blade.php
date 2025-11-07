@@ -130,8 +130,10 @@
 
         <h3>Program Details</h3>
         <div class="details">
-            <p><strong>Package:</strong> {{ $packages ?? 'N/A' }}</p>
-            <p><strong>Exam Date:</strong> {{ \Carbon\Carbon::parse($examDate)->format('m-d-Y') }}</p>
+        <p><strong>Package:</strong> {{ !empty($packages) ? $packages : 'N/A' }}</p>
+
+            <!-- <p><strong>Package:</strong> {{ $packages ?? 'N/A' }}</p> -->
+            <p><strong> Date:</strong> {{ \Carbon\Carbon::parse($examDate)->format('m-d-Y') }}</p>
         </div>
 
         <h3>Payment Information</h3>

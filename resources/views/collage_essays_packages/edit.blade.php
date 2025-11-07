@@ -16,7 +16,6 @@
                 <div class="card-body p-4">
                     <form id="editCollegeForm">
                         @csrf
-                        {{-- Spoof the PUT method for Laravel --}}
 
                         {{-- Package Name --}}
                         <div class="form-floating mb-3">
@@ -63,6 +62,16 @@
                             <small id="descriptionError" class="text-danger"></small>
                         </div>
 
+                        {{-- Package Status --}}
+                        <div class="form-floating mb-3">
+                            <select name="status" id="status" class="form-select" required>
+                                <option value="active" {{ $CollageEssaysPackage->status === 'active' ? 'selected' : '' }}>Active</option>
+                                <option value="inactive" {{ $CollageEssaysPackage->status === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                            </select>
+                            <label for="status"><i class="bi bi-toggle-on me-2"></i>Status</label>
+                            <small id="statusError" class="text-danger"></small>
+                        </div>
+
                         <div class="d-flex justify-content-end gap-2">
                             <a href="{{ route('collage_essays_packages.index') }}" class="btn btn-outline-secondary">
                                 <i class="bi bi-arrow-left"></i> Cancel
@@ -96,14 +105,12 @@
             e.preventDefault();
 
             // Clear previous errors
-            $('#nameError, #priceError, #descriptionError').text('');
-            
-            // Disable submit button to prevent multiple clicks
+            $('#nameError, #priceError, #descriptionError, #statusError').text('');
             $('#submitBtn').attr('disabled', true);
 
             $.ajax({
                 url: '{{ route("collage_essays_packages.update", $CollageEssaysPackage->id) }}',
-                method: 'POST',  // Laravel expects POST with _method=PUT spoofing
+                method: 'POST',
                 data: $(this).serialize(),
                 success: function (response) {
                     Swal.fire({
@@ -124,6 +131,7 @@
                         if (errors.name) $('#nameError').text(errors.name[0]);
                         if (errors.price) $('#priceError').text(errors.price[0]);
                         if (errors.description) $('#descriptionError').text(errors.description[0]);
+                        if (errors.status) $('#statusError').text(errors.status[0]);
                     } else {
                         Swal.fire({
                             title: 'Error!',

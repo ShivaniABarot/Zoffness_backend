@@ -130,16 +130,17 @@
 
         <h3>Program Details</h3>
         <div class="details">
-            <p><strong>Package:</strong> {{ $packages ?? 'N/A' }}</p>
-            @if($sessions)
-                <p><strong>Sessions:</strong> {{ $sessions }}</p>
-            @endif
+            <p><strong>Session:</strong> {{ $packages ?? 'N/A' }}</p>
+           
             <p><strong>Exam Date:</strong> {{ \Carbon\Carbon::parse($examDate)->format('m-d-Y') }}</p>
         </div>
 
         <h3>Payment Information</h3>
         <div class="details">
-            <p><strong>Total Amount:</strong> ${{ number_format($subtotal, 2) }}</p>
+        @if($sessions)
+                <p><strong>Total Amount:</strong> {{ $sessions }}</p>
+            @endif
+            <!-- <p><strong>Total Amount:</strong> ${{ number_format($subtotal, 2) }}</p> -->
             <p><strong>Payment Status:</strong> {{ $paymentStatus }}</p>
             @if($stripeId)
                 <p><strong>Payment ID:</strong> {{ $stripeId }}</p>

@@ -24,13 +24,6 @@
                             <small id="nameError" class="text-danger"></small>
                         </div>
 
-                        {{-- Email --}}
-                        <div class="form-floating mb-3">
-                            <input type="email" id="email" name="email" class="form-control" placeholder="Email" value="{{ old('email', $tutor->email) }}" required>
-                            <label for="email"><i class="bi bi-envelope-fill me-2"></i>Email</label>
-                            <small id="emailError" class="text-danger"></small>
-                        </div>
-
                         {{-- Designation --}}
                         <div class="form-floating mb-3">
                             <input type="text" id="designation" name="designation" class="form-control" placeholder="Designation" value="{{ old('designation', $tutor->designation) }}" required>
@@ -55,17 +48,22 @@
                             <small id="statusError" class="text-danger"></small>
                         </div>
 
-                        {{-- Image upload (optional) --}}
-                        <!--
+                        {{-- Image upload --}}
                         <div class="mb-3">
                             <label for="image" class="form-label"><i class="bi bi-image-fill me-2"></i>Profile Image</label>
                             <input type="file" id="image" name="image" class="form-control" accept="image/*">
+
                             @if ($tutor->image)
-                                <img src="{{ asset('storage/' . $tutor->image) }}" alt="Current Image" class="img-thumbnail mt-2" style="max-width: 100px;">
+                                <div class="mt-3 text-center">
+                                    <img src="{{ asset('storage/' . $tutor->image) }}" 
+                                         alt="Current Image" 
+                                         class="img-thumbnail shadow-sm rounded" 
+                                         style="max-width: 120px;">
+                                    <p class="text-muted mt-2 small">Current Image</p>
+                                </div>
                             @endif
                             <small id="imageError" class="text-danger"></small>
                         </div>
-                        -->
 
                         <div class="d-flex justify-content-end gap-2">
                             <a href="{{ route('tutors') }}" class="btn btn-outline-secondary">
@@ -90,16 +88,14 @@
 
 <script>
     $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
+        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
     });
 
     $(document).ready(function () {
         $('#editTutorForm').on('submit', function (e) {
             e.preventDefault();
 
-            $('#nameError, #emailError, #designationError, #bioError, #statusError').text('');
+            $('#nameError, #designationError, #bioError, #statusError, #imageError').text('');
 
             let formData = new FormData(this);
             formData.append('_method', 'PUT');
@@ -126,17 +122,12 @@
                     if (xhr.status === 422) {
                         let errors = xhr.responseJSON.errors;
                         if (errors.name) $('#nameError').text(errors.name[0]);
-                        if (errors.email) $('#emailError').text(errors.email[0]);
                         if (errors.designation) $('#designationError').text(errors.designation[0]);
                         if (errors.bio) $('#bioError').text(errors.bio[0]);
                         if (errors.status) $('#statusError').text(errors.status[0]);
+                        if (errors.image) $('#imageError').text(errors.image[0]);
                     } else {
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'An error occurred while updating the tutor profile.',
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        });
+                        Swal.fire('Error!', 'An error occurred while updating the tutor profile.', 'error');
                     }
                 }
             });

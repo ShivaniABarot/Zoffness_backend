@@ -13,7 +13,7 @@ class ExecutiveCoachingConfirmation extends Mailable implements ShouldQueue
 
     public $studentName;
     public $school;
-    public $packageType;
+    public $packageName; // ✅ use packageName consistently
     public $subtotal;
     public $recipientName;
     public $recipientType;
@@ -25,11 +25,10 @@ class ExecutiveCoachingConfirmation extends Mailable implements ShouldQueue
     public $stripeDetails;
     public $studentEmail;
 
-
     public function __construct(
         $studentName,
         $school,
-        $packageType,
+        $packageName, // ✅ renamed here
         $subtotal,
         $recipientName,
         $recipientType,
@@ -40,25 +39,24 @@ class ExecutiveCoachingConfirmation extends Mailable implements ShouldQueue
         $paymentDate,
         $stripeDetails,
         $studentEmail
-    )
-     {
-        $this->studentName = $studentName;
-        $this->school = $school;
-        $this->packageType = $packageType;
-        $this->subtotal = (float) $subtotal;
+    ) {
+        $this->studentName   = $studentName;
+        $this->school        = $school;
+        $this->packageName   = $packageName; // ✅ assign correctly
+        $this->subtotal      = (float) $subtotal;
         $this->recipientName = $recipientName;
         $this->recipientType = $recipientType;
-        $this->examDate = $examDate;
+        $this->examDate      = $examDate;
         $this->parentDetails = $parentDetails;
-        $this->stripeId = $stripeId;
+        $this->stripeId      = $stripeId;
         $this->paymentStatus = $paymentStatus;
-        $this->paymentDate = $paymentDate ?: now()->format('m-d-Y');
+        $this->paymentDate   = $paymentDate ?: now()->format('m-d-Y');
         $this->stripeDetails = $stripeDetails ?: [
             'payment_method_type' => 'N/A',
             'last4' => 'N/A',
             'status' => 'N/A',
         ];
-        $this->studentEmail = $studentEmail;
+        $this->studentEmail  = $studentEmail;
     }
 
     public function build()

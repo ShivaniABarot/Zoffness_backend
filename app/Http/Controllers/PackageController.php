@@ -2,22 +2,57 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Package;
 use Illuminate\Http\Request;
+use App\Models\Package;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\DataTables;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Response;
 
 class PackageController extends Controller
 {
-    // List function
+  
     public function index()
     {
-        $packages = Package::all();
-        return view('packages.index', compact('packages'));
+        return view('packages.index');
     }
 
-    // create new package 
+    public function getPackages(Request $request)
+    {
+        if ($request->ajax()) {
+            try {
+                $packages = Package::select(['id', 'name', 'price', 'description', 'status']);
+
+                return DataTables::of($packages)
+                    ->addIndexColumn()
+                    ->addColumn('formatted_price', function ($row) {
+                        return '$' . number_format($row->price, 2);
+                    })
+                    ->addColumn('status', function ($row) {
+                        $status = $row->status ?? 'in-active';
+                        return '<label class="switch">
+                                    <input type="checkbox" '.($status === 'active' ? 'checked' : '').'
+                                        onchange="toggleStatus('.$row->id.', \''.$status.'\')">
+                                    <span class="slider"></span>
+                                </label>';
+                    })
+                    ->addColumn('actions', function ($row) {
+                        $view = '<a href="' . route('packages.show', $row->id) . '" class="btn btn-sm"><i class="bx bx-show"></i></a>';
+                        $edit = '<a href="' . route('packages.edit', $row->id) . '" class="btn btn-sm"><i class="bx bx-edit"></i></a>';
+                        $delete = '<button class="btn btn-sm" onclick="deletePackage(' . $row->id . ')"><i class="bx bx-trash"></i></button>';
+                        return $view . $edit . $delete;
+                    })
+                    ->rawColumns(['status', 'actions'])
+                    ->make(true);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'data' => [],
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+    }
+
+   
     public function create()
     {
         return view('packages.create');
@@ -26,105 +61,112 @@ class PackageController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            // 'number_of_sessions' => 'required|integer|min:1',
-            'description' => 'nullable|string', // Allow HTML content
+            'name'        => 'required|string|max:255',
+            'price'       => 'required|numeric|min:0',
+            'description' => 'nullable|string',
+            'status'      => 'required|in:active,in-active',
         ]);
 
         Package::create([
-            'name' => $request->name,
-            'price' => $request->price,
-            // 'number_of_sessions' => $request->number_of_sessions,
-            'description' => $request->description, // Save HTML content
+            'name'        => $request->name,
+            'price'       => $request->price,
+            'description' => $request->description,
+            'status'      => $request->status,
         ]);
 
-        return redirect()->route('packages.index')->with('success', 'Package created successfully.');
+        return redirect()->route('packages.index')
+            ->with('success', 'Package created successfully.');
     }
 
+   
     public function edit($id)
     {
         $package = Package::findOrFail($id);
         return view('packages.edit', compact('package'));
     }
 
-    public function update(Request $request, $id)
+       public function update(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            // 'number_of_sessions' => 'required|integer|min:1',
-            'description' => 'nullable|string', 
+        $request->validate([
+            'name'        => 'required|string|max:255',
+            'price'       => 'required|numeric|min:0',
+            'description' => 'nullable|string',
+            'status'      => 'required|in:active,in-active',
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->route('packages.edit', $id)
-                             ->withErrors($validator)
-                             ->withInput();
-        }
-
         $package = Package::findOrFail($id);
-        $package->name = $request->name;
-        $package->price = $request->price;
-        // $package->number_of_sessions = $request->number_of_sessions;
+        $package->name        = $request->name;
+        $package->price       = $request->price;
         $package->description = $request->description;
+        $package->status      = $request->status;
         $package->save();
 
-        return redirect()->route('packages.index')->with('success', 'Package updated successfully.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Package updated successfully.'
+        ]);
     }
 
+  
     public function show($id)
     {
-        $package = Package::findOrFail($id); 
-        // dd($package);
+        $package = Package::findOrFail($id);
         return view('packages.view', compact('package'));
     }
 
-    public function destroy($id)
+   
+    public function toggleStatus($id)
     {
-        // Find the session by its ID
         $package = Package::findOrFail($id);
-    
-        // Delete the session
-        $package->delete();
-    
-        // Return a JSON response for AJAX
+        $package->status = $package->status === 'active' ? 'in-active' : 'active';
+        $package->save();
+
         return response()->json([
             'success' => true,
-            'message' => 'Package deleted successfully.',
+            'message' => 'Package status updated successfully.',
+            'new_status' => $package->status
         ]);
     }
 
-    // GET PACKAGES API
-    public function get_packages()
-{
-    $packages = Package::all();
-    return response()->json([
-        'success' => true,
-        'data' => $packages
-    ], 200);
-}
+  
+    public function destroy($id)
+    {
+        $package = Package::findOrFail($id);
+        $package->delete();
 
-// GET DATES API ADDED BY SHIVANI 18/7
-public function get_dates(Request $request)
-{
-    $startDate = Carbon::now();
-    $endDate = Carbon::now()->addMonths(3);
-
-    $saturdays = [];
-
-    // Set to the next Saturday from today
-    $current = $startDate->copy()->next(Carbon::SATURDAY)->setTime(9, 0, 0);
-
-    while ($current->lte($endDate)) {
-        $saturdays[] = $current->toDateTimeString(); // Format: YYYY-MM-DD HH:MM:SS
-        $current->addWeek(); // Move to next Saturday 9AM
+        return response()->json([
+            'success' => true,
+            'message' => 'Package deleted successfully.'
+        ]);
     }
 
-    return response()->json([
-        'success' => true,
-        'saturdays' => $saturdays
-    ]);
-}
+    // 📱 API: Get All Packages
+    public function get_packages()
+    {
+        $packages = Package::where('status', 'active')->get();
+        return response()->json([
+            'success' => true,
+            'data'    => $packages
+        ], 200);
+    }
 
+    // 📅 API: Get Dates (Next 3 Months Saturdays)
+    public function get_dates(Request $request)
+    {
+        $startDate = Carbon::now();
+        $endDate = Carbon::now()->addMonths(3);
+
+        $saturdays = [];
+        $current = $startDate->copy()->next(Carbon::SATURDAY)->setTime(9, 0, 0);
+
+        while ($current->lte($endDate)) {
+            $saturdays[] = $current->toDateTimeString();
+            $current->addWeek();
+        }
+
+        return response()->json([
+            'success'   => true,
+            'saturdays' => $saturdays
+        ]);
+    }
 }

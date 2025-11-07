@@ -10,7 +10,8 @@ class ScheduleConfirmation extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public string $name;
+    // public string $name;
+    public string $parentName;
     public string $email;
     public string $phone;
     public string $date;
@@ -20,7 +21,8 @@ class ScheduleConfirmation extends Mailable
     public string $recipientRole;
 
     public function __construct(
-        string $name,
+        // string $name,
+        string $parentName,
         string $email,
         string $phone,
         string $date,
@@ -29,7 +31,8 @@ class ScheduleConfirmation extends Mailable
         float $fees,
         string $recipientRole = 'admin' 
     ) {
-        $this->name = $name;
+        $this->parentName = $parentName;
+        // $this->name = $name;
         $this->email = $email;
         $this->phone = $phone;
         $this->date = $date;

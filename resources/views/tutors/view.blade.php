@@ -11,21 +11,13 @@
                     </h4>
                 </div>
                 <div class="card-body px-4 py-4">
+
                     {{-- Tutor Name --}}
                     <div class="mb-4 d-flex align-items-center">
                         <i class="bi bi-person-fill text-primary me-2 fs-5"></i>
                         <div>
                             <strong>Name:</strong>
                             <div class="text-muted">{{ $tutor->name }}</div>
-                        </div>
-                    </div>
-
-                    {{-- Email --}}
-                    <div class="mb-4 d-flex align-items-center">
-                        <i class="bi bi-envelope-fill text-primary me-2 fs-5"></i>
-                        <div>
-                            <strong>Email:</strong>
-                            <div class="text-muted">{{ $tutor->email }}</div>
                         </div>
                     </div>
 
@@ -62,18 +54,23 @@
                         </div>
                     </div>
 
-                    {{-- Profile Image (if exists) --}}
-                    @if ($tutor->image)
+                    {{-- Profile Image --}}
                     <div class="mb-4 d-flex align-items-center">
                         <i class="bi bi-image text-primary me-2 fs-5"></i>
                         <div>
                             <strong>Profile Image:</strong>
                             <div class="mt-2">
-                                <img src="{{ asset('storage/' . $tutor->image) }}" alt="Tutor Image" class="img-thumbnail" style="max-width: 150px;">
+                                @if ($tutor->image)
+                                    <img src="{{ asset('storage/' . $tutor->image) }}" 
+                                         alt="Tutor Image" 
+                                         class="img-thumbnail shadow-sm rounded" 
+                                         style="max-width: 150px;">
+                                @else
+                                    <span class="text-muted fst-italic">No image uploaded</span>
+                                @endif
                             </div>
                         </div>
                     </div>
-                    @endif
 
                     {{-- Back Button --}}
                     <div class="mt-4 text-center">
@@ -81,6 +78,7 @@
                             <i class="bi bi-arrow-left-circle"></i> Back to Tutors
                         </a>
                     </div>
+
                 </div>
             </div>
         </div>

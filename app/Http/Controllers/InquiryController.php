@@ -15,83 +15,139 @@ class InquiryController extends Controller
     /**
      * Fetch all inquiries from multiple tables
      */
-    public function index(Request $request)
-    {
-        $bookingType = $request->input('booking_type');
-    
-        // Map each booking source
-        $collegeAdmissions = CollegeAdmission::all()->map(function ($item) {
-            $item->display_booking_type = 'College Admission';
-            return $item;
-        });
-    
-        $collegeEssays = CollegeEssays::all()->map(function ($item) {
-            $item->display_booking_type = 'College Essay';
-            return $item;
-        });
-    
-        $executiveCoachings = ExecutiveCoaching::all()->map(function ($item) {
-            $item->display_booking_type = 'Executive Coaching';
-            return $item;
-        });
-    
-        $practiceTests = PraticeTest::all()->map(function ($item) {
-            $item->display_booking_type = 'Practice Test';
-            return $item;
-        });
-    
-        $satActCourses = SAT_ACT_Course::all()->map(function ($item) {
-            $item->display_booking_type = 'SAT/ACT Course';
-            return $item;
-        });
-    
-        $payments = Payment::with('user')->get()->map(function ($item) {
-            $item->display_booking_type = 'Payment';
-        
-            // Override parent name from User model
-            if ($item->user) {
-                $item->parent_first_name = $item->user->firstname ?? '';
-                $item->parent_last_name  = $item->user->lastname ?? '';
-            }
-        
-            return $item;
-        });
+        public function index(Request $request)
+        {
+            $bookingType = $request->input('booking_type');
+            $examDate = $request->input('exam_date');
 
-        
-        // $payments = Payment::all()->map(function ($item) {
-        //     $item->display_booking_type = 'Payment';
-        //     return $item;
-        // });
-    
-        // Merge all bookings
-        $allBookings = collect()
-            ->merge($collegeAdmissions)
-            ->merge($collegeEssays)
-            ->merge($executiveCoachings)
-            ->merge($practiceTests)
-            ->merge($satActCourses)
-            ->merge($payments);
-    
-        // Filter by display booking type if requested
-        if (!empty($bookingType)) {
-            $allBookings = $allBookings->filter(function ($item) use ($bookingType) {
-                return $item->display_booking_type === $bookingType;
+            // Map each booking source
+            $collegeAdmissions = CollegeAdmission::all()->map(function ($item) {
+                $item->display_booking_type = 'College Admission';
+            
+                // Detect active package
+                if ($item->initial_intake == 1) {
+                    $item->selected_package = 'Initial Intake';
+                } elseif ($item->five_session_package == 1) {
+                    $item->selected_package = 'Five Session Package';
+                } elseif ($item->ten_session_package == 1) {
+                    $item->selected_package = 'Ten Session Package';
+                } elseif ($item->fifteen_session_package == 1) {
+                    $item->selected_package = 'Fifteen Session Package';
+                } elseif ($item->twenty_session_package == 1) {
+                    $item->selected_package = 'Twenty Session Package';
+                } else {
+                    $item->selected_package = 'N/A';
+                }
+            
+                return $item;
             });
+            
+
+            $collegeEssays = CollegeEssays::all()->map(function ($item) {
+                $item->display_booking_type = 'College Essay';
+            
+                try {
+                    $packages = $item->packages();
+                    if ($packages->count() > 0) {
+                        $item->selected_package = $packages->pluck('name')->implode(', ');
+                        $item->loaded_packages = $packages;
+                    } else {
+                        $item->selected_package = 'N/A';
+                        $item->loaded_packages = collect(); 
+                    }
+                } catch (\Exception $e) {
+                    $item->selected_package = 'N/A';
+                    $item->loaded_packages = collect();
+                }
+                // dd($item);
+                return $item;
+            });
+            
+            
+            
+
+            $executiveCoachings = ExecutiveCoaching::with('package')->get()->map(function ($item) {
+                $item->display_booking_type = 'Executive Coaching';
+                
+                if ($item->package) {
+                    $item->selected_package = $item->package->name;
+                    $item->loaded_packages = collect([$item->package]);
+                } else {
+                    $item->selected_package = 'N/A';
+                    $item->loaded_packages = collect();
+                }
+            
+                return $item;
+            });
+            
+            
+
+            $practiceTests = PraticeTest::all()->map(function ($item) {
+                $item->display_booking_type = 'Practice Test';
+                return $item;
+            });
+
+            $satActCourses = SAT_ACT_Course::all()->map(function ($item) {
+                $item->display_booking_type = 'SAT/ACT Course';
+                return $item;
+            });
+
+            $payments = Payment::with('user')->get()->map(function ($item) {
+                $item->display_booking_type = 'Payment';
+
+                // Override parent name from User model
+                if ($item->user) {
+                    $item->parent_first_name = $item->user->firstname ?? '';
+                    $item->parent_last_name = $item->user->lastname ?? '';
+                }
+
+                return $item;
+            });
+
+            // Merge all bookings
+            $allBookings = collect()
+                ->merge($collegeAdmissions)
+                ->merge($collegeEssays)
+                ->merge($executiveCoachings)
+                ->merge($practiceTests)
+                ->merge($satActCourses)
+                ->merge($payments);
+
+            // Filter by display booking type if requested
+            if (!empty($bookingType)) {
+                $allBookings = $allBookings->filter(function ($item) use ($bookingType) {
+                    return $item->display_booking_type === $bookingType;
+                });
+            }
+
+            // Filter by exam_date if requested
+            if (!empty($examDate)) {
+                try {
+                    $parsedDate = Carbon::createFromFormat('d-m-Y', $examDate)->format('Y-m-d');
+                    $allBookings = $allBookings->filter(function ($item) use ($parsedDate) {
+                        // Check if exam_date exists and matches the parsed date
+                        return isset($item->exam_date) && 
+                            Carbon::parse($item->exam_date)->format('Y-m-d') === $parsedDate;
+                    });
+                } catch (\Exception $e) {
+                    // Handle invalid date format gracefully (optional: log error or return message)
+                    $allBookings = collect(); // Return empty collection if date is invalid
+                }
+            }
+
+            // Sort by created_at descending
+            $allBookings = $allBookings->sortByDesc('created_at');
+
+            // Get unique booking types for dropdown
+            $bookingTypes = $allBookings->pluck('display_booking_type')->unique();
+
+            return view('inquiry.index', [
+                'allBookings' => $allBookings,
+                'bookingTypes' => $bookingTypes,
+                'bookingType' => $bookingType
+            ]);
         }
-    
-        // Sort by created_at descending
-        $allBookings = $allBookings->sortByDesc('created_at');
-    
-        // Get unique booking types for dropdown
-        $bookingTypes = $allBookings->pluck('display_booking_type')->unique();
-    
-        return view('inquiry.index', [
-            'allBookings' => $allBookings,
-            'bookingTypes' => $bookingTypes,
-            'bookingType' => $bookingType
-        ]);
-    }
-    
+        
 
     // view details
     public function show($type, $id)

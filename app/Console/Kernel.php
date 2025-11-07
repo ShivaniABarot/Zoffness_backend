@@ -15,8 +15,12 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // Check for unresolved errors every hour
+        $schedule->command('errors:check-unresolved')
+                 ->hourly()
+                 ->emailOutputOnFailure('info@zoffnesscollegeprep.com');
     }
+    
 
     /**
      * Register the commands for the application.
@@ -29,4 +33,6 @@ class Kernel extends ConsoleKernel
 
         require base_path('routes/console.php');
     }
+
+    
 }

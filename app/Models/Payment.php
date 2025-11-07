@@ -1,44 +1,55 @@
 <?php
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Payment extends Model
 {
-    use HasFactory;
-
-    protected $table = 'payments';
-
     protected $fillable = [
+        'user_id',
+        'stripe_payment_intent_id',
+        'stripe_charge_id',
+        'amount',  // Note: your table has this as 'payment_amount' initially
+        'currency',
+        'status',
+        'practice_test_id',
+        'metadata',
+        'paid_at',
+        // Keep existing fields for backward compatibility
         'parent_first_name',
         'parent_last_name',
+        'parent_phone',
+        'parent_email',
         'student_first_name',
         'student_last_name',
         'email',
         'payment_type',
-        'payment_amount',
         'note',
-        'cardholder_name',
-        'card_number',
-        'card_exp_date',
-        'cvv',
         'bill_address',
-        'parent_phone',
         'city',
         'state',
         'zip_code',
-        'user_id',
     ];
 
     protected $casts = [
-        'payment_amount' => 'decimal:2',
+        'amount' => 'decimal:2',
+        'metadata' => 'array',
+        'paid_at' => 'datetime',
     ];
 
-    // Define the relationship with the User model
+    /**
+     * Relationship to PracticeTest
+     */
+    public function practiceTest()
+    {
+        return $this->belongsTo(PracticeTest::class, 'practice_test_id');
+    }
+
+    /**
+     * Relationship to User
+     */
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 }

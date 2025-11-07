@@ -1,16 +1,19 @@
 <?php
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class PraticeTest extends Model
 {
-    use HasFactory;
 
     protected $table = 'practice_tests';
 
     protected $fillable = [
+        'stripe_id',
+        'payment_status',
+        'student_id',
+        'test_type',
+        'date',
         'parent_first_name',
         'parent_last_name',
         'parent_phone',
@@ -19,16 +22,27 @@ class PraticeTest extends Model
         'student_last_name',
         'student_email',
         'school',
+        'payment_method',
         'subtotal',
-        'test_type',
-        'date',
-        'student_id'
+        'grade',
+        'total',
+        'country',
+        'status',
     ];
 
-    public function packages()
+    /**
+     * Relationship to Payment
+     */
+    public function payment()
     {
-        return $this->belongsToMany(Package::class, 'package_pratice_test');
+        return $this->hasOne(Payment::class, 'practice_test_id');
     }
 
-    
+    /**
+     * Relationship to Student
+     */
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
+    }
 }

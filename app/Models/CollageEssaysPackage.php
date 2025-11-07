@@ -9,29 +9,19 @@ class CollageEssaysPackage extends Model
 {
     use HasFactory;
 
-    /**
-     * The table associated with the model.
-     * 
-     * @var string
-     */
     protected $table = 'collage_essays_packages';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
+        'id',
         'name',
         'description',
         'price',
+        'status',
     ];
 
-    /**
-     * Get the packages associated with this course.
-     */
-    public function packages()
+    // Define the inverse relationship
+    public function collegeEssay()
     {
-        return $this->hasMany(Package::class, 'id');
+        return $this->belongsTo(CollegeEssays::class, 'id', 'packages');
     }
 }

@@ -37,19 +37,21 @@
                             <small id="priceError" class="text-danger"></small>
                         </div>
 
-                        <!-- {{-- Number of Sessions --}}
-                        <div class="form-floating mb-3">
-                            <input type="number" name="number_of_sessions" id="number_of_sessions" class="form-control" placeholder="Number of Sessions"
-                                value="{{ old('number_of_sessions', $package->number_of_sessions) }}" required>
-                            <label for="number_of_sessions"><i class="bi bi-123 me-2"></i>Number of Sessions</label>
-                            <small id="numberOfSessionsError" class="text-danger"></small>
-                        </div> -->
-
                         {{-- Description --}}
                         <div class="form-floating mb-3">
                             <textarea name="description" id="description" class="form-control" placeholder="Enter description..." style="height: 100px">{{ old('description', $package->description) }}</textarea>
                             <label for="description"><i class="bi bi-info-circle-fill me-2"></i>Description</label>
                             <small id="descriptionError" class="text-danger"></small>
+                        </div>
+
+                        {{-- Status --}}
+                        <div class="form-floating mb-4">
+                            <select id="status" name="status" class="form-select" required>
+                                <option value="active" {{ $package->status === 'active' ? 'selected' : '' }}>Active</option>
+                                <option value="inactive" {{ $package->status === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                            </select>
+                            <label for="status"><i class="bi bi-toggle-on me-2"></i>Status</label>
+                            <small id="statusError" class="text-danger"></small>
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">
@@ -85,7 +87,7 @@
             e.preventDefault();
             
             // Clear previous error messages
-            $('#nameError, #priceError, #numberOfSessionsError, #descriptionError').text('');
+            $('#nameError, #priceError, #descriptionError, #statusError').text('');
 
             let packageId = $('#package_id').val();
 
@@ -110,8 +112,8 @@
                         const errors = xhr.responseJSON.errors;
                         if (errors.name) $('#nameError').text(errors.name[0]);
                         if (errors.price) $('#priceError').text(errors.price[0]);
-                        if (errors.number_of_sessions) $('#numberOfSessionsError').text(errors.number_of_sessions[0]);
                         if (errors.description) $('#descriptionError').text(errors.description[0]);
+                        if (errors.status) $('#statusError').text(errors.status[0]);
                     } else {
                         Swal.fire({
                             title: 'Error!',

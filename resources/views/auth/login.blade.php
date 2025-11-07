@@ -100,10 +100,10 @@
                 </div>
                 <div class="text-danger mt-1" id="password-error" style="display: none;">Password is required</div>
                 <div class="mt-1 text-end">
-                  <a href="{{ url('forgot_password') }}">
-                    <small>Forgot Password?</small>
+                  <a href="{{ route('password.request') }}">
+                      <small>Forgot Password?</small>
                   </a>
-                </div>
+              </div>
               </div>
 
               <div class="mb-3">

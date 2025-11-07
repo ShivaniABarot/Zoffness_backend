@@ -33,12 +33,14 @@
                         </div>
                     </div>
 
-                    {{-- Description --}}
-                    <div class="mb-4 d-flex align-items-start">
-                        <i class="bi bi-card-text text-primary me-2 fs-5 mt-1"></i>
+           
+
+                    {{-- Status --}}
+                    <div class="mb-4 d-flex align-items-center">
+                        <i class="bi bi-toggle-on text-primary me-2 fs-5"></i>
                         <div>
-                            <strong>Package Description:</strong>
-                            <div class="text-muted">{{ $ExecutivePackage->description ?? 'N/A' }}</div>
+                            <strong>Status:</strong>
+                            <div class="text-muted">{{ ucfirst($ExecutivePackage->status ?? 'N/A') }}</div>
                         </div>
                     </div>
 

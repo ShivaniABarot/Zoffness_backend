@@ -14,10 +14,9 @@ class Session extends Model
 
     // Define the fillable fields for mass assignment
         protected $fillable = [
+            'id',
             'title',
-            'session_type',
             'price_per_slot',
-            'max_capacity',
             'date',
             'status',
         ];

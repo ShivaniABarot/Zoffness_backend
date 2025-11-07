@@ -13,7 +13,6 @@ class Tutor extends Model
         'image',
         'designation',
         'bio',
-        'email',
         'status'
     ];
 
