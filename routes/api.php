@@ -90,11 +90,13 @@ Route::prefix('tutors')->group(function () {
     Route::put('{id}', [TutorController::class, 'update_api']);
     Route::delete('{id}', [TutorController::class, 'destroy_api']);
 
-    //schedule consultation api
-    Route::post('/schedule', [ScheduleController::class, 'schedule']);
+ 
 
 });
 
+   //schedule consultation api
+   Route::post('/schedule', [ScheduleController::class, 'schedule']);
+   
 // Content Management -> Hero Banner Route
 Route::get('/hero-banners', [HeroBannerController::class, 'banners']);
 // Content Management -> Our Programs Route

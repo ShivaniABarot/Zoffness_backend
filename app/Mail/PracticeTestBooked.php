@@ -13,7 +13,7 @@ class PracticeTestBooked extends Mailable
 
     public $studentName;
     public $testTypes;
-    public $dates; // Array of dates
+    public $dates; 
     public $subtotal;
     public $recipientName;
     public $recipientType;

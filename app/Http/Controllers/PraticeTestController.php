@@ -45,21 +45,41 @@ class PraticeTestController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $session = DB::table('sessions')->where('id', 
-        $request->test_type)->first(['price_per_slot', 'title']);
-        if (!$session) {
-            Log::error('Session not found', ['test_type' => $request->test_type]);
-            return response()->json(['message' => 'Invalid test type'], 400);
-        }
+        // $session = DB::table('sessions')->where('id', 
+        // $request->test_type)->first(['price_per_slot', 'title']);
+        // if (!$session) {
+        //     Log::error('Session not found', ['test_type' => $request->test_type]);
+        //     return response()->json(['message' => 'Invalid test type'], 400);
+        // }
 
-        $subtotal = $session->price_per_slot;
-        $testTypeName = $session->title;
+        // $subtotal = $session->price_per_slot;
+        // $testTypeName = $session->title;
 
-        Log::info('Subtotal and test type name fetched', [
-            'subtotal' => $subtotal,
-            'test_type' => $request->test_type,
-            'test_type_name' => $testTypeName
-        ]);
+        // Log::info('Subtotal and test type name fetched', [
+        //     'subtotal' => $subtotal,
+        //     'test_type' => $request->test_type,
+        //     'test_type_name' => $testTypeName
+        // ]);
+        $session = DB::table('sessions')->where('id', $request->test_type)
+    ->first(['price_per_slot', 'title']);
+
+if (!$session) {
+    Log::error('Session not found', ['test_type' => $request->test_type]);
+    return response()->json(['message' => 'Invalid test type'], 400);
+}
+
+$datesCount = count($request->dates);
+$subtotal = $session->price_per_slot * $datesCount;
+$testTypeName = $session->title;
+
+Log::info('Subtotal and test type name fetched', [
+    'price_per_slot' => $session->price_per_slot,
+    'dates_count' => $datesCount,
+    'subtotal' => $subtotal,
+    'test_type' => $request->test_type,
+    'test_type_name' => $testTypeName
+]);
+
 
         $parentName = trim($request->parent_first_name . ' ' . $request->parent_last_name);
         $studentName = trim($request->student_first_name . ' ' . $request->student_last_name);
