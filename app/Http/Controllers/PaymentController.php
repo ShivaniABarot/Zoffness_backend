@@ -213,6 +213,7 @@ class PaymentController extends Controller
             ]);
 
             Stripe::setApiKey(env('STRIPE_SECRET'));
+            Stripe::setApiVersion('2025-09-30.clover');
 
             // 🔹 Extract test dates safely
             $testDates = $validated['exam_date'] ?? [];
@@ -261,119 +262,5 @@ class PaymentController extends Controller
     }
 
 
-    // public function createPaymentIntent(Request $request)
-    // {
-    //     try {
-    //         // Normalize inconsistent keys
-    //         $request->merge([
-    //             'student_first_name' => $request->input('student_first_name') ?? $request->input('student_firstname'),
-    //             'student_last_name' => $request->input('student_last_name') ?? $request->input('student_lastname'),
-    //             'parent_first_name' => $request->input('parent_first_name') ?? $request->input('parent_firstname'),
-    //             'parent_last_name' => $request->input('parent_last_name') ?? $request->input('parent_lastname'),
-    //             'exam_date' => $request->input('exam_date') ?? $request->input('date'),
-    //         ]);
-
-    //         $validated = $request->validate([
-    //             'amount' => 'required|integer',
-    //             'currency' => 'nullable|string|in:usd,eur,inr',
-    //             'description' => 'nullable|string',
-    //             'student_first_name' => 'required|string',
-    //             'student_last_name' => 'required|string',
-    //             'parent_first_name' => 'required|string',
-    //             'parent_last_name' => 'required|string',
-    //             'parent_email' => 'required|email',
-    //             'student_email' => 'nullable|email',
-    //             'parent_phone' => 'required|string',
-    //             'school' => 'nullable|string',
-    //             'graduation_year' => 'nullable|string',
-    //             'exam_date' => 'nullable|array',
-    //             'exam_date.*' => 'nullable|string',
-    //             'test_type' => 'nullable|integer', // ✅ ADD THIS - Critical for webhook
-    //         ]);
-
-    //         Stripe::setApiKey(config('services.stripe.secret'));
-
-    //         $testDates = $validated['exam_date'] ?? [];
-    //         $formattedTestDates = json_encode($testDates);
-
-    //         // ✅ CRITICAL: Include test_type in metadata
-    //         $metadata = [
-    //             'student_first_name' => $validated['student_first_name'],
-    //             'student_last_name' => $validated['student_last_name'],
-    //             'parent_first_name' => $validated['parent_first_name'],
-    //             'parent_last_name' => $validated['parent_last_name'],
-    //             'parent_email' => $validated['parent_email'],
-    //             'student_email' => $validated['student_email'] ?? '',
-    //             'parent_phone' => $validated['parent_phone'],
-    //             'school' => $validated['school'] ?? '',
-    //             'graduation_year' => $validated['graduation_year'] ?? '',
-    //             'test_date' => $formattedTestDates,
-    //             'test_type' => $validated['test_type'] ?? 1, // ✅ ADD THIS
-    //         ];
-
-    //         // Create Stripe Payment Intent
-    //         $paymentIntent = PaymentIntent::create([
-    //             'amount' => $validated['amount'],
-    //             'currency' => $validated['currency'] ?? 'usd',
-    //             'description' => $validated['description'] ?? 'Zoffness Payment',
-    //             'metadata' => $metadata,
-    //             'automatic_payment_methods' => ['enabled' => true],
-    //         ]);
-
-    //         // ✅ CREATE PAYMENT RECORD IMMEDIATELY
-    //         $payment = Payment::create([
-    //             'user_id' => auth()->id() ?? null,
-    //             'stripe_payment_intent_id' => $paymentIntent->id,
-    //             'amount' => $validated['amount'] / 100,
-    //             'currency' => $validated['currency'] ?? 'usd',
-    //             'status' => 'pending',
-    //             'metadata' => $metadata,
-    //         ]);
-
-    //         Log::info('Payment intent created', [
-    //             'payment_id' => $payment->id,
-    //             'stripe_id' => $paymentIntent->id,
-    //             'amount' => $validated['amount'],
-    //             'test_type' => $validated['test_type'] ?? 'not_provided',
-    //         ]);
-
-    //         return response()->json([
-    //             'success' => true,
-    //             'clientSecret' => $paymentIntent->client_secret,
-    //             'payment_id' => $payment->id, // ✅ Return our DB ID
-    //             'stripe_payment_intent_id' => $paymentIntent->id,
-    //             'metadata' => $metadata,
-    //             'test_date' => $testDates,
-    //         ]);
-
-    //     } catch (\Stripe\Exception\ApiErrorException $e) {
-    //         Log::error('Stripe API error', ['error' => $e->getMessage()]);
-    //         return response()->json(['success' => false, 'error' => $e->getMessage()], 400);
-    //     } catch (\Exception $e) {
-    //         Log::error('Payment intent creation failed', ['error' => $e->getMessage()]);
-    //         return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
-    //     }
-    // }
-
-    /**
-     * Check payment status (called by frontend to poll)
-     */
-    // public function getPaymentStatus($id)
-    // {
-    //     try {
-    //         $payment = Payment::findOrFail($id);
-            
-    //         return response()->json([
-    //             'success' => true,
-    //             'status' => $payment->status,
-    //             'practice_test_id' => $payment->practice_test_id,
-    //             'paid_at' => $payment->paid_at,
-    //         ]);
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'error' => 'Payment not found'
-    //         ], 404);
-    //     }
-    // }
+ 
 }

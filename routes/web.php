@@ -38,7 +38,7 @@ use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\OurApproachController;
 use App\Http\Controllers\MediaVideoController;
 use App\Http\Controllers\MasterSATACTPageController;
-
+use App\Http\Controllers\ConsultationController;
 
 
 
@@ -329,4 +329,14 @@ Route::get('/master_sat_act_page/{masterSATACTPage}/edit', [MasterSATACTPageCont
 Route::put('/master_sat_act_page/{masterSATACTPage}', [MasterSATACTPageController::class, 'update'])->name('master_sat_act_page.update');
 Route::delete('/master_sat_act_page/{masterSATACTPage}', [MasterSATACTPageController::class, 'destroy'])->name('master_sat_act_page.destroy');
 
-// content Management ->pratice test page Routes
+// package - consultation (for change consultation package amount )
+Route::prefix('consultation')->group(function () {
+    Route::get('/', [ConsultationController::class, 'index'])->name('consultation.index');
+    Route::get('/data', [ConsultationController::class, 'getData'])->name('consultation.data');
+    Route::get('/create', [ConsultationController::class, 'create'])->name('consultation.create');
+    Route::post('/store', [ConsultationController::class, 'store'])->name('consultation.store');
+    Route::get('/edit/{id}', [ConsultationController::class, 'edit'])->name('consultation.edit');
+    Route::post('/update/{id}', [ConsultationController::class, 'update'])->name('consultation.update');
+    Route::post('/toggle-status/{id}', [ConsultationController::class, 'toggleStatus'])->name('consultation.toggleStatus');
+    Route::delete('/delete/{id}', [ConsultationController::class, 'destroy'])->name('consultation.delete');
+});

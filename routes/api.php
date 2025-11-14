@@ -30,6 +30,7 @@ use App\Http\Controllers\MediaVideoController;
 use App\Http\Controllers\Api\ErrorLogController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\MasterSatActPageController;
+use App\Http\Controllers\ConsultationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -89,14 +90,14 @@ Route::prefix('tutors')->group(function () {
     Route::post('/', [TutorController::class, 'store_api']);
     Route::put('{id}', [TutorController::class, 'update_api']);
     Route::delete('{id}', [TutorController::class, 'destroy_api']);
-
+ //schedule consultation api
+ Route::post('/schedule', [ScheduleController::class, 'schedule']);
  
 
 });
 
-   //schedule consultation api
-   Route::post('/schedule', [ScheduleController::class, 'schedule']);
-   
+  
+
 // Content Management -> Hero Banner Route
 Route::get('/hero-banners', [HeroBannerController::class, 'banners']);
 // Content Management -> Our Programs Route
@@ -126,3 +127,4 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
 
 
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
+Route::get('/consultations', [ConsultationController::class, 'consultations']);
